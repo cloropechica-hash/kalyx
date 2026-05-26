@@ -1,0 +1,8 @@
+{
+  "name": "executive-path",
+  "version": "1.0.0",
+  "description": "Executive Path - Travel Management Application",
+  "scripts": {
+    "dev": "npx serve ."
+  }
+}
