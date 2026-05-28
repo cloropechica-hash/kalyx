@@ -555,6 +555,7 @@ function initAuth() {
   if (!session || !session.loggedIn) { window.location.href = getBaseUrl() + 'login/'; return; }
   if (session.role === 'admin') { window.location.href = getBaseUrl() + 'admin/'; return; }
   if (session.role === 'executive_task') { window.location.href = getBaseUrl() + 'executive_task/'; return; }
+  if (session.role === 'executive_it') { window.location.href = getBaseUrl() + 'executive_it/'; return; }
   var btn = document.getElementById('userBtn');
   if (btn) {
     btn.textContent = (session.name || session.username).charAt(0).toUpperCase();

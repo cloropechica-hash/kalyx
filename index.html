@@ -431,7 +431,7 @@ function toggleTheme() {
 var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
 if (existingSession && existingSession.loggedIn) {
   var role = existingSession.role || 'executive_path';
-  window.location.href = getBaseUrl() + (role === 'executive_task' ? 'executive_task/' : role === 'admin' ? 'admin/' : 'executive_path/');
+  window.location.href = getBaseUrl() + (role === 'executive_task' ? 'executive_task/' : role === 'executive_it' ? 'executive_it/' : role === 'admin' ? 'admin/' : 'executive_path/');
 }
 
 initTheme();

@@ -551,6 +551,7 @@ function initAuth() {
   if (!session || !session.loggedIn) { goTo('login/'); return; }
   if (session.role !== 'admin') {
     if (session.role === 'executive_task') { goTo('executive_task/'); return; }
+    if (session.role === 'executive_it') { goTo('executive_it/'); return; }
     goTo('executive_path/'); return;
   }
   var initial = (session.name || session.username).charAt(0).toUpperCase();
@@ -617,6 +618,7 @@ function collectUserData(username) {
 function loadDashboard() {
   showSection('pageDashboard');
   var users = getUsers();
+  users = users.filter(function(u) { return u.role !== 'executive_it'; });
   document.getElementById('adminTotalUsers').textContent = users.length;
 
   var allTasks = [], allPlans = [], allLogs = [], allTrips = [], allMstones = [];
@@ -673,6 +675,7 @@ async function hashPass(pass) {
 
 function renderUsers() {
   var users = getUsers();
+  users = users.filter(function(u) { return u.role !== 'executive_it'; });
   var filter = document.getElementById('userRoleFilter').value;
   var search = document.getElementById('userSearch').value.toLowerCase();
   if (filter !== 'all') users = users.filter(function(u) { return u.role === filter; });
@@ -780,6 +783,7 @@ function deleteUser(username) {
 
 function populateUserFilters() {
   var users = getUsers();
+  users = users.filter(function(u) { return u.role !== 'executive_it'; });
   var sel = ['taskUserFilter','planUserFilter','logUserFilter','tripUserFilter'];
   var opts = '<option value="all">All Users</option>';
   users.forEach(function(u) { opts += '<option value="' + escapeHtml(u.username) + '">' + escapeHtml(u.name || u.username) + '</option>'; });
@@ -985,6 +989,7 @@ function exportAllData() {
   var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'scheduler-backup-' + new Date().toISOString().slice(0,10) + '.json';
   a.click(); URL.revokeObjectURL(a.href);
+  data.users = data.users.filter(function(u) { return u.role !== 'executive_it'; });
 }
 
 function importData() {
@@ -1036,6 +1041,7 @@ function performGlobalSearch() {
   var searchLogs = document.getElementById('gsLogs').checked;
 
   var users = getUsers();
+  users = users.filter(function(u) { return u.role !== 'executive_it'; });
   var allResults = [];
 
   if (searchUsers) {

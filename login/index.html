@@ -130,20 +130,21 @@ button, input, select, textarea { min-width: 0; }
   <button id="themeToggle" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="toggleTheme()" title="Toggle theme">dark_mode</button>
 </div>
 
-<div class="w-full max-w-md">
-  <div class="text-center mb-8">
-    <h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">Executive Login</h1>
-    <p class="font-label-md text-on-surface-variant mt-1">Sign in to your account</p>
-  </div>
-
-  <div class="bg-surface-container-lowest/90 backdrop-blur-xl border border-outline-variant rounded-2xl p-8 shadow-sm">
-    <div class="flex mb-6 bg-surface-container rounded-xl p-1">
-      <button id="tabLogin" class="flex-1 py-2.5 text-center font-label-md rounded-lg bg-primary text-on-primary transition-all" onclick="switchTab('login')">Login</button>
-      <button id="tabRegister" class="flex-1 py-2.5 text-center font-label-md rounded-lg text-on-surface-variant hover:text-primary transition-all" onclick="switchTab('register')">Register</button>
+  <div class="w-full max-w-md">
+    <div class="text-center mb-6">
+      <h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">Executive Login</h1>
+      <p class="font-label-md text-on-surface-variant mt-1">Sign in to your account</p>
     </div>
+
+    <div class="bg-surface-container-lowest/90 backdrop-blur-xl border border-outline-variant rounded-2xl p-8 shadow-sm">
+      <div class="flex mb-6 bg-surface-container rounded-xl p-1">
+        <button id="tabLogin" class="flex-1 py-2.5 text-center font-label-md rounded-lg bg-primary text-on-primary transition-all" onclick="switchTab('login')">Login</button>
+        <button id="tabRegister" class="flex-1 py-2.5 text-center font-label-md rounded-lg text-on-surface-variant hover:text-primary transition-all" onclick="switchTab('register')">Register</button>
+      </div>
 
     <div id="loginForm">
       <div class="space-y-4">
+        <h2 class="font-title-lg font-semibold text-primary text-center">Executive Path Login</h2>
         <div>
           <label class="font-label-md text-on-surface-variant block mb-1.5">Username</label>
           <input id="loginUser" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Enter username" type="text" autocomplete="username"/>
@@ -208,7 +209,40 @@ function getBaseUrl() {
   return p.substring(0, p.lastIndexOf('/') + 1);
 }
 
+var selectedPortal = 'executive_path';
+
+function selectPortal(portal) {
+  selectedPortal = portal;
+  var labels = { executive_path: 'Executive Path', executive_task: 'Executive Task', executive_it: 'Executive IT' };
+  ['portalPath','portalTask','portalIT'].forEach(function(id) {
+    document.getElementById(id).className = 'flex-1 flex items-center justify-center gap-1.5 py-2 text-center font-label-md rounded-lg transition-all text-xs' +
+      (id === 'portalPath' && portal === 'executive_path' ? ' bg-primary text-on-primary' :
+       id === 'portalTask' && portal === 'executive_task' ? ' bg-primary text-on-primary' :
+       id === 'portalIT' && portal === 'executive_it' ? ' bg-primary text-on-primary' :
+       ' text-on-surface-variant hover:text-primary');
+  });
+  document.getElementById('loginForm').querySelector('h2').textContent = labels[portal] + ' Login';
+  document.getElementById('loginError').classList.add('hidden');
+}
+
+// Hide or show register tab depending on portal (IT portal is restricted)
+function updateRegisterVisibility() {
+  var tab = document.getElementById('tabRegister');
+  if (!tab) return;
+  if (selectedPortal === 'executive_it') {
+    tab.style.display = 'none';
+  } else {
+    tab.style.display = '';
+  }
+}
+
 function switchTab(tab) {
+  // Prevent opening register tab for IT portal
+  if (tab === 'register' && selectedPortal === 'executive_it') {
+    document.getElementById('regError').textContent = 'Executive IT accounts cannot be self-registered.';
+    document.getElementById('regError').classList.remove('hidden');
+    return;
+  }
   document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
   document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
   document.getElementById('tabLogin').className = tab === 'login'
@@ -238,13 +272,18 @@ function doLogin() {
     return;
   }
 
-  var users = JSON.parse(localStorage.getItem('users') || '[]');
+  // Load portal-specific users first, then fall back to global users (so IT users are isolated)
+    var portalUsers = JSON.parse(localStorage.getItem('users_' + selectedPortal) || '[]');
+    var globalUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    var itUsers = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
+    var users = portalUsers.concat(globalUsers, itUsers);
+
   hashPass(pass).then(function(hash) {
     var found = users.find(function(u) { return u.username === user && u.password === hash; });
     if (found) {
       var role = found.role || 'executive_path';
       localStorage.setItem('session', JSON.stringify({ username: user, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
-window.location.href = getBaseUrl() + (role === 'executive_task' ? 'executive_task/' : role === 'admin' ? 'admin/' : 'executive_path/');
+      window.location.href = getBaseUrl() + (role === 'executive_task' ? 'executive_task/' : role === 'executive_it' ? 'executive_it/' : role === 'admin' ? 'admin/' : 'executive_path/');
     } else {
       errEl.textContent = 'Invalid username or password.';
       errEl.classList.remove('hidden');
@@ -275,6 +314,13 @@ function doRegister() {
     return;
   }
 
+  // Disallow self-registration for Executive IT portal
+  if (selectedPortal === 'executive_it') {
+    errEl.textContent = 'Executive IT accounts cannot be self-registered.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
   var users = JSON.parse(localStorage.getItem('users') || '[]');
   if (users.find(function(u) { return u.username === user; })) {
     errEl.textContent = 'Username already exists.';
@@ -283,10 +329,13 @@ function doRegister() {
   }
 
   hashPass(pass).then(function(hash) {
-    users.push({ username: user, name: name, password: hash, isAdmin: false, role: 'executive_path' });
+    // Assign role based on selected portal
+    var role = selectedPortal || 'executive_path';
+    // For legacy behavior, store non-IT users in global 'users'
+    users.push({ username: user, name: name, password: hash, isAdmin: false, role: role });
     localStorage.setItem('users', JSON.stringify(users));
-    localStorage.setItem('session', JSON.stringify({ username: user, name: name, isAdmin: false, role: 'executive_path', loggedIn: true, timestamp: Date.now() }));
-    window.location.href = getBaseUrl() + 'executive_path/';
+    localStorage.setItem('session', JSON.stringify({ username: user, name: name, isAdmin: false, role: role, loggedIn: true, timestamp: Date.now() }));
+    window.location.href = getBaseUrl() + (role === 'executive_task' ? 'executive_task/' : role === 'executive_it' ? 'executive_it/' : 'executive_path/');
   });
 }
 
@@ -295,10 +344,11 @@ initTheme();
 var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
 if (existingSession && existingSession.loggedIn) {
   var role = existingSession.role || 'executive_path';
-  window.location.href = getBaseUrl() + (role === 'executive_task' ? 'executive_task/' : role === 'admin' ? 'admin/' : 'executive_path/');
+window.location.href = getBaseUrl() + (role === 'executive_task' ? 'executive_task/' : role === 'executive_it' ? 'executive_it/' : role === 'admin' ? 'admin/' : 'executive_path/');
 }
 
 (function seedAccounts() {
+  // Seed global users (non-IT) and seed the Executive IT account separately to isolate it
   var users = JSON.parse(localStorage.getItem('users') || '[]');
   if (!users.some(function(u) { return u.username === 'superadmin'; })) {
     users.push({ username: 'superadmin', name: 'Super Administrator', password: '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', isAdmin: true, role: 'admin' });
@@ -310,7 +360,22 @@ if (existingSession && existingSession.loggedIn) {
     users.push({ username: 'executive', name: 'Executive User', password: '92c1f38320e64405e98c349c27334b3bd6c636f88347b279ef2530b66354efc5', isAdmin: false, role: 'executive_task' });
   }
   localStorage.setItem('users', JSON.stringify(users));
+
+  // Executive IT account stored separately so it's not visible to other portals
+  var usersIt = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
+  if (!usersIt.some(function(u) { return u.username === 'it_executive'; })) {
+    // Hash the provided password 'it2026' and store the hash
+    hashPass('it2026').then(function(hash) {
+      usersIt.push({ username: 'it_executive', name: 'Executive IT', password: hash, isAdmin: false, role: 'executive_it' });
+      localStorage.setItem('users_executive_it', JSON.stringify(usersIt));
+    });
+  } else {
+    localStorage.setItem('users_executive_it', JSON.stringify(usersIt));
+  }
 })();
+
+// Initialize register tab visibility on page load
+updateRegisterVisibility();
 </script>
 </body>
 </html>
