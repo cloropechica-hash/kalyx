@@ -311,13 +311,6 @@ button, input, select, textarea { min-width: 0; }
 </div>
 
 <div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
-  <div class="flex justify-between items-center mb-4">
-    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-emerald-500 inline-block"></span> Tasks by Priority</h3>
-  </div>
-  <div id="priorityBreakdown" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
-</div>
-
-<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
   <div class="flex items-center justify-between mb-4">
     <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-amber-500 inline-block"></span> Task Calendar</h3>
     <div class="flex items-center gap-2">
@@ -342,6 +335,13 @@ button, input, select, textarea { min-width: 0; }
     <tbody id="calendarBody"></tbody>
   </table>
   <div id="calendarTaskList" class="mt-4 pt-4 border-t border-outline-variant hidden"></div>
+</div>
+
+<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-emerald-500 inline-block"></span> Tasks by Priority</h3>
+  </div>
+  <div id="priorityBreakdown" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
 </div>
 
 </div>
