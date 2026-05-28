@@ -759,6 +759,7 @@ function saveTasks(t) {
 function initAuth() {
   var session = getSession();
   if (!session || !session.loggedIn) { window.location.href = getBaseUrl() + 'login/'; return; }
+  if (session.role === 'admin') { window.location.href = getBaseUrl() + 'admin/'; return; }
   if (session.role !== 'executive_task' && session.role !== 'executive_path') { window.location.href = getBaseUrl() + 'login/'; return; }
   var initial = (session.name || session.username).charAt(0).toUpperCase();
   document.getElementById('userBtn').textContent = initial;

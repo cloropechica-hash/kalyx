@@ -415,6 +415,8 @@ function toggleTheme() {
 function initAuth() {
   var session = JSON.parse(localStorage.getItem('session') || 'null');
   if (!session || !session.loggedIn) { window.location.href = getBaseUrl() + 'login/'; return; }
+  if (session.role === 'admin') { window.location.href = getBaseUrl() + 'admin/'; return; }
+  if (session.role === 'executive_task') { window.location.href = getBaseUrl() + 'executive_task/'; return; }
   var btn = document.getElementById('userBtn');
   if (btn) {
     btn.textContent = (session.name || session.username).charAt(0).toUpperCase();
