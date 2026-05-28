@@ -141,6 +141,12 @@ button, input, select, textarea { min-width: 0; }
 .dark .stat-gradient-3 { background: linear-gradient(135deg, #4ADE80 0%, #22C55E 100%); }
 .dark .stat-gradient-4 { background: linear-gradient(135deg, #F87171 0%, #EF4444 100%); }
 
+@media (max-width: 640px) {
+  #calendarBody td { padding: 2px !important; }
+  #calendarBody td > div { padding: 4px 2px !important; font-size: 12px; }
+  #calendarBody .w-1\\.5 { width: 4px; height: 4px; }
+}
+
 .sidebar-glass {
   background: rgba(248, 249, 255, 0.85);
   backdrop-filter: blur(20px);
@@ -309,6 +315,33 @@ button, input, select, textarea { min-width: 0; }
     <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-emerald-500 inline-block"></span> Tasks by Priority</h3>
   </div>
   <div id="priorityBreakdown" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
+</div>
+
+<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-amber-500 inline-block"></span> Task Calendar</h3>
+    <div class="flex items-center gap-2">
+      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors text-lg" onclick="changeMonth(-1)">chevron_left</button>
+      <span id="calendarMonthYear" class="font-label-md font-semibold text-on-surface min-w-[140px] text-center"></span>
+      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors text-lg" onclick="changeMonth(1)">chevron_right</button>
+      <button class="font-label-md text-indigo-600 hover:underline text-sm ml-2" onclick="goToToday()">Today</button>
+    </div>
+  </div>
+  <table class="w-full border-collapse">
+    <thead>
+      <tr>
+        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Sun</th>
+        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Mon</th>
+        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Tue</th>
+        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Wed</th>
+        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Thu</th>
+        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Fri</th>
+        <th class="font-label-md text-on-surface-variant pb-3 text-center w-[14.28%]">Sat</th>
+      </tr>
+    </thead>
+    <tbody id="calendarBody"></tbody>
+  </table>
+  <div id="calendarTaskList" class="mt-4 pt-4 border-t border-outline-variant hidden"></div>
 </div>
 
 </div>
@@ -827,6 +860,8 @@ function loadDashboard() {
     '<div class="bg-priority-medium rounded-xl p-4 text-center card-lift border border-outline-variant"><p class="font-headline-md font-bold">' + medium.length + '</p><p class="font-label-md mt-1">Medium</p></div>' +
     '<div class="bg-priority-high rounded-xl p-4 text-center card-lift border border-outline-variant"><p class="font-headline-md font-bold">' + high.length + '</p><p class="font-label-md mt-1">High</p></div>' +
     '<div class="bg-priority-urgent rounded-xl p-4 text-center card-lift border border-outline-variant"><p class="font-headline-md font-bold">' + urgent.length + '</p><p class="font-label-md mt-1">Urgent</p></div>';
+
+  renderCalendar();
 }
 
 function renderTaskCard(t) {
@@ -850,6 +885,88 @@ function renderTaskCard(t) {
     '<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Edit" onclick="openEditModal(' + t.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
     '<button class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition-colors" title="Delete" onclick="deleteTask(' + t.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
     '</div></div>';
+}
+
+var calendarDate = new Date();
+
+function renderCalendar() {
+  var tasks = getTasks();
+  var year = calendarDate.getFullYear();
+  var month = calendarDate.getMonth();
+
+  document.getElementById('calendarMonthYear').textContent = new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  var firstDay = new Date(year, month, 1).getDay();
+  var daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  var taskMap = {};
+  tasks.forEach(function(t) {
+    if (t.dueDate) {
+      var ds = t.dueDate;
+      if (!taskMap[ds]) taskMap[ds] = [];
+      taskMap[ds].push(t);
+    }
+  });
+
+  var html = '';
+  var date = 1;
+  var today = new Date();
+  var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
+  for (var row = 0; row < 6; row++) {
+    if (date > daysInMonth) break;
+    html += '<tr>';
+    for (var col = 0; col < 7; col++) {
+      if ((row === 0 && col < firstDay) || date > daysInMonth) {
+        html += '<td class="p-1"></td>';
+      } else {
+        var dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(date).padStart(2, '0');
+        var dayTasks = taskMap[dateStr] || [];
+        var isToday = dateStr === todayStr;
+        var cls = 'text-center p-1 rounded-xl cursor-pointer transition-colors hover:bg-surface-container-high relative';
+        if (isToday) cls += ' bg-indigo-100 text-indigo-700 font-semibold';
+        html += '<td class="p-1"><div class="' + cls + '" onclick="showDayTasks(\'' + dateStr + '\')"><span class="font-body-md">' + date + '</span>';
+        if (dayTasks.length > 0) {
+          html += '<div class="flex items-center justify-center gap-0.5 mt-0.5">';
+          var statusColors = { todo: 'bg-red-400', progress: 'bg-amber-400', done: 'bg-emerald-400' };
+          dayTasks.forEach(function(dt) {
+            html += '<span class="' + (statusColors[dt.status] || 'bg-indigo-400') + ' w-1.5 h-1.5 rounded-full inline-block"></span>';
+          });
+          html += '</div>';
+        }
+        html += '</div></td>';
+        date++;
+      }
+    }
+    html += '</tr>';
+  }
+
+  document.getElementById('calendarBody').innerHTML = html;
+  document.getElementById('calendarTaskList').classList.add('hidden');
+}
+
+function changeMonth(delta) {
+  calendarDate.setMonth(calendarDate.getMonth() + delta);
+  renderCalendar();
+}
+
+function goToToday() {
+  calendarDate = new Date();
+  renderCalendar();
+}
+
+function showDayTasks(dateStr) {
+  var tasks = getTasks();
+  var dayTasks = tasks.filter(function(t) { return t.dueDate === dateStr; });
+  var el = document.getElementById('calendarTaskList');
+  if (dayTasks.length === 0) {
+    el.innerHTML = '<p class="font-label-md text-on-surface-variant text-center py-4">No tasks for ' + new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + '</p>';
+  } else {
+    var d = new Date(dateStr + 'T00:00:00');
+    el.innerHTML = '<div class="flex items-center justify-between mb-3"><span class="font-label-md font-semibold text-primary">' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) + ' — ' + dayTasks.length + ' task' + (dayTasks.length > 1 ? 's' : '') + '</span></div><div class="space-y-2">' +
+      dayTasks.map(function(t) { return renderTaskCard(t); }).join('') + '</div>';
+  }
+  el.classList.remove('hidden');
 }
 
 function setActiveNav(id) {
