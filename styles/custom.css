@@ -1,0 +1,259 @@
+/* styles/custom.css */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary: #4f46e5;
+  --on-primary: #ffffff;
+  --primary-container: #e0e7ff;
+  --on-primary-container: #312e81;
+  --secondary: #6366f1;
+  --on-secondary: #ffffff;
+  --secondary-container: #e0e7ff;
+  --on-secondary-container: #3730a3;
+  --tertiary: #0d9488;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #ccfbf1;
+  --on-tertiary-container: #0f766e;
+  --error: #ef4444;
+  --on-error: #ffffff;
+  --error-container: #fee2e2;
+  --on-error-container: #991b1b;
+  --background: #f8fafc;
+  --on-background: #0f172a;
+  --surface: #ffffff;
+  --on-surface: #0f172a;
+  --surface-variant: #f1f5f9;
+  --on-surface-variant: #475569;
+  --outline: #cbd5e1;
+  --outline-variant: #e2e8f0;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f8fafc;
+  --surface-container: #f1f5f9;
+  --surface-container-high: #e2e8f0;
+  --surface-container-highest: #cbd5e1;
+  
+  --inverse-surface: #0f172a;
+  --inverse-on-surface: #f8fafc;
+  --inverse-primary: #a5b4fc;
+}
+
+.dark {
+  --primary: #818cf8;
+  --on-primary: #070716;
+  --primary-container: #1e1b4b;
+  --on-primary-container: #c7d2fe;
+  --secondary: #a5b4fc;
+  --on-secondary: #070716;
+  --secondary-container: #312e81;
+  --on-secondary-container: #e0e7ff;
+  --tertiary: #2dd4bf;
+  --on-tertiary: #070716;
+  --tertiary-container: #134e4a;
+  --on-tertiary-container: #99f6e4;
+  --error: #f87171;
+  --on-error: #7f1d1d;
+  --error-container: #991b1b;
+  --on-error-container: #fca5a5;
+  --background: #060613;
+  --on-background: #f8fafc;
+  --surface: #0d0d21;
+  --on-surface: #f8fafc;
+  --surface-variant: #161633;
+  --on-surface-variant: #94a3b8;
+  --outline: #475569;
+  --outline-variant: #1e1e3f;
+  --surface-container-lowest: #04040c;
+  --surface-container-low: #090919;
+  --surface-container: #10102b;
+  --surface-container-high: #18183d;
+  --surface-container-highest: #222254;
+
+  --inverse-surface: #f8fafc;
+  --inverse-on-surface: #070716;
+  --inverse-primary: #4f46e5;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Solid sidebars */
+aside, .sidebar-glass, .sidebar-main {
+  background: var(--surface) !important;
+  border-right: 1px solid var(--outline-variant) !important;
+  color: var(--on-surface) !important;
+}
+
+.dark aside, .dark .sidebar-glass, .dark .sidebar-main {
+  background: var(--surface) !important;
+  border-right: 1px solid var(--outline-variant) !important;
+  color: var(--on-surface) !important;
+}
+
+aside h1, aside h2, aside h3,
+.sidebar-glass h1, .sidebar-glass h2, .sidebar-glass h3,
+.sidebar-main h1, .sidebar-main h2, .sidebar-main h3 {
+  color: var(--primary) !important;
+}
+
+aside p, .sidebar-glass p, .sidebar-main p {
+  color: var(--on-surface-variant) !important;
+}
+
+aside a, .sidebar-glass a, .sidebar-main a {
+  color: var(--on-surface-variant) !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease-in-out;
+}
+
+aside a.bg-primary, aside a.bg-white\/20,
+.sidebar-glass a.bg-primary, .sidebar-glass a.bg-white\/20,
+.sidebar-main a.bg-primary, .sidebar-main a.bg-white\/20 {
+  background: var(--primary) !important;
+  color: var(--on-primary) !important;
+  font-weight: 700 !important;
+}
+
+.dark aside a.bg-primary, .dark aside a.bg-white\/20,
+.dark .sidebar-glass a.bg-primary, .dark .sidebar-glass a.bg-white\/20,
+.dark .sidebar-main a.bg-primary, .dark .sidebar-main a.bg-white\/20 {
+  background: var(--primary) !important;
+  color: var(--on-primary) !important;
+  font-weight: 700 !important;
+}
+
+aside a:hover:not(.bg-primary):not(.bg-white\/20),
+.sidebar-glass a:hover:not(.bg-primary):not(.bg-white\/20),
+.sidebar-main a:hover:not(.bg-primary):not(.bg-white\/20) {
+  background: var(--surface-container-high) !important;
+  color: var(--primary) !important;
+}
+
+aside a span.material-symbols-outlined,
+.sidebar-glass a span.material-symbols-outlined,
+.sidebar-main a span.material-symbols-outlined {
+  color: inherit !important;
+}
+
+aside button.mt-auto,
+.sidebar-glass button.mt-auto,
+.sidebar-main button.mt-auto {
+  background: var(--primary) !important;
+  color: var(--on-primary) !important;
+  border: none !important;
+}
+
+.dark aside button.mt-auto,
+.dark .sidebar-glass button.mt-auto,
+.dark .sidebar-main button.mt-auto {
+  background: var(--primary) !important;
+  color: var(--on-primary) !important;
+  border: none !important;
+}
+
+aside button.mt-auto:hover,
+.sidebar-glass button.mt-auto:hover,
+.sidebar-main button.mt-auto:hover {
+  opacity: 0.9 !important;
+}
+
+aside .text-white, .sidebar-glass .text-white, .sidebar-main .text-white {
+  color: var(--on-surface) !important;
+}
+
+aside .text-indigo-200, .sidebar-glass .text-indigo-200, .sidebar-main .text-indigo-200 {
+  color: var(--on-surface-variant) !important;
+}
+
+.dark aside .text-white, .dark .sidebar-glass .text-white, .dark .sidebar-main .text-white {
+  color: var(--on-surface) !important;
+}
+
+.dark aside .text-indigo-200, .dark .sidebar-glass .text-indigo-200, .dark .sidebar-main .text-indigo-200 {
+  color: var(--on-surface-variant) !important;
+}
+
+aside button.text-white, .sidebar-main button.text-white {
+  color: var(--on-primary) !important;
+}
+.dark aside button.text-white, .dark .sidebar-main button.text-white {
+  color: var(--on-primary) !important;
+}
+
+/* Solid cards (replacing glassmorphism) */
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--outline-variant);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.dark .glass-card {
+  background: var(--surface);
+  border: 1px solid var(--outline-variant);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.card-lift {
+  transition: all 0.2s ease;
+}
+
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(79, 70, 229, 0.06) !important;
+  border-color: rgba(79, 70, 229, 0.15) !important;
+}
+
+.dark .card-lift:hover {
+  box-shadow: 0 8px 16px rgba(129, 140, 248, 0.1) !important;
+  border-color: rgba(129, 140, 248, 0.2) !important;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+input::placeholder, textarea::placeholder, select::placeholder {
+  color: var(--on-surface-variant) !important;
+  opacity: 1;
+}
+
+::-webkit-scrollbar {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(79, 70, 229, 0.15);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 70, 229, 0.4);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(129, 140, 248, 0.15);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(129, 140, 248, 0.4);
+}
+
+input, select, textarea {
+  transition: all 0.2s ease-in-out;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+}
+
+.dark input:focus, .dark select:focus, .dark textarea:focus {
+  box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.15) !important;
+}
