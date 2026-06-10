@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -166,6 +166,10 @@ button, input, select, textarea { min-width: 0; }
   -webkit-backdrop-filter: blur(20px);
 }
 </style>
+  <link rel="stylesheet" href="../styles/custom.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../firebase-config.js"></script>
+  <script src="../firebase-data.js"></script>
 </head>
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
@@ -262,7 +266,7 @@ button, input, select, textarea { min-width: 0; }
   <div class="space-y-4">
     <div id="overviewContent">
       <span class="font-label-md opacity-70">No trip selected</span>
-      <p class="font-body-md font-semibold mt-1">—</p>
+      <p class="font-body-md font-semibold mt-1">â€”</p>
     </div>
   </div>
 </div>
@@ -316,25 +320,54 @@ button, input, select, textarea { min-width: 0; }
 </div>
 
 <script>
-function initAuth() {
-  var session = JSON.parse(localStorage.getItem('session') || 'null');
-  if (!session || !session.loggedIn) { window.location.href = getBaseUrl() + 'login/'; return; }
-  if (session.role === 'admin') { window.location.href = getBaseUrl() + 'admin/'; return; }
-  if (session.role === 'executive_task') { window.location.href = getBaseUrl() + 'executive_task/'; return; }
-  if (session.role === 'executive_it') { window.location.href = getBaseUrl() + 'executive_it/'; return; }
-  var btn = document.getElementById('userBtn');
-  if (btn) {
-    btn.textContent = (session.name || session.username).charAt(0).toUpperCase();
-    document.getElementById('userNameDisplay').textContent = session.name || session.username;
-    document.getElementById('userUsernameDisplay').textContent = '@' + session.username;
+function initAuth(callback) {
+  initFirebase(function(err, user) {
+    if (!err && user && window.__fbLoaded) {
+      var profile = getFB('profile') || {};
+      if (profile.username) {
+        var fbSession = {
+          username: profile.username,
+          name: profile.name || profile.username,
+          email: user.email,
+          isAdmin: profile.isAdmin || false,
+          role: profile.role || 'executive_path',
+          supabaseUid: user.uid,
+          loggedIn: true,
+          timestamp: Date.now()
+        };
+        fbSaveSession(fbSession);
+        finishAuth(fbSession, callback);
+        return;
+      }
+    }
+    var session = getSession();
+    if (!session || !session.loggedIn) { window.location.href = getBaseUrl() + 'login/'; return; }
+    finishAuth(session, callback);
+  });
+}
+
+function finishAuth(session, callback) {
+  if (session.role !== 'executive_path') {
+    if (session.role === 'admin') { window.location.href = getBaseUrl() + 'admin/'; return; }
+    if (session.role === 'executive_task') { window.location.href = getBaseUrl() + 'executive_task/'; return; }
+    if (session.role === 'executive_it') { window.location.href = getBaseUrl() + 'executive_it/'; return; }
   }
+  var initial = (session.name || session.username).charAt(0).toUpperCase();
+  document.getElementById('userBtn').textContent = initial;
+  document.getElementById('userNameDisplay').textContent = session.name || session.username;
+  document.getElementById('userUsernameDisplay').textContent = '@' + session.username;
   var badge = document.getElementById('adminBadge');
   if (badge) { badge.classList.toggle('hidden', !session.isAdmin); }
+  if (callback) callback(session);
 }
 
 function toggleUserMenu() { document.getElementById('userMenu').classList.toggle('hidden'); }
 
-function doLogout() { localStorage.removeItem('session'); window.location.href = getBaseUrl() + 'login/'; }
+function doLogout() {
+  fbLogout(function() {
+    window.location.href = getBaseUrl() + 'login/';
+  });
+}
 
 document.addEventListener('click', function(e) {
   var menu = document.getElementById('userMenu');
@@ -396,8 +429,10 @@ function saveTrips(t) {
       byUser[u].push(trip);
     });
     for (var user in byUser) { localStorage.setItem('trips_' + user, JSON.stringify(byUser[user])); }
+    saveFB('trips', t);
     return;
   }
+  saveFB('trips', t);
   localStorage.setItem(tripsKey(), JSON.stringify(t));
 }
 
@@ -461,8 +496,8 @@ function selectTrip(id) {
     '<div><span class="font-label-md opacity-70">Trip</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.name) + '</p></div>' +
     '<div><span class="font-label-md opacity-70">Requestor</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.requestor) + '</p></div>' +
     '<div><span class="font-label-md opacity-70">Destination</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.destination) + '</p></div>' +
-    '<div><span class="font-label-md opacity-70">Vehicle</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.van || '—') + '</p></div>' +
-    '<div><span class="font-label-md opacity-70">Driver</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.driver || '—') + '</p></div>' +
+    '<div><span class="font-label-md opacity-70">Vehicle</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.van || 'â€”') + '</p></div>' +
+    '<div><span class="font-label-md opacity-70">Driver</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.driver || 'â€”') + '</p></div>' +
     '<div><span class="font-label-md opacity-70">Date</span><p class="font-body-md font-semibold mt-1">' + t.date + (t.time ? ' at ' + escapeHtml(t.time) : '') + '</p></div>' +
     '<div><span class="font-label-md opacity-70">Purpose</span><p class="font-body-md font-semibold mt-1">' + escapeHtml(t.purpose) + '</p></div>' +
     '<div class="h-px bg-white/20"></div>' +
@@ -546,9 +581,10 @@ function showTripNotifications() {
 }
 
 initTheme();
-initAuth();
-loadTrips();
-initTripNotifications();
+initAuth(function() {
+  loadTrips();
+  initTripNotifications();
+});
 </script>
 </body>
 </html>
