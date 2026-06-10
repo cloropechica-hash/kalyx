@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Training Hub</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+.container{max-width:900px;width:100%;}
+h1{font-size:28px;font-weight:700;color:#1a2332;text-align:center;margin-bottom:6px;}
+.sub{font-size:15px;color:#6b7a8d;text-align:center;margin-bottom:32px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+.card{border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,0.08);transition:all 0.25s;cursor:pointer;text-decoration:none;display:block;}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.12);}
+.card-header{height:120px;display:flex;align-items:center;justify-content:center;position:relative;}
+.card-header.m365{background:linear-gradient(135deg,#0078d4,#106ebe);}
+.card-header.meraki{background:linear-gradient(135deg,#1a2332,#2a3d5a,#00bceb33);}
+.card-header.gws{background:linear-gradient(135deg,#1a73e8,#0d5bbd,#34a853);}
+.card-header.gws i{color:#fff;}
+.card-header i{font-size:48px;color:#fff;opacity:0.9;}
+.card-body{padding:20px 24px;}
+.card-title{font-size:18px;font-weight:600;color:#1a2332;margin-bottom:4px;}
+.card-desc{font-size:13px;color:#6b7a8d;line-height:1.6;margin-bottom:12px;}
+.card-stats{display:flex;gap:12px;font-size:12px;color:#6b7a8d;}
+.card-stats span{display:flex;align-items:center;gap:4px;}
+.card-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;}
+.card-badge.m365{background:#dce5f5;color:#0078d4;}
+.card-badge.meraki{background:#e8f4f8;color:#00bceb;}
+.card-badge.gws{background:#e8f0fe;color:#1a73e8;}
+@media(max-width:600px){.grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>IT Training Hub</h1>
+  <p class="sub">Pumili ng simulation na pag-aaralan</p>
+  <div class="grid">
+    <a class="card" href="microsoft365_simulation.html">
+      <div class="card-header m365"><i class="ti ti-brand-windows"></i></div>
+      <div class="card-body">
+        <div class="card-title">Microsoft 365 Admin</div>
+        <div class="card-desc">Azure AD, Intune, Exchange, Defender, SharePoint, Licensing. May quizzes, scenarios, at progress tracking.</div>
+        <div class="card-stats">
+          <span class="card-badge m365">7 Modules</span>
+          <span class="card-badge m365">7 Quizzes</span>
+          <span class="card-badge m365">4 Scenarios</span>
+        </div>
+      </div>
+    </a>
+    <a class="card" href="meraki-simulation.html">
+      <div class="card-header meraki"><i class="ti ti-topology-star"></i></div>
+      <div class="card-body">
+        <div class="card-title">Cisco Meraki Networking</div>
+        <div class="card-desc">Dashboard, Devices, Firewall, VPN, Wireless, VLANs. May training lessons at networking quizzes.</div>
+        <div class="card-stats">
+          <span class="card-badge meraki">5 Modules</span>
+          <span class="card-badge meraki">5 Quizzes</span>
+          <span class="card-badge meraki">4 Scenarios</span>
+        </div>
+      </div>
+    </a>
+    <a class="card" href="google-workspace-simulation.html">
+      <div class="card-header gws"><i class="ti ti-brand-google"></i></div>
+      <div class="card-body">
+        <div class="card-title">Google Workspace Admin</div>
+        <div class="card-desc">Admin Console, Users, Groups, Security, Apps, Audit Reports. May training modules at hands-on scenarios.</div>
+        <div class="card-stats">
+          <span class="card-badge gws">5 Modules</span>
+          <span class="card-badge gws">5 Quizzes</span>
+          <span class="card-badge gws">4 Scenarios</span>
+        </div>
+      </div>
+    </a>
+  </div>
+  <p style="text-align:center;margin-top:28px;font-size:12px;color:#9aa3ad;">Lahat ng progress ay naka-save sa browser mo. Libre at walang kailangang account.</p>
+  <p style="text-align:center;margin-top:12px;font-size:11px;color:#b0b9c5;max-width:600px;margin-left:auto;margin-right:auto;">Disclaimer: Ito ay isang independent training simulation. Hindi affiliated, ine-endorse, o associated sa Microsoft, Cisco, Google, o sa kani-kanilang parent companies. Ang mga produktong pangalan at trademarks ay pag-aari ng kani-kanilang mga may-ari.</p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.js"></script>
+<script>
+(function(){function p(e){e.preventDefault()}document.addEventListener('contextmenu',p);document.addEventListener('keydown',function(e){if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(e.key.toLowerCase()))||(e.ctrlKey&&['u','c','x'].includes(e.key.toLowerCase()))){e.preventDefault();return false}});document.addEventListener('copy',p);document.addEventListener('cut',p)})();
+</script>
+</body>
+</html>

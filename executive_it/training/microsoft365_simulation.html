@@ -1,0 +1,2169 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microsoft 365 Training Simulator</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f3f2f1; min-height: 100vh; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+.app { display: flex; height: 100vh; }
+.sidebar { width: 220px; background: #0078d4; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { background: #fff; border-bottom: 1px solid #e1dfdd; padding: 0 24px; height: 48px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.content { flex: 1; overflow-y: auto; padding: 24px; }
+.sidebar-header { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.15); }
+.sidebar-logo { display: flex; align-items: center; gap: 10px; color: #fff; }
+.sidebar-logo i { font-size: 22px; }
+.sidebar-logo-text { font-size: 13px; font-weight: 600; }
+.sidebar-logo-sub { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 1px; }
+.sidebar-section-title { padding: 12px 16px 4px; font-size: 10px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.7px; font-weight: 600; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 16px; color: rgba(255,255,255,0.85); font-size: 13px; cursor: pointer; border-left: 3px solid transparent; transition: background 0.12s; }
+.nav-item:hover { background: rgba(255,255,255,0.1); }
+.nav-item.active { background: rgba(255,255,255,0.15); border-left-color: #fff; color: #fff; font-weight: 600; }
+.nav-item i { font-size: 16px; }
+.nav-item .nav-badge { margin-left: auto; background: #ffb900; color: #201f1e; font-size: 9px; padding: 1px 6px; border-radius: 8px; font-weight: 700; }
+.topbar-title { font-size: 15px; font-weight: 600; color: #201f1e; }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+.topbar-right i { font-size: 18px; color: #605e5c; cursor: pointer; }
+.user-badge { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #605e5c; }
+.avatar { width: 30px; height: 30px; border-radius: 50%; background: #0078d4; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.panel { display: none; }
+.panel.active { display: block; }
+.page-title { font-size: 22px; font-weight: 600; color: #201f1e; margin-bottom: 4px; }
+.page-sub { font-size: 13px; color: #605e5c; margin-bottom: 20px; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.stat-card { background: #fff; border: 1px solid #e1dfdd; border-radius: 6px; padding: 14px 16px; }
+.stat-label { font-size: 12px; color: #605e5c; margin-bottom: 6px; }
+.stat-val { font-size: 24px; font-weight: 600; color: #201f1e; }
+.stat-change { font-size: 11px; color: #107c10; margin-top: 2px; }
+.card { background: #fff; border: 1px solid #e1dfdd; border-radius: 6px; margin-bottom: 16px; overflow: hidden; }
+.card-header { padding: 12px 16px; border-bottom: 1px solid #e1dfdd; display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-size: 14px; font-weight: 600; color: #201f1e; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th { padding: 10px 16px; text-align: left; color: #605e5c; font-weight: 600; font-size: 12px; border-bottom: 1px solid #e1dfdd; background: #faf9f8; }
+.table td { padding: 10px 16px; border-bottom: 1px solid #f3f2f1; color: #201f1e; }
+.table tr:last-child td { border-bottom: none; }
+.table tr.clickable:hover td { background: #f3f2f1; cursor: pointer; }
+.badge { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.badge-green  { background: #dff6dd; color: #107c10; }
+.badge-red    { background: #fde7e9; color: #a4262c; }
+.badge-amber  { background: #fff4ce; color: #7a5008; }
+.badge-blue   { background: #dce5f5; color: #0f548c; }
+.badge-purple { background: #e8dff5; color: #5c2e91; }
+.action-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.btn { padding: 6px 14px; font-size: 13px; border: 1px solid #8a8886; border-radius: 4px; background: #fff; color: #201f1e; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; }
+.btn:hover { background: #f3f2f1; }
+.btn-primary { background: #0078d4; color: #fff; border-color: #0078d4; }
+.btn-primary:hover { background: #106ebe; }
+.btn-success { background: #107c10; color: #fff; border-color: #107c10; }
+.btn-success:hover { background: #0b5e0b; }
+.btn-outline { background: transparent; border: 1px solid #0078d4; color: #0078d4; }
+.btn-outline:hover { background: #dce5f5; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.alert { padding: 10px 14px; border-radius: 4px; font-size: 13px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; border-left: 3px solid; }
+.alert-warn  { background: #fff4ce; color: #7a5008; border-color: #d29200; }
+.alert-info  { background: #dce5f5; color: #0f548c; border-color: #0078d4; }
+.alert-succ  { background: #dff6dd; color: #107c10; border-color: #107c10; }
+.progress-bar { height: 6px; background: #e1dfdd; border-radius: 3px; overflow: hidden; margin-top: 6px; }
+.progress-fill { height: 100%; background: #0078d4; border-radius: 3px; transition: width 0.4s; }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal-box { background: #fff; border-radius: 8px; border: 1px solid #e1dfdd; padding: 24px; width: 400px; max-width: 90vw; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+.modal-box.wide { width: 520px; }
+.modal-title { font-size: 16px; font-weight: 600; color: #201f1e; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.modal-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f3f2f1; font-size: 13px; }
+.modal-row:last-of-type { border-bottom: none; }
+.modal-key { color: #605e5c; }
+.modal-val { color: #201f1e; font-weight: 500; max-width: 60%; text-align: right; }
+.modal-actions { margin-top: 16px; display: flex; gap: 8px; justify-content: flex-end; }
+.info-box { background: #f3f2f1; border-radius: 4px; padding: 12px 14px; font-size: 13px; color: #201f1e; margin-top: 12px; line-height: 1.6; }
+.info-box strong { color: #0078d4; }
+.learn-section { background: #dce5f5; border-radius: 6px; padding: 16px; margin-bottom: 16px; }
+.learn-section h3 { font-size: 14px; font-weight: 600; color: #0f548c; margin-bottom: 8px; }
+.learn-section p { font-size: 13px; color: #201f1e; line-height: 1.6; }
+.learn-steps { margin: 10px 0 0; padding-left: 16px; font-size: 13px; color: #201f1e; line-height: 1.9; }
+.tab-bar { display: flex; gap: 4px; margin-bottom: 16px; background: #e1dfdd; padding: 3px; border-radius: 6px; }
+.tab-btn { padding: 7px 16px; font-size: 13px; border: none; background: transparent; border-radius: 4px; cursor: pointer; color: #605e5c; font-weight: 500; font-family: inherit; }
+.tab-btn.active { background: #fff; color: #201f1e; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.tab-btn:hover:not(.active) { color: #201f1e; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Quiz styles */
+.quiz-question { font-size: 15px; font-weight: 600; color: #201f1e; margin-bottom: 16px; line-height: 1.5; }
+.quiz-option { display: block; width: 100%; text-align: left; padding: 10px 14px; margin-bottom: 8px; border: 1px solid #e1dfdd; border-radius: 6px; background: #fff; cursor: pointer; font-size: 13px; font-family: inherit; transition: all 0.15s; }
+.quiz-option:hover { border-color: #0078d4; background: #f0f6fc; }
+.quiz-option.selected { border-color: #0078d4; background: #dce5f5; font-weight: 500; }
+.quiz-option.correct { border-color: #107c10; background: #dff6dd; }
+.quiz-option.wrong { border-color: #a4262c; background: #fde7e9; }
+.quiz-option:disabled { cursor: default; opacity: 0.8; }
+
+/* Form styles */
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 12px; font-weight: 600; color: #605e5c; margin-bottom: 4px; }
+.form-control { width: 100%; padding: 8px 10px; font-size: 13px; border: 1px solid #8a8886; border-radius: 4px; font-family: inherit; background: #fff; }
+.form-control:focus { outline: none; border-color: #0078d4; box-shadow: 0 0 0 2px rgba(0,120,212,0.15); }
+.form-control-sm { padding: 5px 8px; font-size: 12px; }
+select.form-control { appearance: auto; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-hint { font-size: 11px; color: #8a8886; margin-top: 2px; }
+.form-check { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.form-check input { width: 16px; height: 16px; cursor: pointer; }
+.form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; padding-top: 12px; border-top: 1px solid #e1dfdd; }
+.form-success { text-align: center; padding: 20px; }
+.form-success i { font-size: 48px; color: #107c10; margin-bottom: 12px; }
+.form-success h3 { font-size: 16px; color: #201f1e; margin-bottom: 4px; }
+.form-success p { font-size: 13px; color: #605e5c; }
+.toast { position: fixed; bottom: 24px; right: 24px; background: #107c10; color: #fff; padding: 12px 20px; border-radius: 6px; font-size: 13px; font-weight: 500; z-index: 200; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: toastIn 0.3s ease; }
+.toast.error { background: #a4262c; }
+@keyframes toastIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.empty-state { text-align: center; padding: 40px 20px; color: #c8c6c4; }
+.empty-state i { font-size: 40px; margin-bottom: 8px; display: block; }
+.empty-state p { font-size: 14px; }
+.quiz-option.correct::after { content: ' ✓'; color: #107c10; font-weight: 700; }
+.quiz-option.wrong::after { content: ' ✗'; color: #a4262c; font-weight: 700; }
+.quiz-progress { font-size: 12px; color: #605e5c; margin-bottom: 12px; }
+.quiz-result-score { font-size: 48px; font-weight: 700; text-align: center; padding: 20px 0; }
+.quiz-result-label { font-size: 14px; text-align: center; color: #605e5c; margin-bottom: 16px; }
+
+/* Scenario styles */
+.scenario-step { margin-bottom: 16px; }
+.scenario-step-num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #0078d4; color: #fff; font-size: 13px; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+.scenario-step.completed .scenario-step-num { background: #107c10; }
+.scenario-step.active .scenario-step-num { background: #0078d4; box-shadow: 0 0 0 3px #dce5f5; }
+.scenario-step-content { display: flex; gap: 12px; align-items: flex-start; padding: 12px; border-radius: 6px; border: 1px solid #e1dfdd; }
+.scenario-step.active .scenario-step-content { border-color: #0078d4; background: #f0f6fc; }
+.scenario-step.completed .scenario-step-content { border-color: #107c10; background: #f6fff6; }
+.scenario-step-text { flex: 1; font-size: 13px; line-height: 1.6; }
+.scenario-step-text strong { display: block; margin-bottom: 4px; font-size: 14px; }
+
+/* Progress chips */
+.progress-chip { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f3f2f1; border-radius: 20px; font-size: 12px; }
+.progress-chip i { font-size: 14px; }
+.progress-chip.done { background: #dff6dd; color: #107c10; }
+.progress-chip.pending { background: #fff4ce; color: #7a5008; }
+.progress-chip.locked { background: #f3f2f1; color: #c8c6c4; }
+
+/* Training module grid */
+.module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.module-card { background: #fff; border: 1px solid #e1dfdd; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.15s; }
+.module-card:hover { border-color: #0078d4; box-shadow: 0 2px 8px rgba(0,120,212,0.1); }
+.module-card.completed { border-left: 3px solid #107c10; }
+.module-card.in-progress { border-left: 3px solid #0078d4; }
+.module-card-title { font-size: 14px; font-weight: 600; color: #201f1e; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.module-card-desc { font-size: 12px; color: #605e5c; margin-bottom: 10px; line-height: 1.5; }
+.module-card-status { font-size: 11px; color: #107c10; font-weight: 600; }
+.module-card .progress-bar { margin-top: 8px; }
+
+/* Achievements */
+.achievement { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px 4px 8px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.achievement.unlocked { background: #fff4ce; color: #7a5008; }
+.achievement.locked { background: #f3f2f1; color: #c8c6c4; }
+
+@media (max-width: 640px) {
+  .sidebar { width: 48px; }
+  .sidebar-logo-text, .sidebar-logo-sub, .nav-item span, .sidebar-section-title { display: none; }
+  .nav-item { justify-content: center; padding: 10px; }
+  .nav-item i { font-size: 20px; }
+  .two-col { grid-template-columns: 1fr; }
+  .module-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <i class="ti ti-brand-windows"></i>
+      <div>
+        <div class="sidebar-logo-text">Microsoft 365</div>
+        <div class="sidebar-logo-sub">Training Simulator</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-section-title">Overview</div>
+  <div class="nav-item active" onclick="switchPanel('home',this)"><i class="ti ti-layout-dashboard"></i> <span>Home</span></div>
+
+  <div class="sidebar-section-title">Services</div>
+  <div class="nav-item" onclick="switchPanel('azure',this)"><i class="ti ti-cloud"></i> <span>Azure Portal</span></div>
+  <div class="nav-item" onclick="switchPanel('intune',this)"><i class="ti ti-device-laptop"></i> <span>Intune</span></div>
+  <div class="nav-item" onclick="switchPanel('exchange',this)"><i class="ti ti-mail"></i> <span>Exchange</span></div>
+  <div class="nav-item" onclick="switchPanel('users',this)"><i class="ti ti-users"></i> <span>Users & Groups</span></div>
+  <div class="nav-item" onclick="switchPanel('defender',this)"><i class="ti ti-shield-check"></i> <span>Defender</span></div>
+  <div class="nav-item" onclick="switchPanel('sharepoint',this)"><i class="ti ti-folders"></i> <span>SharePoint</span></div>
+
+  <div class="sidebar-section-title">Settings</div>
+  <div class="nav-item" onclick="switchPanel('licenses',this)"><i class="ti ti-license"></i> <span>Licenses</span></div>
+  <div class="nav-item" onclick="switchPanel('learn',this)"><i class="ti ti-book"></i> <span>Study Guide</span></div>
+  <div class="nav-item" onclick="switchPanel('training',this)" style="border-left-color:#ffb900"><i class="ti ti-school" style="color:#ffb900"></i> <span style="color:#fff">Training</span> <span class="nav-badge" id="training-nav-badge">NEW</span></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Home</div>
+    <div class="topbar-right">
+      <i class="ti ti-bell" title="Notifications"></i>
+      <i class="ti ti-settings" title="Settings"></i>
+      <div class="user-badge">
+        <div class="avatar">AD</div>
+        <span>admin@kalyx.com</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ===== HOME ===== -->
+    <div class="panel active" id="panel-home">
+      <div class="page-title">Welcome, Admin</div>
+      <div class="page-sub">Kalyx Organization — Microsoft 365 E3 Training Simulator</div>
+
+      <div class="alert alert-succ"><i class="ti ti-circle-check"></i> Training mode active — lahat ng progress ay naka-save sa browser mo.</div>
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label">Active Users</div><div class="stat-val">247</div><div class="stat-change">↑ 5 this week</div></div>
+        <div class="stat-card"><div class="stat-label">Managed Devices</div><div class="stat-val">189</div><div class="stat-change">↑ 12 this month</div></div>
+        <div class="stat-card"><div class="stat-label">Licenses Used</div><div class="stat-val">231/300</div><div class="progress-bar"><div class="progress-fill" style="width:77%"></div></div></div>
+        <div class="stat-card"><div class="stat-label">Secure Score</div><div class="stat-val">74%</div><div class="progress-bar"><div class="progress-fill" style="width:74%"></div></div></div>
+        <div class="stat-card"><div class="stat-label">MFA Enabled</div><div class="stat-val">89%</div><div class="progress-bar"><div class="progress-fill" style="width:89%;background:#107c10"></div></div></div>
+        <div class="stat-card"><div class="stat-label">Training Progress</div><div class="stat-val" id="home-progress-pct">0%</div><div class="progress-bar"><div class="progress-fill" id="home-progress-bar" style="width:0%"></div></div></div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><div class="card-title"><i class="ti ti-heartbeat" style="color:#d29200"></i> Service health</div></div>
+          <table class="table">
+            <tr><td><i class="ti ti-circle-check" style="color:#107c10"></i> Exchange Online</td><td><span class="badge badge-green">Healthy</span></td></tr>
+            <tr><td><i class="ti ti-circle-check" style="color:#107c10"></i> Azure AD</td><td><span class="badge badge-green">Healthy</span></td></tr>
+            <tr><td><i class="ti ti-alert-circle" style="color:#d29200"></i> SharePoint</td><td><span class="badge badge-amber">Degraded</span></td></tr>
+            <tr><td><i class="ti ti-circle-check" style="color:#107c10"></i> Teams</td><td><span class="badge badge-green">Healthy</span></td></tr>
+            <tr><td><i class="ti ti-circle-check" style="color:#107c10"></i> OneDrive</td><td><span class="badge badge-green">Healthy</span></td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title"><i class="ti ti-clock"></i> Recent activity</div></div>
+          <table class="table">
+            <tr><td>New user created (jreyes)</td><td style="color:#605e5c;font-size:12px">2h ago</td></tr>
+            <tr><td>Intune policy updated</td><td style="color:#605e5c;font-size:12px">5h ago</td></tr>
+            <tr><td>M365 E3 license assigned</td><td style="color:#605e5c;font-size:12px">Yesterday</td></tr>
+            <tr><td>Conditional Access rule edited</td><td style="color:#605e5c;font-size:12px">2d ago</td></tr>
+            <tr><td>SharePoint site created</td><td style="color:#605e5c;font-size:12px">3d ago</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="ti ti-school" style="color:#0078d4"></i> Your Training Progress</div></div>
+        <div id="home-module-progress" style="padding:12px 16px;font-size:13px;color:#605e5c">Loading progress...</div>
+      </div>
+
+      <div class="info-box">
+        <strong>Tips para sa pag-aaral:</strong> I-explore ang mga services sa sidebar. Pumunta sa <strong>Training</strong> section para sa quizzes at step-by-step scenarios. Ang progress mo ay awtomatikong nase-save sa browser.
+      </div>
+    </div>
+
+    <!-- ===== AZURE ===== -->
+    <div class="panel" id="panel-azure">
+      <div class="page-title">Azure Portal</div>
+      <div class="page-sub">Azure Active Directory, Subscriptions, at Conditional Access</div>
+      <div class="learn-section">
+        <h3><i class="ti ti-info-circle"></i> Ano ang Azure AD?</h3>
+        <p>Ang <strong>Azure Active Directory (Azure AD)</strong> o ngayon ay tinatawag na <strong>Microsoft Entra ID</strong> ay ang cloud-based identity at access management service ng Microsoft. Ito ang nagma-manage ng user accounts, authentication, at authorization sa lahat ng Microsoft 365 services.</p>
+      </div>
+      <div class="action-bar">
+        <button class="btn btn-primary" onclick="showInfo('azure-newuser')"><i class="ti ti-user-plus"></i> + New user</button>
+        <button class="btn" onclick="switchPanel('users', document.querySelector('[onclick*=users]'))"><i class="ti ti-users"></i> All users</button>
+        <button class="btn" onclick="showInfo('azure-ca')"><i class="ti ti-lock"></i> Conditional access</button>
+        <button class="btn" onclick="showInfo('azure-appreg')"><i class="ti ti-apps"></i> App registrations</button>
+      </div>
+      <div id="info-azure-newuser" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>Paano gumawa ng Azure AD user:</strong><br>1. Pumunta sa Azure Active Directory → Users → + New user<br>2. Piliin ang "Create new user"<br>3. Punan: Display name, User principal name (email format), password<br>4. I-set ang UsageLocation (kailangan bago mag-assign ng license)<br>5. I-click ang Create<br><br><strong>PowerShell:</strong> <code>New-AzureADUser -DisplayName "Juan" -UserPrincipalName "juan@kalyx.onmicrosoft.com" ...</code>
+      </div>
+      <div id="info-azure-ca" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>Conditional Access</strong> — Nagtatatakda ng mga kondisyon bago payagan ang user na mag-login. Halimbawa: "Kung hindi compliant ang device, huwag payagan." O kaya: "Kung hindi galing sa trusted location, kailangan ng MFA." Ito ang Zero Trust security model ng Microsoft.
+      </div>
+      <div id="info-azure-appreg" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>App Registrations</strong> — Dito nirerehistro ang mga third-party o custom na apps na gumagamit ng Azure AD para sa authentication. Ginagamit ito para sa OAuth 2.0 at OpenID Connect integrations.
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Azure AD overview</div></div>
+          <table class="table">
+            <tr><td>Tenant ID</td><td style="color:#605e5c;font-size:12px">kalyx.onmicrosoft.com</td></tr>
+            <tr><td>Directory type</td><td><span class="badge badge-blue">Azure AD P2</span></td></tr>
+            <tr><td>Total users</td><td><strong>247</strong></td></tr>
+            <tr><td>Guest users</td><td>18</td></tr>
+            <tr><td>Security groups</td><td>34</td></tr>
+            <tr><td>App registrations</td><td>12</td></tr>
+            <tr><td>Enterprise apps</td><td>8</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Subscriptions</div></div>
+          <table class="table">
+            <tr><th>Name</th><th>Status</th><th>Cost/mo</th></tr>
+            <tr><td>Production Sub</td><td><span class="badge badge-green">Active</span></td><td>$1,240</td></tr>
+            <tr><td>Dev/Test Sub</td><td><span class="badge badge-green">Active</span></td><td>$320</td></tr>
+            <tr><td>Sandbox</td><td><span class="badge badge-amber">Limited</span></td><td>$45</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Conditional access policies</div></div>
+        <table class="table">
+          <tr><th>Policy name</th><th>State</th><th>Applies to</th><th>Action</th></tr>
+          <tr class="clickable" onclick="openModal({title:'Require MFA for Admins',icon:'ti-lock',rows:[['State','✅ Enabled'],['Target users','All admin roles'],['Cloud apps','All cloud apps'],['Grant control','Require MFA'],['Session','8 hours'],['Created','Jan 12, 2024']]})">
+            <td>Require MFA for admins</td><td><span class="badge badge-green">On</span></td><td>All admins</td><td><button class="btn" style="padding:3px 10px;font-size:12px">View</button></td></tr>
+          <tr class="clickable" onclick="openModal({title:'Block Legacy Authentication',icon:'ti-ban',rows:[['State','✅ Enabled'],['Target users','All users'],['Client apps','Legacy auth clients'],['Grant control','Block access'],['Why?','Legacy protocols bypass MFA'],['Created','Mar 5, 2024']]})">
+            <td>Block legacy auth</td><td><span class="badge badge-green">On</span></td><td>All users</td><td><button class="btn" style="padding:3px 10px;font-size:12px">View</button></td></tr>
+          <tr class="clickable" onclick="openModal({title:'Require Compliant Device',icon:'ti-device-laptop',rows:[['State','⚠️ Report-only'],['Target users','Sales team (47 users)'],['Cloud apps','Office 365'],['Grant control','Require compliant device'],['Note','Report-only = monitor lang, hindi pa naka-enforce'],['Created','May 1, 2024']]})">
+            <td>Compliant device required</td><td><span class="badge badge-amber">Report only</span></td><td>Sales team</td><td><button class="btn" style="padding:3px 10px;font-size:12px">View</button></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== INTUNE ===== -->
+    <div class="panel" id="panel-intune">
+      <div class="page-title">Microsoft Intune</div>
+      <div class="page-sub">Endpoint Management, Device Compliance, at App Management</div>
+      <div class="learn-section">
+        <h3><i class="ti ti-info-circle"></i> Ano ang Microsoft Intune?</h3>
+        <p>Ang <strong>Microsoft Intune</strong> ay isang cloud-based Mobile Device Management (MDM) at Mobile Application Management (MAM) solution. Pinamamahalaan nito ang mga device ng employees — Windows, iOS, Android, macOS — at tinitiyak na sumusunod sila sa security policies ng organisasyon.</p>
+      </div>
+      <div class="action-bar">
+        <button class="btn btn-primary" onclick="openEnrollDevice()"><i class="ti ti-plus"></i> Enroll device</button>
+        <button class="btn" onclick="showInfo('intune-policy')"><i class="ti ti-list-check"></i> Compliance policies</button>
+        <button class="btn" onclick="showInfo('intune-wipe')"><i class="ti ti-trash"></i> Remote wipe</button>
+        <button class="btn" onclick="showInfo('intune-app')"><i class="ti ti-apps"></i> App deployment</button>
+      </div>
+      <div id="info-intune-enroll" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>Paano mag-enroll ng device:</strong><br><strong>Windows:</strong> Settings → Accounts → Access work or school → Connect → mag-login sa work account<br><strong>iOS:</strong> I-download ang Company Portal app → sign in → sundin ang steps<br><strong>Android:</strong> I-download ang Intune Company Portal → sign in → i-activate ang Device Admin
+      </div>
+      <div id="info-intune-policy" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>Compliance Policy</strong> — Tinutukoy nito kung ano ang "compliant" na device. Halimbawa: minimum OS version, BitLocker encryption, PIN requirement, at hindi rooted/jailbroken.
+      </div>
+      <div id="info-intune-wipe" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>Remote Wipe</strong> — Kapag nawala o nanakaw ang device, puwedeng i-wipe ang lahat ng data remotely.
+      </div>
+      <div id="info-intune-app" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>App Deployment</strong> — Puwedeng mag-push ng apps sa mga managed devices nang hindi kailangang puntahan ng IT ang bawat computer.
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label">Enrolled devices</div><div class="stat-val" id="intune-device-count">189</div></div>
+        <div class="stat-card"><div class="stat-label">Compliant</div><div class="stat-val" style="color:#107c10" id="intune-compliant-count">182</div></div>
+        <div class="stat-card"><div class="stat-label">Non-compliant</div><div class="stat-val" style="color:#a4262c" id="intune-noncompliant-count">7</div></div>
+        <div class="stat-card"><div class="stat-label">Windows</div><div class="stat-val" id="intune-windows-count">134</div></div>
+        <div class="stat-card"><div class="stat-label">iOS</div><div class="stat-val" id="intune-ios-count">38</div></div>
+        <div class="stat-card"><div class="stat-label">Android</div><div class="stat-val" id="intune-android-count">17</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Device list — i-click ang row para sa details</div></div>
+        <div id="devices-table-container"><table class="table">
+          <tr><th>Device name</th><th>User</th><th>OS</th><th>Compliance</th><th>Enrollment</th><th>Last sync</th></tr>
+          <tr><td colspan="6" style="text-align:center;color:#605e5c">Loading devices...</td></tr>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ===== EXCHANGE ===== -->
+    <div class="panel" id="panel-exchange">
+      <div class="page-title">Exchange Admin Center</div>
+      <div class="page-sub">Email management, mail flow, at policies</div>
+      <div class="learn-section">
+        <h3><i class="ti ti-info-circle"></i> Ano ang Exchange Online?</h3>
+        <p>Ang <strong>Exchange Online</strong> ay ang cloud-based email service ng Microsoft 365. Pinamamahalaan nito ang lahat ng mailboxes, distribution lists, shared mailboxes, at mail flow rules ng organisasyon.</p>
+      </div>
+      <div class="action-bar">
+        <button class="btn btn-primary" onclick="showInfo('exch-newmb')"><i class="ti ti-mail-plus"></i> New mailbox</button>
+        <button class="btn" onclick="showInfo('exch-mailflow')"><i class="ti ti-arrows-exchange"></i> Mail flow rules</button>
+        <button class="btn" onclick="showInfo('exch-retention')"><i class="ti ti-archive"></i> Retention</button>
+        <button class="btn" onclick="showInfo('exch-dlp')"><i class="ti ti-shield"></i> DLP policies</button>
+      </div>
+      <div id="info-exch-newmb" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>Paano gumawa ng mailbox:</strong> Ang mailbox ay awtomatikong nalilikha kapag gumawa ka ng bagong user at nag-assign ng Exchange Online license.
+      </div>
+      <div id="info-exch-mailflow" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>Mail Flow Rules</strong> — Puwede kang gumawa ng rules tulad ng: "Kung may 'CONFIDENTIAL' sa subject, i-encrypt ang email."
+      </div>
+      <div id="info-exch-retention" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>Retention Policies</strong> — Tinutukoy kung gaano katagal ang itatago ng emails. Halimbawa: 7 taon para sa legal/finance emails.
+      </div>
+      <div id="info-exch-dlp" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>Data Loss Prevention (DLP)</strong> — Pinipigilan ang pagpapadala ng sensitive na impormasyon sa labas ng organisasyon.
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Mail flow summary (today)</div></div>
+          <table class="table">
+            <tr><td>Messages sent</td><td><strong>4,821</strong></td></tr>
+            <tr><td>Messages received</td><td><strong>12,340</strong></td></tr>
+            <tr><td>Spam blocked</td><td style="color:#a4262c"><strong>2,107</strong></td></tr>
+            <tr><td>Malware blocked</td><td style="color:#a4262c"><strong>23</strong></td></tr>
+            <tr><td>DLP policy matches</td><td style="color:#d29200"><strong>5</strong></td></tr>
+            <tr><td>Outbound connectors</td><td>2 active</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Mailbox usage</div></div>
+          <table class="table">
+            <tr><th>Mailbox</th><th>Size</th><th>Status</th></tr>
+            <tr><td>j.reyes</td><td>18.2 GB</td><td><span class="badge badge-green">OK</span></td></tr>
+            <tr><td>m.santos</td><td>47.8 GB</td><td><span class="badge badge-amber">Near limit</span></td></tr>
+            <tr><td>r.cruz</td><td>9.1 GB</td><td><span class="badge badge-green">OK</span></td></tr>
+            <tr><td>shared-hr</td><td>8.1 GB</td><td><span class="badge badge-green">OK</span></td></tr>
+            <tr><td>shared-finance</td><td>22.4 GB</td><td><span class="badge badge-green">OK</span></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== USERS ===== -->
+    <div class="panel" id="panel-users">
+      <div class="page-title">Users & Groups</div>
+      <div class="page-sub">Manage identities, roles, at group memberships</div>
+      <div class="learn-section">
+        <h3><i class="ti ti-info-circle"></i> User management sa M365</h3>
+        <p>Ang lahat ng user accounts ay nakaimbak sa <strong>Azure Active Directory</strong>. Ang bawat user ay may UPN (User Principal Name), roles, licenses, at group memberships.</p>
+      </div>
+      <div class="action-bar">
+        <button class="btn btn-primary" onclick="openCreateUser()"><i class="ti ti-user-plus"></i> + Add user</button>
+        <button class="btn" onclick="openCreateGroup()"><i class="ti ti-users-plus"></i> New group</button>
+        <button class="btn" onclick="showInfo('user-mfa')"><i class="ti ti-shield-lock"></i> MFA settings</button>
+        <button class="btn" onclick="showInfo('user-roles')"><i class="ti ti-key"></i> Admin roles</button>
+      </div>
+      <div id="info-user-new" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>Gumawa ng bagong user:</strong> I-click ang "+ Add user" button sa itaas para mag-fill ng form at gumawa ng actual na user account. Subukan mo!
+      </div>
+      <div id="info-user-group" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>Mga uri ng grupo:</strong><br>• <strong>Security group</strong> — Para sa access control<br>• <strong>Microsoft 365 group</strong> — May sariling mailbox, Teams, SharePoint site<br>• <strong>Distribution list</strong> — Para lang sa email<br>• <strong>Dynamic group</strong> — Awtomatikong nagdadagdag ng members
+      </div>
+      <div id="info-user-mfa" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>MFA (Multi-Factor Authentication)</strong> — Nagdadagdag ng extra layer ng security. Kahit na ma-compromise ang password, kailangan pa rin ng second factor.
+      </div>
+      <div id="info-user-roles" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>Admin roles (Principle of Least Privilege):</strong><br>• <strong>Global Admin</strong> — Pinaka-makapangyarihan<br>• <strong>User Admin</strong> — Manage users at groups<br>• <strong>Helpdesk Admin</strong> — Reset passwords<br>• <strong>Security Admin</strong> — Security policies<br>• <strong>Exchange Admin</strong> — Email management
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Active users — i-click ang row para sa details <span style="font-weight:400;font-size:12px;color:#605e5c" id="user-count">(5 total)</span></div></div>
+        <div id="users-table-container"><table class="table">
+          <tr><th>Display name</th><th>Email</th><th>Role</th><th>MFA</th><th>Status</th></tr>
+          <tr><td colspan="5" style="text-align:center;color:#605e5c">Loading users...</td></tr>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ===== DEFENDER ===== -->
+    <div class="panel" id="panel-defender">
+      <div class="page-title">Microsoft Defender</div>
+      <div class="page-sub">Security alerts, incidents, at threat protection</div>
+      <div class="learn-section">
+        <h3><i class="ti ti-info-circle"></i> Ano ang Microsoft Defender for Endpoint?</h3>
+        <p>Ang <strong>Microsoft Defender for Endpoint</strong> ay isang enterprise endpoint security platform na nagde-detect, nag-iimbestigahan, at nagreresponde sa mga advanced threats.</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label">Active incidents</div><div class="stat-val" style="color:#a4262c">2</div></div>
+        <div class="stat-card"><div class="stat-label">Open alerts (7d)</div><div class="stat-val">14</div></div>
+        <div class="stat-card"><div class="stat-label">Devices at risk</div><div class="stat-val" style="color:#d29200">3</div></div>
+        <div class="stat-card"><div class="stat-label">Secure Score</div><div class="stat-val">74%</div><div class="progress-bar"><div class="progress-fill" style="width:74%"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent alerts — i-click para sa details</div></div>
+        <table class="table">
+          <tr><th>Alert</th><th>Severity</th><th>Device</th><th>Time</th><th>Status</th></tr>
+          <tr class="clickable" onclick="openModal({title:'Suspicious sign-in detected',icon:'ti-alert-triangle',rows:[['Severity','🔴 High'],['Device','LAPTOP-B2'],['User','m.santos@kalyx.com'],['Location','Sign-in from Philippines then UK (10 min gap)'],['Type','Impossible travel / credential compromise'],['Recommended action','Block user, reset password, investigate'],['Status','Open']]})">
+            <td>Suspicious sign-in</td><td><span class="badge badge-red">High</span></td><td>LAPTOP-B2</td><td>2h ago</td><td>Open</td></tr>
+          <tr class="clickable" onclick="openModal({title:'Malware detected',icon:'ti-virus',rows:[['Severity','🔴 High'],['Device','DESKTOP-A1'],['Malware name','Trojan:Win32/Emotet.A'],['Detection method','Behavioral analysis'],['File path','C:\\Users\\jreyes\\Downloads\\invoice.exe'],['Action taken','File quarantined'],['Status','In progress']]})">
+            <td>Malware detected</td><td><span class="badge badge-red">High</span></td><td>DESKTOP-A1</td><td>5h ago</td><td>In progress</td></tr>
+          <tr class="clickable" onclick="openModal({title:'Risky user flagged',icon:'ti-user-exclamation',rows:[['Severity','🟡 Medium'],['User','l.garcia@kalyx.com'],['Risk type','Leaked credentials (found in dark web)'],['Azure AD Risk','High'],['Recommended action','Force password reset + MFA re-enrollment'],['Status','Open']]})">
+            <td>Risky user flagged</td><td><span class="badge badge-amber">Medium</span></td><td>—</td><td>1d ago</td><td>Open</td></tr>
+          <tr class="clickable" onclick="openModal({title:'Legacy auth attempt blocked',icon:'ti-lock',rows:[['Severity','🟡 Medium'],['Device','ANDROID-D4'],['Protocol','IMAP (legacy)'],['User','l.garcia@kalyx.com'],['Action','Blocked by Conditional Access policy'],['Note','IMAP bypasses MFA — correctly blocked'],['Status','✅ Resolved']]})">
+            <td>Legacy auth attempt</td><td><span class="badge badge-amber">Medium</span></td><td>ANDROID-D4</td><td>2d ago</td><td><span class="badge badge-green">Resolved</span></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== SHAREPOINT ===== -->
+    <div class="panel" id="panel-sharepoint">
+      <div class="page-title">SharePoint Admin</div>
+      <div class="page-sub">Sites, storage, at sharing policies</div>
+      <div class="learn-section">
+        <h3><i class="ti ti-info-circle"></i> Ano ang SharePoint Online?</h3>
+        <p>Ang <strong>SharePoint Online</strong> ay isang collaboration platform para sa pag-iimbak, pag-share, at pamamahala ng mga dokumento at impormasyon.</p>
+      </div>
+      <div class="action-bar">
+        <button class="btn btn-primary" onclick="showInfo('sp-create')"><i class="ti ti-plus"></i> Create site</button>
+        <button class="btn" onclick="showInfo('sp-sharing')"><i class="ti ti-share"></i> Sharing settings</button>
+        <button class="btn" onclick="showInfo('sp-storage')"><i class="ti ti-database"></i> Storage</button>
+      </div>
+      <div id="info-sp-create" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>Mga uri ng SharePoint site:</strong><br>• <strong>Team site</strong> — Para sa isang team o project<br>• <strong>Communication site</strong> — Company-wide announcements<br>• <strong>Hub site</strong> — Nagtatali ng maraming sites
+      </div>
+      <div id="info-sp-sharing" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>Sharing settings:</strong><br>• <strong>Anyone</strong> — Anonymous links (risky!)<br>• <strong>New and existing guests</strong> — External sharing allowed<br>• <strong>Existing guests only</strong> — Existing external users lang<br>• <strong>Only people in your organization</strong> — Internal only (pinaka-secure)
+      </div>
+      <div id="info-sp-storage" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>SharePoint storage:</strong> Ang default ay 1 TB + 10 GB per license. Sa 300 licenses = 1 TB + 3 TB = 4 TB total.
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Site collections — i-click para sa details</div></div>
+        <table class="table">
+          <tr><th>Site name</th><th>Type</th><th>Storage used</th><th>Members</th><th>Status</th></tr>
+          <tr class="clickable" onclick="openModal({title:'Kalyx Intranet',icon:'ti-world',rows:[['Type','Communication site'],['URL','kalyx.sharepoint.com/sites/intranet'],['Storage','45 GB / 200 GB'],['Owner','admin@kalyx.com'],['External sharing','Disabled'],['Last activity','Today'],['Status','Active']]})">
+            <td>Kalyx Intranet</td><td>Communication</td><td>45 GB</td><td>All staff</td><td><span class="badge badge-green">Active</span></td></tr>
+          <tr class="clickable" onclick="openModal({title:'HR Portal',icon:'ti-users',rows:[['Type','Team site'],['URL','kalyx.sharepoint.com/sites/hr'],['Storage','12 GB / 100 GB'],['Owner','hr-admin@kalyx.com'],['Members','HR team (12)'],['External sharing','Disabled'],['Status','Active']]})">
+            <td>HR Portal</td><td>Team site</td><td>12 GB</td><td>12</td><td><span class="badge badge-green">Active</span></td></tr>
+          <tr class="clickable" onclick="openModal({title:'Project Alpha',icon:'ti-folder',rows:[['Type','Team site'],['URL','kalyx.sharepoint.com/sites/project-alpha'],['Storage','8 GB / 100 GB'],['Members','15 users'],['External sharing','Existing guests only'],['Issue','SharePoint service degraded — may delays'],['Status','⚠️ Degraded']]})">
+            <td>Project Alpha</td><td>Team site</td><td>8 GB</td><td>15</td><td><span class="badge badge-amber">Degraded</span></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== LICENSES ===== -->
+    <div class="panel" id="panel-licenses">
+      <div class="page-title">Licenses</div>
+      <div class="page-sub">Subscription at license management</div>
+      <div class="learn-section">
+        <h3><i class="ti ti-info-circle"></i> Paano gumagana ang licensing sa M365?</h3>
+        <p>Ang bawat user ay kailangang may license para magamit ang mga Microsoft 365 services. Importante ang <strong>UsageLocation</strong> ng user bago mag-assign ng license.</p>
+      </div>
+      <div class="action-bar">
+        <button class="btn btn-primary" onclick="openAssignLicense()"><i class="ti ti-license"></i> Assign License</button>
+        <button class="btn" onclick="showInfo('licensing-details')"><i class="ti ti-info-circle"></i> About Licensing</button>
+      </div>
+      <div id="info-licensing-details" class="info-box" style="display:none;margin-bottom:16px">
+        <strong>Paano mag-assign ng license:</strong> I-click ang "Assign License" button, piliin ang user at ang product. Tandaan: dapat may UsageLocation ang user bago mag-assign ng license.
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">License overview — i-click para sa features <span style="font-weight:400;font-size:12px;color:#605e5c" id="license-counts"></span></div></div>
+        <table class="table">
+          <tr><th>Product</th><th>Total</th><th>Assigned</th><th>Available</th><th>Status</th></tr>
+          <tr class="clickable" onclick="openModal({title:'Microsoft 365 E3',icon:'ti-license',rows:[['Total licenses','300'],['Assigned','231'],['Available','69'],['Includes','Exchange Online P2, SharePoint Online P2, Teams, OneDrive 1TB, Office Apps, Intune, Azure AD P1, Defender for Office 365 P1'],['Price (est.)','~$36/user/month'],['Status','Active']]})">
+            <td>Microsoft 365 E3</td><td>300</td><td>231</td><td>69</td><td><span class="badge badge-green">Active</span></td></tr>
+          <tr class="clickable" onclick="openModal({title:'Azure AD Premium P2',icon:'ti-cloud',rows:[['Total licenses','100'],['Assigned','50'],['Available','50'],['Includes','Identity Protection, Privileged Identity Management (PIM), Access Reviews'],['Why needed','Para sa advanced Conditional Access at risk-based MFA'],['Status','Active']]})">
+            <td>Azure AD Premium P2</td><td>100</td><td>50</td><td>50</td><td><span class="badge badge-green">Active</span></td></tr>
+          <tr class="clickable" onclick="openModal({title:'Microsoft Intune',icon:'ti-device-laptop',rows:[['Total licenses','200'],['Assigned','189'],['Available','11'],['Includes','MDM, MAM, Endpoint Analytics, Autopilot'],['Note','Kasama na sa M365 E3'],['Status','Active']]})">
+            <td>Microsoft Intune (add-on)</td><td>200</td><td>189</td><td>11</td><td><span class="badge badge-green">Active</span></td></tr>
+          <tr class="clickable" onclick="openModal({title:'Defender for Endpoint P2',icon:'ti-shield',rows:[['Total licenses','200'],['Assigned','189'],['Available','11'],['Includes','EDR, Threat & Vulnerability Management, Attack Surface Reduction, Automated Investigation'],['Best for','Advanced threat hunting at endpoint security'],['Status','Active']]})">
+            <td>Defender for Endpoint P2</td><td>200</td><td>189</td><td>11</td><td><span class="badge badge-green">Active</span></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== TRAINING PANEL ===== -->
+    <div class="panel" id="panel-training">
+      <div class="page-title"><i class="ti ti-school" style="color:#0078d4"></i> Training Center</div>
+      <div class="page-sub">Interactive lessons, quizzes, at hands-on scenarios para ma-master mo ang Microsoft 365</div>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTrainingTab('modules',this)"><i class="ti ti-book"></i> Modules</button>
+        <button class="tab-btn" onclick="switchTrainingTab('quizzes',this)"><i class="ti ti-checklist"></i> Quizzes</button>
+        <button class="tab-btn" onclick="switchTrainingTab('scenarios',this)"><i class="ti ti-flask"></i> Scenarios</button>
+        <button class="tab-btn" onclick="switchTrainingTab('progress',this)"><i class="ti ti-trophy"></i> Progress</button>
+      </div>
+
+      <!-- TRAINING: Modules -->
+      <div class="tab-content active" id="tab-modules">
+        <p style="font-size:13px;color:#605e5c;margin-bottom:16px">Pumili ng module at sundan ang step-by-step na aralin. Markahan ang lessons bilang "completed" para i-track ang progress.</p>
+        <div class="module-grid" id="module-grid">
+          <div class="module-card" onclick="startLesson('azure-ad')">
+            <div class="module-card-title"><i class="ti ti-cloud" style="color:#0078d4"></i> Azure AD & Identity</div>
+            <div class="module-card-desc">Identity management, Conditional Access, MFA, at Zero Trust</div>
+            <div class="progress-bar"><div class="progress-fill" id="mod-azure-ad-pb" style="width:0%"></div></div>
+            <div style="margin-top:6px"><span class="module-card-status" id="mod-azure-ad-status">Not started</span></div>
+          </div>
+          <div class="module-card" onclick="startLesson('intune')">
+            <div class="module-card-title"><i class="ti ti-device-laptop" style="color:#0078d4"></i> Intune & Device Mgmt</div>
+            <div class="module-card-desc">MDM, MAM, compliance policies, enrollment, at remote wipe</div>
+            <div class="progress-bar"><div class="progress-fill" id="mod-intune-pb" style="width:0%"></div></div>
+            <div style="margin-top:6px"><span class="module-card-status" id="mod-intune-status">Not started</span></div>
+          </div>
+          <div class="module-card" onclick="startLesson('exchange')">
+            <div class="module-card-title"><i class="ti ti-mail" style="color:#0078d4"></i> Exchange Online</div>
+            <div class="module-card-desc">Email management, mail flow, DLP, at retention policies</div>
+            <div class="progress-bar"><div class="progress-fill" id="mod-exchange-pb" style="width:0%"></div></div>
+            <div style="margin-top:6px"><span class="module-card-status" id="mod-exchange-status">Not started</span></div>
+          </div>
+          <div class="module-card" onclick="startLesson('users')">
+            <div class="module-card-title"><i class="ti ti-users" style="color:#0078d4"></i> Users & Groups</div>
+            <div class="module-card-desc">User creation, group management, roles, at MFA enforcement</div>
+            <div class="progress-bar"><div class="progress-fill" id="mod-users-pb" style="width:0%"></div></div>
+            <div style="margin-top:6px"><span class="module-card-status" id="mod-users-status">Not started</span></div>
+          </div>
+          <div class="module-card" onclick="startLesson('defender')">
+            <div class="module-card-title"><i class="ti ti-shield-check" style="color:#0078d4"></i> Defender & Security</div>
+            <div class="module-card-desc">Threat detection, incident response, at Secure Score</div>
+            <div class="progress-bar"><div class="progress-fill" id="mod-defender-pb" style="width:0%"></div></div>
+            <div style="margin-top:6px"><span class="module-card-status" id="mod-defender-status">Not started</span></div>
+          </div>
+          <div class="module-card" onclick="startLesson('sharepoint')">
+            <div class="module-card-title"><i class="ti ti-folders" style="color:#0078d4"></i> SharePoint Online</div>
+            <div class="module-card-desc">Site creation, sharing policies, at storage management</div>
+            <div class="progress-bar"><div class="progress-fill" id="mod-sharepoint-pb" style="width:0%"></div></div>
+            <div style="margin-top:6px"><span class="module-card-status" id="mod-sharepoint-status">Not started</span></div>
+          </div>
+          <div class="module-card" onclick="startLesson('licensing')">
+            <div class="module-card-title"><i class="ti ti-license" style="color:#0078d4"></i> Licensing</div>
+            <div class="module-card-desc">License assignment, M365 E3 features, at add-on plans</div>
+            <div class="progress-bar"><div class="progress-fill" id="mod-licensing-pb" style="width:0%"></div></div>
+            <div style="margin-top:6px"><span class="module-card-status" id="mod-licensing-status">Not started</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRAINING: Quizzes -->
+      <div class="tab-content" id="tab-quizzes">
+        <p style="font-size:13px;color:#605e5c;margin-bottom:16px">Sukatin ang iyong kaalaman sa bawat module. Pumili ng quiz at sagutin ang mga tanong.</p>
+        <div class="module-grid" id="quiz-grid">
+          <div class="module-card" onclick="startQuiz('azure')">
+            <div class="module-card-title"><i class="ti ti-cloud" style="color:#0078d4"></i> Azure AD Quiz</div>
+            <div class="module-card-desc">5 questions — Identity, Conditional Access, MFA</div>
+            <div style="margin-top:8px"><span class="badge badge-blue" id="quiz-azure-score">Not taken</span></div>
+          </div>
+          <div class="module-card" onclick="startQuiz('intune')">
+            <div class="module-card-title"><i class="ti ti-device-laptop" style="color:#0078d4"></i> Intune Quiz</div>
+            <div class="module-card-desc">5 questions — MDM, Compliance, Enrollment</div>
+            <div style="margin-top:8px"><span class="badge badge-blue" id="quiz-intune-score">Not taken</span></div>
+          </div>
+          <div class="module-card" onclick="startQuiz('exchange')">
+            <div class="module-card-title"><i class="ti ti-mail" style="color:#0078d4"></i> Exchange Quiz</div>
+            <div class="module-card-desc">5 questions — Mail flow, DLP, Retention</div>
+            <div style="margin-top:8px"><span class="badge badge-blue" id="quiz-exchange-score">Not taken</span></div>
+          </div>
+          <div class="module-card" onclick="startQuiz('users')">
+            <div class="module-card-title"><i class="ti ti-users" style="color:#0078d4"></i> Users & Groups Quiz</div>
+            <div class="module-card-desc">5 questions — User mgmt, Roles, Groups</div>
+            <div style="margin-top:8px"><span class="badge badge-blue" id="quiz-users-score">Not taken</span></div>
+          </div>
+          <div class="module-card" onclick="startQuiz('defender')">
+            <div class="module-card-title"><i class="ti ti-shield-check" style="color:#0078d4"></i> Defender Quiz</div>
+            <div class="module-card-desc">5 questions — Threats, Alerts, Secure Score</div>
+            <div style="margin-top:8px"><span class="badge badge-blue" id="quiz-defender-score">Not taken</span></div>
+          </div>
+          <div class="module-card" onclick="startQuiz('sharepoint')">
+            <div class="module-card-title"><i class="ti ti-folders" style="color:#0078d4"></i> SharePoint Quiz</div>
+            <div class="module-card-desc">5 questions — Sites, Sharing, Storage</div>
+            <div style="margin-top:8px"><span class="badge badge-blue" id="quiz-sharepoint-score">Not taken</span></div>
+          </div>
+          <div class="module-card" onclick="startQuiz('licensing')">
+            <div class="module-card-title"><i class="ti ti-license" style="color:#0078d4"></i> Licensing Quiz</div>
+            <div class="module-card-desc">5 questions — M365 plans, Add-ons, Features</div>
+            <div style="margin-top:8px"><span class="badge badge-blue" id="quiz-licensing-score">Not taken</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRAINING: Scenarios -->
+      <div class="tab-content" id="tab-scenarios">
+        <p style="font-size:13px;color:#605e5c;margin-bottom:16px">Mga hands-on exercises na parang actual M365 admin tasks. I-click ang scenario para makita ang step-by-step guide.</p>
+        <div class="module-grid" id="scenario-grid">
+          <div class="module-card" onclick="startScenario('new-user')">
+            <div class="module-card-title"><i class="ti ti-user-plus" style="color:#0078d4"></i> Create a New User</div>
+            <div class="module-card-desc">Gumawa ng bagong employee account sa Azure AD at mag-assign ng license</div>
+            <div style="margin-top:8px"><span class="badge badge-blue" id="scenario-new-user-status">Not started</span></div>
+          </div>
+          <div class="module-card" onclick="startScenario('compliance')">
+            <div class="module-card-title"><i class="ti ti-shield" style="color:#0078d4"></i> Fix Non-Compliant Device</div>
+            <div class="module-card-desc">Tukuyin at i-remediate ang device na hindi compliant sa Intune</div>
+            <div style="margin-top:8px"><span class="badge badge-blue" id="scenario-compliance-status">Not started</span></div>
+          </div>
+          <div class="module-card" onclick="startScenario('security')">
+            <div class="module-card-title"><i class="ti ti-alert-triangle" style="color:#d29200"></i> Respond to Security Alert</div>
+            <div class="module-card-desc">I-imbestigahan at i-resolve ang isang active security incident sa Defender</div>
+            <div style="margin-top:8px"><span class="badge badge-blue" id="scenario-security-status">Not started</span></div>
+          </div>
+          <div class="module-card" onclick="startScenario('mail-flow')">
+            <div class="module-card-title"><i class="ti ti-arrows-exchange" style="color:#0078d4"></i> Configure Mail Flow Rule</div>
+            <div class="module-card-desc">Gumawa ng mail flow rule sa Exchange para i-encrypt ang sensitive emails</div>
+            <div style="margin-top:8px"><span class="badge badge-blue" id="scenario-mail-flow-status">Not started</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRAINING: Progress -->
+      <div class="tab-content" id="tab-progress">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Modules Completed</div><div class="stat-val" id="prog-modules">0/7</div></div>
+          <div class="stat-card"><div class="stat-label">Quizzes Passed</div><div class="stat-val" id="prog-quizzes">0/7</div></div>
+          <div class="stat-card"><div class="stat-label">Scenarios Done</div><div class="stat-val" id="prog-scenarios">0/4</div></div>
+          <div class="stat-card"><div class="stat-label">Overall Progress</div><div class="stat-val" id="prog-overall">0%</div><div class="progress-bar"><div class="progress-fill" id="prog-overall-bar" style="width:0%"></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title"><i class="ti ti-trophy"></i> Achievements</div></div>
+          <div style="padding:16px;display:flex;flex-wrap:wrap;gap:8px" id="achievement-list">
+            <span class="achievement locked" id="ach-first-module"><i class="ti ti-book"></i> First Module</span>
+            <span class="achievement locked" id="ach-first-quiz"><i class="ti ti-checklist"></i> First Quiz</span>
+            <span class="achievement locked" id="ach-first-scenario"><i class="ti ti-flask"></i> First Scenario</span>
+            <span class="achievement locked" id="ach-half"><i class="ti ti-progress"></i> Halfway There</span>
+            <span class="achievement locked" id="ach-all-modules"><i class="ti ti-school"></i> All Modules</span>
+            <span class="achievement locked" id="ach-perfect"><i class="ti ti-star"></i> Perfect Score</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title"><i class="ti ti-history"></i> Activity Log</div></div>
+          <div id="activity-log" style="padding:12px 16px;font-size:13px;color:#605e5c">Wala pang activity. Simulan ang training para makita ang log dito.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== STUDY GUIDE ===== -->
+    <div class="panel" id="panel-learn">
+      <div class="page-title">Study Guide</div>
+      <div class="page-sub">Mga resources at tanong para sa pag-aaral ng Microsoft 365</div>
+      <div class="alert alert-info"><i class="ti ti-info-circle"></i> Simulation lang ito — para sa tunay na hands-on practice, mag-sign up sa Microsoft 365 Developer Program (libre).</div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">M365 Architecture — Paano magkakaugnay ang mga services</div></div>
+        <div style="padding:16px;font-size:13px;line-height:1.8;color:#201f1e">
+          <strong>Azure Active Directory</strong> ang pundasyon — ang lahat ay nag-a-authenticate dito.<br>↓<br>
+          <strong>Microsoft 365 Licenses</strong> ang nagbibigay ng access sa services.<br>↓<br>
+          <strong>Intune</strong> ang nagma-manage ng devices at compliance.<br>↓<br>
+          <strong>Conditional Access</strong> ang nagde-desisyon: payagan ba ang login.<br>↓<br>
+          <strong>Defender</strong> ang nagmo-monitor ng threats.
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Mga tanong para sa pag-aaral</div></div>
+          <table class="table">
+            <tr class="clickable" onclick="openModal({title:'Ano ang pagkakaiba ng MDM at MAM?',icon:'ti-question-mark',rows:[['MDM','Kinokontrol ang buong device'],['MAM','App-level lang — company data'],['Kailan MDM','Corporate-owned devices'],['Kailan MAM','BYOD (personal devices)']]})">
+              <td>Ano ang pagkakaiba ng MDM at MAM?</td><td style="color:#0078d4">→</td></tr>
+            <tr class="clickable" onclick="openModal({title:'Ano ang Zero Trust security model?',icon:'ti-question-mark',rows:[['Prinsipyo','"Never trust, always verify"'],['3 pillars','Verify identity, Validate device, Limit access'],['Tools','Azure AD, Intune, Conditional Access, Defender']]})">
+              <td>Ano ang Zero Trust model?</td><td style="color:#0078d4">→</td></tr>
+            <tr class="clickable" onclick="openModal({title:'Bakit importante ang MFA?',icon:'ti-question-mark',rows:[['Problema','99.9% ng compromises maiiwasan ng MFA'],['Paano','Password + second factor'],['Best method','Microsoft Authenticator app'],['Admin accounts','Laging i-require ang MFA']]})">
+              <td>Bakit mahalaga ang MFA?</td><td style="color:#0078d4">→</td></tr>
+            <tr class="clickable" onclick="openModal({title:'Ano ang Conditional Access?',icon:'ti-question-mark',rows:[['Definition','Policy engine for access control'],['Signals','User, device, location, app, risk'],['Controls','Grant, Block, Session'],['Example','IF user=non-admin AND device=non-compliant THEN block']]})">
+              <td>Paano gumagana ang Conditional Access?</td><td style="color:#0078d4">→</td></tr>
+            <tr class="clickable" onclick="openModal({title:'Azure AD P1 vs P2?',icon:'ti-question-mark',rows:[['P1 (kasama sa E3)','Conditional Access, SSPR, Hybrid Azure AD join'],['P2 (add-on)','Identity Protection, PIM, Access Reviews'],['Recommendation','P2 para sa admin accounts']]})">
+              <td>Azure AD P1 vs P2 — ano ang pagkakaiba?</td><td style="color:#0078d4">→</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Mga libreng resources para matuto</div></div>
+          <table class="table">
+            <tr><td><strong>Microsoft Learn</strong><br><span style="color:#605e5c;font-size:12px">Libreng official courses</span></td><td><a href="https://learn.microsoft.com/en-us/training/m365/" target="_blank" style="color:#0078d4;font-size:12px">learn.microsoft.com</a></td></tr>
+            <tr><td><strong>M365 Developer Program</strong><br><span style="color:#605e5c;font-size:12px">Libreng E5 tenant</span></td><td><a href="https://developer.microsoft.com/microsoft-365/dev-program" target="_blank" style="color:#0078d4;font-size:12px">developer.microsoft.com</a></td></tr>
+            <tr><td><strong>MS-102 Exam Prep</strong><br><span style="color:#605e5c;font-size:12px">M365 Administrator cert</span></td><td><a href="https://learn.microsoft.com/en-us/certifications/exams/ms-102/" target="_blank" style="color:#0078d4;font-size:12px">MS-102 details</a></td></tr>
+            <tr><td><strong>SC-300 Exam Prep</strong><br><span style="color:#605e5c;font-size:12px">Identity & Access cert</span></td><td><a href="https://learn.microsoft.com/en-us/certifications/exams/sc-300/" target="_blank" style="color:#0078d4;font-size:12px">SC-300 details</a></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- CREATE USER MODAL -->
+<div class="modal-overlay" id="create-user-overlay">
+  <div class="modal-box wide">
+    <div class="modal-title"><i class="ti ti-user-plus" style="color:#0078d4"></i> Create New User</div>
+    <div id="create-user-form">
+      <div class="form-row">
+        <div class="form-group"><label>First Name *</label><input class="form-control" id="cu-first" placeholder="Juan" oninput="autoGenerateUPN()"></div>
+        <div class="form-group"><label>Last Name *</label><input class="form-control" id="cu-last" placeholder="Dela Cruz" oninput="autoGenerateUPN()"></div>
+      </div>
+      <div class="form-group"><label>Display Name *</label><input class="form-control" id="cu-display" placeholder="Juan Dela Cruz"></div>
+      <div class="form-group"><label>User Principal Name (Email) *</label><input class="form-control" id="cu-upn" placeholder="j.delacruz@kalyx.com"><div class="form-hint">Awtomatikong nabubuo mula sa first/last name</div></div>
+      <div class="form-row">
+        <div class="form-group"><label>Password</label><input class="form-control" id="cu-password" type="text" readonly style="background:#f3f2f1"><div class="form-hint" id="cu-pw-hint">Auto-generated</div></div>
+        <div class="form-group"><label>Usage Location</label><select class="form-control" id="cu-location"><option value="PH">Philippines</option><option value="US">United States</option><option value="JP">Japan</option><option value="SG">Singapore</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Department</label><select class="form-control" id="cu-dept"><option value="">— Select —</option><option value="IT">IT</option><option value="Sales">Sales</option><option value="Marketing">Marketing</option><option value="Finance">Finance</option><option value="HR">Human Resources</option><option value="Operations">Operations</option></select></div>
+        <div class="form-group"><label>Admin Role</label><select class="form-control" id="cu-role"><option value="User">Regular User</option><option value="Global Admin">Global Administrator</option><option value="User Admin">User Administrator</option><option value="Helpdesk Admin">Helpdesk Administrator</option><option value="Exchange Admin">Exchange Administrator</option><option value="Security Admin">Security Administrator</option></select></div>
+      </div>
+      <div class="form-group">
+        <label>License Assignment</label>
+        <div id="cu-licenses">
+          <label class="form-check" style="margin-bottom:6px"><input type="checkbox" checked id="cu-lic-e3"> <span>Microsoft 365 E3</span></label>
+          <label class="form-check" style="margin-bottom:6px"><input type="checkbox" id="cu-lic-p2"> <span>Azure AD Premium P2</span></label>
+          <label class="form-check"><input type="checkbox" id="cu-lic-def"> <span>Defender for Endpoint P2</span></label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-check"><input type="checkbox" checked id="cu-mfa"> <span>Require MFA</span></label>
+      </div>
+      <div class="form-group">
+        <label>Add to Groups</label>
+        <div id="cu-groups"></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn" onclick="closeCreateUser()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitCreateUser()"><i class="ti ti-user-plus"></i> Create User</button>
+      </div>
+    </div>
+    <div id="create-user-success" style="display:none">
+      <div class="form-success">
+        <i class="ti ti-circle-check"></i>
+        <h3 id="cu-success-name">User Created!</h3>
+        <p id="cu-success-detail">user@kalyx.com</p>
+        <div class="info-box" style="text-align:left;margin-top:16px">
+          <strong>Next steps:</strong>
+          <ol style="margin-top:6px;padding-left:16px">
+            <li>I-configure ang Conditional Access para sa user</li>
+            <li>I-enroll ang device ng user sa Intune</li>
+            <li>I-set ang mailbox retention policies</li>
+          </ol>
+        </div>
+      </div>
+      <div class="form-actions" style="justify-content:center">
+        <button class="btn btn-primary" onclick="closeCreateUser()">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE GROUP MODAL -->
+<div class="modal-overlay" id="create-group-overlay">
+  <div class="modal-box">
+    <div class="modal-title"><i class="ti ti-users-plus" style="color:#0078d4"></i> Create New Group</div>
+    <div id="create-group-form">
+      <div class="form-group"><label>Group Name *</label><input class="form-control" id="cg-name" placeholder="e.g., Project Team A"></div>
+      <div class="form-group"><label>Group Type *</label>
+        <select class="form-control" id="cg-type">
+          <option value="Security">Security Group</option>
+          <option value="Microsoft 365">Microsoft 365 Group</option>
+          <option value="Distribution">Distribution List</option>
+          <option value="Dynamic">Dynamic Group</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Description</label><textarea class="form-control" id="cg-desc" rows="2" placeholder="Optional na deskripsyon ng grupo"></textarea></div>
+      <div class="form-actions">
+        <button class="btn" onclick="closeCreateGroup()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitCreateGroup()"><i class="ti ti-users-plus"></i> Create Group</button>
+      </div>
+    </div>
+    <div id="create-group-success" style="display:none">
+      <div class="form-success">
+        <i class="ti ti-circle-check"></i>
+        <h3>Group Created!</h3>
+        <p id="cg-success-detail">Sales Team</p>
+      </div>
+      <div class="form-actions" style="justify-content:center">
+        <button class="btn btn-primary" onclick="closeCreateGroup()">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSIGN LICENSE MODAL -->
+<div class="modal-overlay" id="assign-license-overlay">
+  <div class="modal-box">
+    <div class="modal-title"><i class="ti ti-license" style="color:#0078d4"></i> Assign License</div>
+    <div id="assign-license-form">
+      <div class="form-group"><label>Select User *</label>
+        <select class="form-control" id="al-user"></select>
+      </div>
+      <div class="form-group"><label>License Product *</label>
+        <select class="form-control" id="al-product">
+          <option value="M365 E3">Microsoft 365 E3</option>
+          <option value="Azure AD P2">Azure AD Premium P2</option>
+          <option value="Intune">Microsoft Intune</option>
+          <option value="Defender P2">Defender for Endpoint P2</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="btn" onclick="closeAssignLicense()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitAssignLicense()"><i class="ti ti-license"></i> Assign License</button>
+      </div>
+    </div>
+    <div id="assign-license-success" style="display:none">
+      <div class="form-success">
+        <i class="ti ti-circle-check"></i>
+        <h3>License Assigned!</h3>
+        <p id="al-success-detail"></p>
+      </div>
+      <div class="form-actions" style="justify-content:center">
+        <button class="btn btn-primary" onclick="closeAssignLicense()">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ENROLL DEVICE MODAL -->
+<div class="modal-overlay" id="enroll-device-overlay">
+  <div class="modal-box">
+    <div class="modal-title"><i class="ti ti-device-laptop" style="color:#0078d4"></i> Enroll Device</div>
+    <div id="enroll-device-form">
+      <div class="form-group"><label>Device Name *</label><input class="form-control" id="ed-name" placeholder="e.g., DESKTOP-F1"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Operating System *</label>
+          <select class="form-control" id="ed-os">
+            <option value="Windows 11">Windows 11</option>
+            <option value="Windows 10">Windows 10</option>
+            <option value="iOS 17">iOS 17</option>
+            <option value="Android 14">Android 14</option>
+            <option value="macOS 14">macOS 14 (Sonoma)</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Ownership</label>
+          <select class="form-control" id="ed-ownership">
+            <option value="Corporate">Corporate</option>
+            <option value="Personal">Personal (BYOD)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Assigned User *</label>
+        <select class="form-control" id="ed-user"></select>
+      </div>
+      <div class="form-group"><label>Enrollment Type</label>
+        <select class="form-control" id="ed-enroll-type">
+          <option value="MDM">MDM</option>
+          <option value="BYOD">BYOD</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="btn" onclick="closeEnrollDevice()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitEnrollDevice()"><i class="ti ti-plus"></i> Enroll Device</button>
+      </div>
+    </div>
+    <div id="enroll-device-success" style="display:none">
+      <div class="form-success">
+        <i class="ti ti-circle-check"></i>
+        <h3>Device Enrolled!</h3>
+        <p id="ed-success-detail"></p>
+      </div>
+      <div class="form-actions" style="justify-content:center">
+        <button class="btn btn-primary" onclick="closeEnrollDevice()">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL (generic) -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title"><i class="ti" id="modal-icon"></i> <span id="modal-title-text"></span></div>
+    <div id="modal-content"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="document.getElementById('modal-overlay').classList.remove('open')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ MODAL -->
+<div class="modal-overlay" id="quiz-overlay">
+  <div class="modal-box wide">
+    <div class="modal-title"><i class="ti ti-checklist"></i> <span id="quiz-title">Quiz</span></div>
+    <div id="quiz-body">
+      <div class="quiz-progress" id="quiz-progress">Question 1 of 5</div>
+      <div class="quiz-question" id="quiz-question"></div>
+      <div id="quiz-options"></div>
+      <div id="quiz-result" style="display:none">
+        <div class="quiz-result-score" id="quiz-score-display">0/5</div>
+        <div class="quiz-result-label" id="quiz-result-label"></div>
+        <div class="action-bar" style="justify-content:center">
+          <button class="btn btn-primary" onclick="retakeQuiz()"><i class="ti ti-refresh"></i> Retake</button>
+          <button class="btn" onclick="closeQuiz()">Close</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions" id="quiz-actions">
+      <button class="btn" onclick="closeQuiz()">Cancel</button>
+      <button class="btn btn-primary" id="quiz-next-btn" onclick="nextQuestion()" disabled>Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCENARIO MODAL -->
+<div class="modal-overlay" id="scenario-overlay">
+  <div class="modal-box wide">
+    <div class="modal-title"><i class="ti ti-flask"></i> <span id="scenario-title">Scenario</span></div>
+    <div id="scenario-body">
+      <div style="margin-bottom:12px;font-size:13px;color:#605e5c" id="scenario-desc"></div>
+      <div id="scenario-steps"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeScenario()">Close</button>
+      <button class="btn btn-primary" id="scenario-next-btn" onclick="nextScenarioStep()">Start →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const titles = {home:'Home',azure:'Azure Portal',intune:'Microsoft Intune',exchange:'Exchange Admin Center',users:'Users & Groups',defender:'Microsoft Defender',sharepoint:'SharePoint Admin',licenses:'Licenses',learn:'Study Guide',training:'Training Center'};
+const STORAGE_KEY = 'm365_trainer';
+
+// ====== DATA ======
+const lessons = {
+  'azure-ad': {
+    title: 'Azure AD & Identity',
+    steps: [
+      { title: 'Identity Basics', text: 'Ang Azure Active Directory (Azure AD/Entra ID) ay ang identity platform ng Microsoft. Lahat ng users, groups, at devices ay naka-register dito. Ito ang nagha-handle ng authentication at authorization para sa lahat ng M365 services.' },
+      { title: 'Conditional Access', text: 'Conditional Access ay isang policy engine na gumagamit ng signals (user, device, location, risk level) para mag-desisyon kung papayagan ang access. Halimbawa: kung admin at galing sa untrusted IP, kailangan ng MFA.' },
+      { title: 'MFA (Multi-Factor Authentication)', text: 'MFA ay nagdadagdag ng second layer ng security. Kahit ma-compromise ang password, kailangan pa rin ng second factor tulad ng authenticator app o hardware key. Best practice: i-enable MFA sa LAHAT ng users.' },
+      { title: 'Zero Trust Model', text: '"Never trust, always verify" — kahit nasa loob ng network ang user, kailangan pa ring mag-verify ng identity, device, at context bago bigyan ng access. Three pillars: Verify explicitly, Least privilege, Assume breach.' },
+      { title: 'Azure AD P1 vs P2', text: 'P1 (kasama sa M365 E3): Conditional Access, SSPR, Group-based licensing. P2 (add-on): Identity Protection (risk-based policies), PIM (just-in-time admin access), Access Reviews.' }
+    ]
+  },
+  intune: {
+    title: 'Intune & Device Management',
+    steps: [
+      { title: 'Ano ang Intune?', text: 'Microsoft Intune ay cloud-based MDM/MAM solution. Pinamamahalaan nito ang Windows, iOS, Android, at macOS devices. Tinitiyak na compliant ang devices bago mag-access ng company resources.' },
+      { title: 'MDM vs MAM', text: 'MDM (Mobile Device Management): kinokontrol ang buong device — encryption, OS updates, remote wipe. MAM (Mobile Application Management): app-level lang — company apps at data ang kontrolado, hindi ang personal na device. MDM para sa corporate devices, MAM para sa BYOD.' },
+      { title: 'Device Enrollment', text: 'Windows: Settings → Accounts → Access work or school. iOS: Company Portal app. Android: Intune Company Portal app. Pagkatapos ng enrollment, pwedeng mag-push ng policies, apps, at configurations ang IT.' },
+      { title: 'Compliance Policies', text: 'Tinutukoy kung compliant ang device — minimum OS version, BitLocker encryption, PIN/Password, hindi rooted/jailbroken. Kung non-compliant, pwedeng i-block ang access o i-trigger ang remediation actions.' },
+      { title: 'Remote Wipe at Retire', text: 'Full wipe (factory reset) — lahat ng data tatanggalin. Selective wipe — company data lang ang tatanggalin, personal data nananatili. Gamitin ito kapag nawala o nanakaw ang device.' }
+    ]
+  },
+  exchange: {
+    title: 'Exchange Online',
+    steps: [
+      { title: 'Exchange Online Overview', text: 'Cloud-based email service ng Microsoft 365. Nagha-handle ng mailboxes, distribution lists, shared mailboxes, mail flow rules, anti-spam, anti-malware, at DLP policies.' },
+      { title: 'Mail Flow Rules', text: 'Puwedeng gumawa ng rules para i-process ang emails. Example: "Kung may attachment at external sender, mag-add ng warning." "Kung may keyword na CONFIDENTIAL, i-encrypt ang email."' },
+      { title: 'DLP (Data Loss Prevention)', text: 'Pinipigilan ang pagpapadala ng sensitive info (credit card, SSN, bank details) sa labas ng org. Pwedeng i-block, i-encrypt, o magpadala ng warning sa user.' },
+      { title: 'Retention Policies', text: 'Tinutukoy kung gaano katagal ang itatago ng emails. 7 years para sa legal/finance, 1 year para sa regular. Compliance at legal hold requirements.' },
+      { title: 'Shared Mailboxes', text: 'Mailbox na ginagamit ng maraming tao (e.g., hr@kalyx.com). Libre ito (walang kailangang license kung less than 50 GB). Puwedeng i-access ng multiple users na may appropriate permissions.' }
+    ]
+  },
+  users: {
+    title: 'Users & Groups',
+    steps: [
+      { title: 'User Creation', text: 'Azure AD → Users → + New user. Kailangan: Display name, UPN (email format), password. Importante: i-set ang UsageLocation bago mag-assign ng license. Puwede ring mag-bulk create gamit ang CSV o PowerShell.' },
+      { title: 'Group Types', text: 'Security group — para sa access control at policy assignment. M365 group — may sariling mailbox, Teams, SharePoint site. Distribution list — email lang. Dynamic group — automatic membership based on attributes (e.g., department=Sales).' },
+      { title: 'Admin Roles', text: 'Principle of Least Privilege: Global Admin (pinaka-powerful, limitahan sa 2-4), User Admin (users at groups), Helpdesk Admin (reset passwords), Security Admin (Defender policies), Exchange Admin (email management).' },
+      { title: 'MFA Enforcement', text: 'MFA ay critical security feature. 99.9% ng account compromises ay maiiwasan ng MFA. Best practice: gamitin ang Microsoft Authenticator app (hindi SMS). I-require ang MFA sa LAHAT ng users, hindi lang admins.' },
+      { title: 'License Assignment', text: 'Ang bawat user ay nangangailangan ng license para magamit ang M365 services. Pumunta sa Licenses → select license → assign sa user. Tandaan: i-set muna ang UsageLocation bago mag-assign.' }
+    ]
+  },
+  defender: {
+    title: 'Defender & Security',
+    steps: [
+      { title: 'Defender for Endpoint', text: 'Enterprise endpoint security platform na gumagamit ng AI at behavioral analytics para mag-detect, mag-investigate, at mag-respond sa advanced threats. Kasama ang EDR, antivirus, at threat hunting.' },
+      { title: 'Security Alerts at Incidents', text: 'Alerts = individual suspicious events. Incidents = grupo ng related alerts na magkakaugnay. Priority: High (immediate action needed), Medium (investigate), Low (monitor).' },
+      { title: 'Secure Score', text: 'Measurement ng security posture ng org. 0-100%. Recommendations kung paano i-improve. Kasama ang MFA enablement, legacy auth blocking, at vulnerability management.' },
+      { title: 'Threat Detection Methods', text: 'Signature-based (known malware), Behavioral analysis (suspicious behavior), Machine learning (anomaly detection), Threat intelligence (known bad actors/IPs).' },
+      { title: 'Incident Response Steps', text: '1. Investigate (gather info), 2. Contain (block/quarantine), 3. Remediate (clean/restore), 4. Review (post-incident analysis). Document everything para sa compliance at future prevention.' }
+    ]
+  },
+  sharepoint: {
+    title: 'SharePoint Online',
+    steps: [
+      { title: 'SharePoint Online Overview', text: 'Collaboration platform para sa document management, intranet, at team collaboration. Magkakaugnay sa Microsoft Teams at OneDrive. Pwedeng i-access sa browser o mobile app.' },
+      { title: 'Site Types', text: 'Team site — para sa team collaboration (may M365 group). Communication site — company-wide announcements (one-to-many). Hub site — nagtatali ng multiple sites for unified navigation.' },
+      { title: 'Sharing Settings', text: 'Anyone (anonymous links — risky), New and existing guests (external sharing), Existing guests only (mas secure), Only people in org (pinaka-secure). Best practice: set sa "Existing guests only".' },
+      { title: 'Storage Management', text: 'Default: 1 TB + 10 GB per license. Sa 300 licenses = 4 TB total. Bawat site collection ay may storage quota. Puwedeng mag-add ng extra storage.' },
+      { title: 'Permissions at Access', text: 'Site-level: Owner, Member, Visitor. File-level: Puwedeng i-share sa specific na tao lang. Best practice: gamitin ang groups (hindi direct sharing) para sa mas madaling permission management.' }
+    ]
+  },
+  licensing: {
+    title: 'Licensing',
+    steps: [
+      { title: 'M365 Licensing Overview', text: 'Ang bawat user ay nangangailangan ng license para magamit ang M365 services. May iba-ibang plans: Business (small org), Enterprise (E3/E5), Frontline (F1/F3).' },
+      { title: 'M365 E3 Features', text: 'Exchange Online P2, SharePoint Online P2, Teams, OneDrive 1TB, Office Apps, Intune, Azure AD P1, Defender for Office 365 P1. Price: ~$36/user/month.' },
+      { title: 'M365 E5 Add-ons', text: 'Advanced features sa E5: Azure AD P2 (Identity Protection, PIM), Defender for Endpoint P2 (EDR), Compliance features (eDiscovery, Communication Compliance).' },
+      { title: 'Add-on Licenses', text: 'Puwedeng mag-add ng extra licenses sa E3 tulad ng: Azure AD P2, Defender for Endpoint P2, Intune add-on, Microsoft Copilot. Hindi kailangan i-upgrade ang buong tenant.' },
+      { title: 'License Assignment Best Practices', text: '1. I-set ang UsageLocation, 2. Group-based licensing (automatic), 3. Monitor available licenses, 4. Audit regularly para tanggalin ang licenses sa mga inactive users.' }
+    ]
+  }
+};
+
+const quizData = {
+  azure: [
+    { q: 'Ano ang pangunahing gamit ng Azure Active Directory?', options: ['Email management', 'Identity at access management', 'File storage', 'Device management'], answer: 1 },
+    { q: 'Ano ang tawag sa policy engine na nagde-desisyon ng access batay sa conditions tulad ng location, device, at risk?', options: ['Intune', 'Defender', 'Conditional Access', 'Exchange Online'], answer: 2 },
+    { q: 'Ilang porsyento ng account compromises ang maiiwasan ng MFA?', options: ['50%', '75%', '90%', '99.9%'], answer: 3 },
+    { q: 'Ano ang prinsipyo ng Zero Trust security model?', options: ['Trust but verify', 'Never trust, always verify', 'Always trust internal users', 'Block all external access'], answer: 1 },
+    { q: 'Anong Azure AD feature ang nagbibigay ng just-in-time admin access?', options: ['Conditional Access', 'SSPR', 'PIM (Privileged Identity Management)', 'Access Reviews'], answer: 2 }
+  ],
+  intune: [
+    { q: 'Ano ang tawag sa pag-manage ng buong mobile device kasama ang OS at settings?', options: ['MAM', 'MDM', 'DLP', 'BYOD'], answer: 1 },
+    { q: 'Saan ginagamit ang MAM (Mobile Application Management)?', options: ['Corporate-owned devices', 'Servers', 'BYOD (personal devices)', 'Network infrastructure'], answer: 2 },
+    { q: 'Ano ang Compliance Policy sa Intune?', options: ['Policy para sa passwords', 'Policy para sa email retention', 'Tinutukoy kung compliant ang device', 'Policy para sa app deployment'], answer: 2 },
+    { q: 'Alin sa mga ito ang HINDI kailangan para mag-enroll ng Windows device?', options: ['Access work or school', 'Company Portal app', 'Work account login', 'BitLocker encryption'], answer: 3 },
+    { q: 'Ano ang selective wipe?', options: ['Factory reset ng device', 'Company data lang ang tatanggalin', 'Delete user account', 'Remove SIM card'], answer: 1 }
+  ],
+  exchange: [
+    { q: 'Ano ang Exchange Online?', options: ['File storage service', 'Cloud-based email service', 'Device management service', 'Security monitoring service'], answer: 1 },
+    { q: 'Ano ang gamit ng DLP (Data Loss Prevention) sa Exchange?', options: ['Mag-delete ng old emails', 'Pigilan ang pagpapadala ng sensitive info', 'Mag-backup ng emails', 'Mag-sort ng emails by sender'], answer: 1 },
+    { q: 'Ano ang shared mailbox?', options: ['Personal mailbox ng CEO', 'Mailbox na ginagamit ng maraming tao', 'Mailbox para sa spam', 'Archive mailbox'], answer: 1 },
+    { q: 'Ilang taon ang recommended retention para sa legal/finance emails?', options: ['1 year', '3 years', '7 years', '10 years'], answer: 2 },
+    { q: 'Ano ang mail flow rule?', options: ['Rule para mag-delete ng spam', 'Automated rule para i-process ang emails', 'Rule para sa password change', 'Rule para sa device enrollment'], answer: 1 }
+  ],
+  users: [
+    { q: 'Ano ang kailangan gawin bago mag-assign ng license sa user?', options: ['Mag-create ng mailbox', 'I-set ang UsageLocation', 'Mag-enroll ng device', 'Mag-add sa security group'], answer: 1 },
+    { q: 'Anong grupo ang may sariling mailbox at SharePoint site?', options: ['Security group', 'Distribution list', 'Microsoft 365 group', 'Dynamic group'], answer: 2 },
+    { q: 'Ano ang Principle of Least Privilege?', options: ['Bigyan ng maximum access ang lahat', 'Admin lang ang may access', 'Pinakakaunting access lang na kailangan', 'Lahat ay may equal access'], answer: 2 },
+    { q: 'Sinong admin role ang pinaka-makapangyarihan?', options: ['User Admin', 'Exchange Admin', 'Helpdesk Admin', 'Global Admin'], answer: 3 },
+    { q: 'Ano ang pinaka-secure na MFA method?', options: ['SMS', 'Email code', 'Microsoft Authenticator app', 'Phone call'], answer: 2 }
+  ],
+  defender: [
+    { q: 'Ano ang Microsoft Defender for Endpoint?', options: ['Antivirus lang', 'Enterprise endpoint security platform', 'Email filter', 'Firewall'], answer: 1 },
+    { q: 'Ano ang pagkakaiba ng alert at incident?', options: ['Pareho lang', 'Alert = single event, Incident = group of related alerts', 'Alert = high severity, Incident = low severity', 'Alert = resolved, Incident = open'], answer: 1 },
+    { q: 'Anong score ang sumusukat sa security posture ng org?', options: ['Performance Score', 'Secure Score', 'Compliance Score', 'Risk Score'], answer: 1 },
+    { q: 'Alin ang HINDI detection method ng Defender?', options: ['Signature-based', 'Behavioral analysis', 'Manual reporting', 'Machine learning'], answer: 2 },
+    { q: 'Ano ang unang step sa incident response?', options: ['Remediate', 'Contain', 'Investigate', 'Review'], answer: 2 }
+  ],
+  sharepoint: [
+    { q: 'Ano ang SharePoint Online?', options: ['Email service', 'Collaboration at document management platform', 'Video conferencing', 'Database service'], answer: 1 },
+    { q: 'Anong SharePoint site type ang para sa company-wide announcements?', options: ['Team site', 'Communication site', 'Hub site', 'Wiki site'], answer: 1 },
+    { q: 'Ano ang pinaka-secure na sharing setting?', options: ['Anyone', 'New and existing guests', 'Existing guests only', 'Only people in your organization'], answer: 3 },
+    { q: 'Ilang GB + 10 GB per license ang default SharePoint storage?', options: ['500 GB', '1 TB', '2 TB', '5 TB'], answer: 1 },
+    { q: 'Ano ang gamit ng Hub site?', options: ['Mag-create ng wiki', 'Mag-link ng multiple sites', 'Mag-share ng files externally', 'Mag-backup ng data'], answer: 1 }
+  ],
+  licensing: [
+    { q: 'Anong M365 plan ang may kasamang Azure AD P1 at Intune?', options: ['Business Basic', 'M365 E3', 'M365 F3', 'Business Standard'], answer: 1 },
+    { q: 'Ano ang kailangan bago mag-assign ng license?', options: ['Verified domain', 'UsageLocation', 'MFA enabled', 'Device enrolled'], answer: 1 },
+    { q: 'Anong add-on ang nagbibigay ng Identity Protection at PIM?', options: ['Defender P2', 'Intune add-on', 'Azure AD P2', 'Microsoft Copilot'], answer: 2 },
+    { q: 'Ilang TB ang total SharePoint storage ng 300 M365 E3 licenses?', options: ['2 TB', '3 TB', '4 TB', '5 TB'], answer: 2 },
+    { q: 'Bakit importante ang group-based licensing?', options: ['Mas mura', 'Awtomatikong nag-a-assign ng licenses based sa group membership', 'Mas secure', 'Hindi kailangan ng admin'], answer: 1 }
+  ]
+};
+
+const scenarioData = {
+  'new-user': {
+    title: 'Create a New User in Azure AD',
+    desc: 'Exercise: May bagong employee si Juan Dela Cruz. Gawin mo siyang user sa Azure AD na may M365 E3 license at i-assign sa "Sales" security group.',
+    steps: [
+      { text: 'Pumunta sa Azure Active Directory > Users > + New user. Piliin ang "Create new user".' },
+      { text: 'Punan ang Display name: "Juan Dela Cruz". User principal name: "j.delacruz@kalyx.com". I-generate ang password.' },
+      { text: 'I-set ang UsageLocation sa "PH" (Philippines) — ito ay REQUIRED bago mag-assign ng license.' },
+      { text: 'I-click ang "Assign license" at piliin ang "Microsoft 365 E3". Piliin kung aling services ang gusto mong i-enable.' },
+      { text: 'Idagdag si Juan sa "Sales" security group: Groups > Add user to group > Select "Sales Group". I-click ang Add.' },
+      { text: '✅ Tapos! I-configure na rin ang MFA requirement para kay Juan via Conditional Access policy.' }
+    ]
+  },
+  compliance: {
+    title: 'Fix a Non-Compliant Device',
+    desc: 'Exercise: May device na LAPTOP-B2 ni Maria Santos na non-compliant dahil outdated ang Windows version. I-remediate ang issue.',
+    steps: [
+      { text: 'Pumunta sa Intune admin center > Devices > All devices. Hanapin ang "LAPTOP-B2".' },
+      { text: 'I-check ang compliance status: Non-compliant. Reason: OS version 21H2 (minimum required: 22H2).' },
+      { text: 'Mag-push ng Windows update sa device: Devices > "LAPTOP-B2" > ... > Send custom notification to user requesting update.' },
+      { text: 'Kung hindi mag-update si Maria, pumunta sa Compliance policies > i-set ang "Action for non-compliance": Mark device as non-compliant at i-remind ang user every 24h.' },
+      { text: 'Kung overdue na, pumunta sa Devices > "LAPTOP-B2" > Retire/Wipe. Piliin ang "Selective wipe" para ma-preserve ang personal data ni Maria.' },
+      { text: '✅ Pag nag-update na si Maria, mag-a-auto-re-evaluate ang device at magiging Compliant status.' }
+    ]
+  },
+  security: {
+    title: 'Respond to a Security Alert',
+    desc: 'Exercise: May alert sa Defender na "Suspicious sign-in detected" mula sa account ni Maria Santos. I-imbestigahan at i-resolve.',
+    steps: [
+      { text: 'Pumunta sa Microsoft Defender portal > Incidents & alerts > Alerts. Hanapin ang "Suspicious sign-in detected".' },
+      { text: 'I-review ang details: Sign-in from Philippines then UK within 10 minutes (impossible travel). Severity: High. Type: Credential compromise.' },
+      { text: 'I-block agad ang user: User > m.santos@kalyx.com > Block sign-in. Ito ay pipigilan si Maria at ang attacker na mag-login.' },
+      { text: 'I-reset ang password ni Maria: Azure AD > Users > m.santos > Reset password. I-set na mag-change password siya sa next login.' },
+      { text: 'I-review ang Conditional Access: Siguraduhing naka-enable ang MFA at may risk-based policy (Azure AD Identity Protection) para sa future incidents.' },
+      { text: '✅ Incident resolved. I-document ang investigation at i-send ng security advisory sa lahat ng users about phishing awareness.' }
+    ]
+  },
+  'mail-flow': {
+    title: 'Configure a Mail Flow Rule',
+    desc: 'Exercise: Gumawa ng mail flow rule sa Exchange na mag-e-encrypt ng lahat ng outgoing emails na may "CONFIDENTIAL" sa subject.',
+    steps: [
+      { text: 'Pumunta sa Exchange Admin Center > Mail flow > Rules. I-click ang "+ Add a rule".' },
+      { text: 'Pangalanan ang rule: "Encrypt Confidential Emails".' },
+      { text: 'I-set ang condition: Apply this rule if... The subject includes... "CONFIDENTIAL".' },
+      { text: 'I-set ang action: Modify the message security... Apply Office 365 Message Encryption... "Encrypt".' },
+      { text: 'I-set ang mode: "Enforce" (active). Pwede ring "Test" para subukan muna.' },
+      { text: '✅ I-save ang rule. Subukan: mag-email gamit ang "CONFIDENTIAL: Report Q1" sa subject — dapat automatic na ma-encrypt ang email.' }
+    ]
+  }
+};
+
+// ====== PROGRESS TRACKING ======
+function getProgress() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveProgress(key, subkey, value) {
+  const p = getProgress();
+  if (!p[key]) p[key] = {};
+  p[key][subkey] = value;
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  updateAllDisplays();
+}
+function getModuleProgress(moduleId) {
+  const p = getProgress();
+  const mod = p.modules && p.modules[moduleId];
+  if (!mod) return { completed: 0, total: lessons[moduleId] ? lessons[moduleId].steps.length : 1, steps: [] };
+  const total = lessons[moduleId] ? lessons[moduleId].steps.length : 1;
+  const steps = mod.steps || [];
+  return { completed: steps.filter(s => s === true).length, total, steps };
+}
+
+// ====== LESSONS ======
+let currentLesson = null;
+let currentLessonStep = 0;
+
+function startLesson(id) {
+  currentLesson = id;
+  currentLessonStep = 0;
+  const lesson = lessons[id];
+  if (!lesson) return;
+  const prog = getModuleProgress(id);
+  const stepsHtml = lesson.steps.map((s, i) => {
+    const done = prog.steps[i] || false;
+    return `<div class="scenario-step ${done ? 'completed' : ''}" id="lesson-step-${i}">
+      <div class="scenario-step-content">
+        <div><span class="scenario-step-num">${i+1}</span></div>
+        <div class="scenario-step-text">
+          <strong>${s.title}</strong>${done ? ' <span style="color:#107c10">✓</span>' : ''}
+          <p>${s.text}</p>
+          ${done ? '' : `<button class="btn btn-success btn-sm" style="margin-top:8px" onclick="completeLessonStep(${i})"><i class="ti ti-check"></i> Mark as completed</button>`}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  const pct = Math.round((prog.completed / prog.total) * 100);
+  openModal({
+    title: `${lesson.title} (${prog.completed}/${prog.total} · ${pct}%)`,
+    icon: 'ti-book',
+    content: `<div style="margin-bottom:12px">${stepsHtml}</div>`
+  });
+}
+
+function completeLessonStep(idx) {
+  if (!currentLesson) return;
+  const p = getProgress();
+  if (!p.modules) p.modules = {};
+  if (!p.modules[currentLesson]) p.modules[currentLesson] = { steps: [] };
+  if (!p.modules[currentLesson].steps) p.modules[currentLesson].steps = [];
+  p.modules[currentLesson].steps[idx] = true;
+  p.modules[currentLesson]._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  // Add activity
+  addActivity(`Completed step: ${lessons[currentLesson].steps[idx].title}`);
+  // Check achievements
+  checkAchievements();
+  // Re-render lesson
+  closeModal(null);
+  startLesson(currentLesson);
+}
+
+// ====== QUIZZES ======
+let activeQuiz = null;
+let quizQuestionIdx = 0;
+let quizAnswers = [];
+let quizAnswered = false;
+
+function startQuiz(id) {
+  const qs = quizData[id];
+  if (!qs) return;
+  activeQuiz = id;
+  quizQuestionIdx = 0;
+  quizAnswers = new Array(qs.length).fill(null);
+  quizAnswered = false;
+
+  document.getElementById('quiz-title').textContent = quizData[id][0].q.includes('?') ? 'Quiz' : `${id.toUpperCase()} Quiz`;
+  document.getElementById('quiz-overlay').classList.add('open');
+  showQuizQuestion();
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('quiz-options').style.display = 'block';
+  document.getElementById('quiz-progress').style.display = 'block';
+  document.getElementById('quiz-actions').style.display = 'flex';
+  document.getElementById('quiz-next-btn').disabled = true;
+  document.getElementById('quiz-next-btn').textContent = 'Next →';
+}
+
+function showQuizQuestion() {
+  const qs = quizData[activeQuiz];
+  if (!qs) return;
+  const q = qs[quizQuestionIdx];
+  document.getElementById('quiz-progress').textContent = `Question ${quizQuestionIdx + 1} of ${qs.length}`;
+  document.getElementById('quiz-question').textContent = q.q;
+
+  const prevAnswer = quizAnswers[quizQuestionIdx];
+  const optsHtml = q.options.map((opt, i) =>
+    `<button class="quiz-option" onclick="answerQuiz(${i})" ${prevAnswer !== null ? 'disabled' : ''}
+      ${prevAnswer === i ? (i === q.answer ? 'class="quiz-option correct"' : 'class="quiz-option wrong"') : ''}
+      ${prevAnswer !== null && i === q.answer ? 'class="quiz-option correct"' : ''}
+    >${opt}</button>`
+  ).join('');
+  document.getElementById('quiz-options').innerHTML = optsHtml;
+
+  if (prevAnswer !== null) {
+    quizAnswered = true;
+    document.getElementById('quiz-next-btn').disabled = false;
+    // highlight right/wrong
+    const btns = document.getElementById('quiz-options').querySelectorAll('.quiz-option');
+    btns.forEach((b, i) => {
+      b.disabled = true;
+      if (i === q.answer) b.classList.add('correct');
+      if (i === prevAnswer && prevAnswer !== q.answer) b.classList.add('wrong');
+    });
+  } else {
+    quizAnswered = false;
+    document.getElementById('quiz-next-btn').disabled = true;
+  }
+
+  if (quizQuestionIdx === qs.length - 1) {
+    document.getElementById('quiz-next-btn').textContent = 'Finish';
+  } else {
+    document.getElementById('quiz-next-btn').textContent = 'Next →';
+  }
+}
+
+function answerQuiz(idx) {
+  if (quizAnswered) return;
+  const qs = quizData[activeQuiz];
+  const q = qs[quizQuestionIdx];
+  quizAnswers[quizQuestionIdx] = idx;
+  quizAnswered = true;
+
+  const btns = document.getElementById('quiz-options').querySelectorAll('.quiz-option');
+  btns.forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.answer) b.classList.add('correct');
+    if (i === idx && idx !== q.answer) b.classList.add('wrong');
+  });
+
+  document.getElementById('quiz-next-btn').disabled = false;
+}
+
+function nextQuestion() {
+  const qs = quizData[activeQuiz];
+  if (quizQuestionIdx < qs.length - 1) {
+    quizQuestionIdx++;
+    quizAnswered = false;
+    showQuizQuestion();
+    document.getElementById('quiz-next-btn').disabled = true;
+  } else {
+    finishQuiz();
+  }
+}
+
+function finishQuiz() {
+  const qs = quizData[activeQuiz];
+  let correct = 0;
+  qs.forEach((q, i) => { if (quizAnswers[i] === q.answer) correct++; });
+  const total = qs.length;
+  const pct = Math.round((correct / total) * 100);
+
+  document.getElementById('quiz-options').style.display = 'none';
+  document.getElementById('quiz-progress').style.display = 'none';
+  document.getElementById('quiz-actions').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'block';
+  document.getElementById('quiz-score-display').textContent = `${correct}/${total}`;
+  document.getElementById('quiz-score-display').style.color = pct >= 80 ? '#107c10' : pct >= 50 ? '#d29200' : '#a4262c';
+
+  let label = '';
+  if (pct === 100) label = '🎉 Perpekto! Master mo na ito!';
+  else if (pct >= 80) label = '🌟 Mahusay! Kaunti na lang, perfect ka na!';
+  else if (pct >= 60) label = '👍 Maganda! Balikan ang lessons at subukan ulit.';
+  else label = '📚 Kailangan pang mag-aral. Balikan ang module at retake.';
+  document.getElementById('quiz-result-label').textContent = label;
+
+  // Save quiz score
+  saveProgress('quizzes', activeQuiz, { correct, total });
+  addActivity(`Quiz "${activeQuiz}": ${correct}/${total} (${pct}%)`);
+
+  // Update quiz badge
+  const badge = document.getElementById(`quiz-${activeQuiz}-score`);
+  if (badge) {
+    badge.textContent = `${correct}/${total}`;
+    badge.className = pct >= 80 ? 'badge badge-green' : pct >= 60 ? 'badge badge-amber' : 'badge badge-red';
+  }
+
+  checkAchievements();
+}
+
+function retakeQuiz() {
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('quiz-options').style.display = 'block';
+  document.getElementById('quiz-progress').style.display = 'block';
+  document.getElementById('quiz-actions').style.display = 'flex';
+  startQuiz(activeQuiz);
+}
+
+function closeQuiz() {
+  document.getElementById('quiz-overlay').classList.remove('open');
+  activeQuiz = null;
+}
+
+// ====== SCENARIOS ======
+let activeScenario = null;
+let scenarioStep = 0;
+
+function startScenario(id) {
+  const s = scenarioData[id];
+  if (!s) return;
+  activeScenario = id;
+  scenarioStep = 0;
+
+  document.getElementById('scenario-title').textContent = s.title;
+  document.getElementById('scenario-desc').textContent = s.desc;
+  renderScenarioSteps();
+  document.getElementById('scenario-overlay').classList.add('open');
+  document.getElementById('scenario-next-btn').textContent = 'Start →';
+  document.getElementById('scenario-next-btn').disabled = false;
+}
+
+function renderScenarioSteps() {
+  const s = scenarioData[activeScenario];
+  const prog = getProgress();
+  const savedSteps = (prog.scenarios && prog.scenarios[activeScenario] && prog.scenarios[activeScenario].steps) || [];
+  const stepsHtml = s.steps.map((step, i) => {
+    const done = savedSteps[i] || false;
+    const active = scenarioStep === i && !done;
+    return `<div class="scenario-step ${done ? 'completed' : active ? 'active' : ''}" id="scen-step-${i}">
+      <div class="scenario-step-content">
+        <div><span class="scenario-step-num">${i+1}</span></div>
+        <div class="scenario-step-text">
+          ${done ? '<span style="color:#107c10;font-weight:600">✓ Completed</span>' : active ? `<strong>Step ${i+1}:</strong>` : `<span style="color:#c8c6c4">Step ${i+1}</span>`}
+          ${active ? `<p>${step.text}</p>
+            <button class="btn btn-success btn-sm" style="margin-top:8px" onclick="completeScenarioStep(${i})"><i class="ti ti-check"></i> Mark as done</button>` : ''}
+          ${done ? '' : !active ? `<p style="color:#c8c6c4;margin-top:4px">${step.text.substring(0, 60)}...</p>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('scenario-steps').innerHTML = stepsHtml;
+
+  // Update next button
+  const allDone = s.steps.every((_, i) => {
+    const prog2 = getProgress();
+    return (prog2.scenarios && prog2.scenarios[activeScenario] && prog2.scenarios[activeScenario].steps && prog2.scenarios[activeScenario].steps[i]);
+  });
+  if (allDone) {
+    document.getElementById('scenario-next-btn').textContent = '✅ Completed!';
+    document.getElementById('scenario-next-btn').disabled = true;
+  } else {
+    document.getElementById('scenario-next-btn').textContent = 'Next →';
+    document.getElementById('scenario-next-btn').disabled = false;
+  }
+}
+
+function completeScenarioStep(idx) {
+  const p = getProgress();
+  if (!p.scenarios) p.scenarios = {};
+  if (!p.scenarios[activeScenario]) p.scenarios[activeScenario] = { steps: [] };
+  if (!p.scenarios[activeScenario].steps) p.scenarios[activeScenario].steps = [];
+  p.scenarios[activeScenario].steps[idx] = true;
+  p.scenarios[activeScenario]._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+
+  addActivity(`Completed scenario step: ${scenarioData[activeScenario].title} — Step ${idx + 1}`);
+  checkAchievements();
+
+  // Move to next step
+  const s = scenarioData[activeScenario];
+  let nextIdx = idx + 1;
+  while (nextIdx < s.steps.length) {
+    const p2 = getProgress();
+    if (!(p2.scenarios && p2.scenarios[activeScenario] && p2.scenarios[activeScenario].steps && p2.scenarios[activeScenario].steps[nextIdx])) {
+      break;
+    }
+    nextIdx++;
+  }
+  scenarioStep = nextIdx < s.steps.length ? nextIdx : s.steps.length - 1;
+  renderScenarioSteps();
+
+  // Update status badge
+  const allDone = s.steps.every((_, i) => {
+    const p3 = getProgress();
+    return (p3.scenarios && p3.scenarios[activeScenario] && p3.scenarios[activeScenario].steps && p3.scenarios[activeScenario].steps[i]);
+  });
+  const badge = document.getElementById(`scenario-${activeScenario}-status`);
+  if (badge) {
+    const p4 = getProgress();
+    const done = (p4.scenarios && p4.scenarios[activeScenario] && p4.scenarios[activeScenario].steps) || [];
+    const count = done.filter(Boolean).length;
+    if (allDone) { badge.textContent = '✓ Completed'; badge.className = 'badge badge-green'; }
+    else if (count > 0) { badge.textContent = `In progress (${count}/${s.steps.length})`; badge.className = 'badge badge-amber'; }
+  }
+}
+
+function nextScenarioStep() {
+  const s = scenarioData[activeScenario];
+  if (!s) return;
+  let nextIdx = scenarioStep + 1;
+  while (nextIdx < s.steps.length) {
+    const p = getProgress();
+    if (!(p.scenarios && p.scenarios[activeScenario] && p.scenarios[activeScenario].steps && p.scenarios[activeScenario].steps[nextIdx])) {
+      break;
+    }
+    nextIdx++;
+  }
+  if (nextIdx < s.steps.length) {
+    scenarioStep = nextIdx;
+    renderScenarioSteps();
+  }
+}
+
+function closeScenario() {
+  document.getElementById('scenario-overlay').classList.remove('open');
+  activeScenario = null;
+}
+
+// ====== ACTIVITY LOG ======
+function addActivity(text) {
+  const p = getProgress();
+  if (!p.activity) p.activity = [];
+  const time = new Date().toLocaleString('en-PH', { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' });
+  p.activity.unshift({ text, time });
+  if (p.activity.length > 50) p.activity = p.activity.slice(0, 50);
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  renderActivityLog();
+}
+
+function renderActivityLog() {
+  const p = getProgress();
+  const log = document.getElementById('activity-log');
+  if (!log) return;
+  const acts = p.activity || [];
+  if (acts.length === 0) {
+    log.innerHTML = 'Wala pang activity. Simulan ang training para makita ang log dito.';
+    return;
+  }
+  log.innerHTML = '<table class="table">' + acts.map(a =>
+    `<tr><td style="font-size:12px">${a.text}</td><td style="font-size:11px;color:#605e5c;text-align:right">${a.time}</td></tr>`
+  ).join('') + '</table>';
+}
+
+// ====== ACHIEVEMENTS ======
+function checkAchievements() {
+  const p = getProgress();
+  if (!p.achievements) p.achievements = {};
+
+  const mods = p.modules || {};
+  const quizScores = p.quizzes || {};
+  const scen = p.scenarios || {};
+
+  const modCount = Object.keys(mods).filter(k => {
+    const s = mods[k].steps || [];
+    const lesson = lessons[k];
+    return lesson && s.filter(Boolean).length >= lesson.steps.length;
+  }).length;
+
+  let quizCount = Object.keys(quizScores).length;
+  let perfectQuiz = Object.values(quizScores).some(v => v && v.correct === v.total);
+
+  const scenCount = Object.keys(scen).filter(k => {
+    const s = scen[k].steps || [];
+    const data = scenarioData[k];
+    return data && s.filter(Boolean).length >= data.steps.length;
+  }).length;
+
+  if (modCount >= 1) unlockAchievement('first-module');
+  if (quizCount >= 1) unlockAchievement('first-quiz');
+  if (scenCount >= 1) unlockAchievement('first-scenario');
+  if (modCount >= 4) unlockAchievement('half');
+  if (modCount >= 7) unlockAchievement('all-modules');
+  if (perfectQuiz) unlockAchievement('perfect');
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  renderAchievements();
+}
+
+function unlockAchievement(id) {
+  const p = getProgress();
+  if (!p.achievements) p.achievements = {};
+  if (!p.achievements[id]) {
+    p.achievements[id] = true;
+    const names = { 'first-module':'First Module', 'first-quiz':'First Quiz', 'first-scenario':'First Scenario', 'half':'Halfway There', 'all-modules':'All Modules', 'perfect':'Perfect Score' };
+    addActivity(`🏆 Achievement unlocked: ${names[id] || id}`);
+  }
+}
+
+function renderAchievements() {
+  const p = getProgress();
+  const a = p.achievements || {};
+  ['first-module','first-quiz','first-scenario','half','all-modules','perfect'].forEach(id => {
+    const el = document.getElementById('ach-' + id);
+    if (el) {
+      if (a[id]) {
+        el.className = 'achievement unlocked';
+        el.innerHTML = `<i class="ti ti-trophy"></i> ${el.textContent.trim()}`;
+      } else {
+        el.className = 'achievement locked';
+      }
+    }
+  });
+}
+
+// ====== TRAINING TABS ======
+function switchTrainingTab(tab, el) {
+  document.querySelectorAll('#panel-training .tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#panel-training .tab-btn').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  el.classList.add('active');
+}
+
+// ====== UPDATE ALL DISPLAYS ======
+function updateAllDisplays() {
+  // Module progress cards
+  const modIds = ['azure-ad','intune','exchange','users','defender','sharepoint','licensing'];
+  const p = getProgress();
+  modIds.forEach(id => {
+    const prog = getModuleProgress(id);
+    const pct = prog.total > 0 ? Math.round((prog.completed / prog.total) * 100) : 0;
+    const pb = document.getElementById(`mod-${id}-pb`);
+    const st = document.getElementById(`mod-${id}-status`);
+    if (pb) pb.style.width = pct + '%';
+    if (st) {
+      const mod = p.modules && p.modules[id];
+      if (prog.completed >= prog.total) {
+        st.textContent = '✅ Completed'; st.style.color = '#107c10';
+      } else if (prog.completed > 0) {
+        st.textContent = `In progress (${prog.completed}/${prog.total})`; st.style.color = '#0078d4';
+      } else {
+        st.textContent = 'Not started'; st.style.color = '#605e5c';
+      }
+    }
+  });
+
+  // Home progress
+  let totalSteps = 0, completedSteps = 0;
+  modIds.forEach(id => {
+    if (lessons[id]) {
+      totalSteps += lessons[id].steps.length;
+      const prog = getModuleProgress(id);
+      completedSteps += prog.completed;
+    }
+  });
+  const overallPct = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+  const homeBar = document.getElementById('home-progress-bar');
+  const homePct = document.getElementById('home-progress-pct');
+  if (homeBar) homeBar.style.width = overallPct + '%';
+  if (homePct) homePct.textContent = overallPct + '%';
+
+  // Home module list
+  const homeMods = document.getElementById('home-module-progress');
+  if (homeMods) {
+    const items = modIds.map(id => {
+      const prog = getModuleProgress(id);
+      const pct = prog.total > 0 ? Math.round((prog.completed / prog.total) * 100) : 0;
+      const icon = prog.completed >= prog.total ? '✅' : prog.completed > 0 ? '🔄' : '⬜';
+      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="width:20px">${icon}</span>
+        <span style="flex:1;font-size:13px">${lessons[id] ? lessons[id].title : id}</span>
+        <span style="font-size:12px;color:#605e5c">${prog.completed}/${prog.total}</span>
+        <div style="width:80px"><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div>
+      </div>`;
+    }).join('');
+    homeMods.innerHTML = items;
+  }
+
+  // Training progress tab
+  const modsDone = modIds.filter(id => {
+    const prog = getModuleProgress(id);
+    return prog.completed >= prog.total;
+  }).length;
+  const quizKeys = Object.keys(quizData);
+  const quizDone = quizKeys.filter(k => {
+    const q = p.quizzes && p.quizzes[k];
+    return q && q.correct !== undefined;
+  }).length;
+  const scenKeys = Object.keys(scenarioData);
+  const scenDone = scenKeys.filter(k => {
+    const s = p.scenarios && p.scenarios[k];
+    const data = scenarioData[k];
+    return data && s && s.steps && s.steps.filter(Boolean).length >= data.steps.length;
+  }).length;
+  const totalItems = 7 + 7 + 4; // modules + quizzes + scenarios
+  const doneItems = modsDone + quizDone + scenDone;
+  const overall = Math.round((doneItems / totalItems) * 100);
+
+  const pm = document.getElementById('prog-modules');
+  const pq = document.getElementById('prog-quizzes');
+  const ps = document.getElementById('prog-scenarios');
+  const po = document.getElementById('prog-overall');
+  const pob = document.getElementById('prog-overall-bar');
+  if (pm) pm.textContent = `${modsDone}/7`;
+  if (pq) pq.textContent = `${quizDone}/7`;
+  if (ps) ps.textContent = `${scenDone}/${scenKeys.length}`;
+  if (po) po.textContent = `${overall}%`;
+  if (pob) pob.style.width = `${overall}%`;
+
+  // Training nav badge
+  const badge = document.getElementById('training-nav-badge');
+  if (badge) {
+    if (overall > 0) {
+      badge.textContent = overall + '%';
+      badge.style.background = overall >= 100 ? '#107c10' : '#ffb900';
+      badge.style.color = '#fff';
+    } else {
+      badge.textContent = 'NEW';
+      badge.style.background = '#ffb900';
+      badge.style.color = '#201f1e';
+    }
+  }
+
+  renderActivityLog();
+  renderAchievements();
+}
+
+// ====== INTERACTIVE DATA STORE ======
+function getAppData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY + '_data');
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { users: [], groups: [], devices: [], licenseAssignments: [] };
+}
+function saveAppData(data) {
+  localStorage.setItem(STORAGE_KEY + '_data', JSON.stringify(data));
+}
+
+// Default mock users (always shown even without created ones)
+const DEFAULT_USERS = [
+  { id: 'u1', name: 'Admin User', email: 'admin@kalyx.com', role: 'Global Administrator', mfa: true, status: 'Active', dept: 'IT', licenses: ['M365 E3','Azure AD P2','Defender P2'] },
+  { id: 'u2', name: 'Juan Reyes', email: 'j.reyes@kalyx.com', role: 'User', mfa: true, status: 'Active', dept: 'Marketing', licenses: ['M365 E3'] },
+  { id: 'u3', name: 'Maria Santos', email: 'm.santos@kalyx.com', role: 'User', mfa: false, status: 'Active', dept: 'Finance', licenses: ['M365 E3'] },
+  { id: 'u4', name: 'Roberto Cruz', email: 'r.cruz@kalyx.com', role: 'Helpdesk Administrator', mfa: true, status: 'Active', dept: 'IT Support', licenses: ['M365 E3'] },
+  { id: 'u5', name: 'Liza Garcia', email: 'l.garcia@kalyx.com', role: 'User', mfa: true, status: 'Blocked', dept: '', licenses: [] }
+];
+const DEFAULT_DEVICES = [
+  { id: 'd1', name: 'DESKTOP-A1', user: 'j.reyes@kalyx.com', os: 'Windows 11', compliance: 'Compliant', enrollType: 'MDM', lastSync: '1h ago' },
+  { id: 'd2', name: 'LAPTOP-B2', user: 'm.santos@kalyx.com', os: 'Windows 11', compliance: 'Non-compliant', enrollType: 'MDM', lastSync: '3d ago' },
+  { id: 'd3', name: 'iPhone-C3', user: 'r.cruz@kalyx.com', os: 'iOS 17', compliance: 'Compliant', enrollType: 'BYOD', lastSync: '30m ago' },
+  { id: 'd4', name: 'Android-D4', user: 'l.garcia@kalyx.com', os: 'Android 14', compliance: 'Pending', enrollType: 'BYOD', lastSync: '6h ago' },
+  { id: 'd5', name: 'MACBOOK-E5', user: 'ceo@kalyx.com', os: 'macOS 14', compliance: 'Compliant', enrollType: 'MDM', lastSync: '2h ago' }
+];
+const DEFAULT_GROUPS = [
+  { id: 'g1', name: 'Sales', type: 'Security', desc: 'Sales team members', members: 47 },
+  { id: 'g2', name: 'Marketing', type: 'Security', desc: 'Marketing department', members: 32 },
+  { id: 'g3', name: 'IT Administrators', type: 'Security', desc: 'IT admin team', members: 8 },
+  { id: 'g4', name: 'Finance Team', type: 'Microsoft 365', desc: 'Finance department collaboration', members: 15 },
+  { id: 'g5', name: 'All Employees', type: 'Dynamic', desc: 'All active users', members: 247 }
+];
+
+function loadUsers() {
+  const data = getAppData();
+  return [...DEFAULT_USERS, ...(data.users || [])];
+}
+function loadDevices() {
+  const data = getAppData();
+  return [...DEFAULT_DEVICES, ...(data.devices || [])];
+}
+function loadGroups() {
+  const data = getAppData();
+  return [...DEFAULT_GROUPS, ...(data.groups || [])];
+}
+function loadLicenseStats() {
+  const data = getAppData();
+  const assigns = data.licenseAssignments || [];
+  const stats = { 'M365 E3': 231, 'Azure AD P2': 50, 'Intune': 189, 'Defender P2': 189 };
+  assigns.forEach(a => {
+    if (stats[a.product] !== undefined) stats[a.product]++;
+  });
+  return stats;
+}
+
+function getAllUsersForSelect() {
+  return loadUsers().filter(u => u.status === 'Active');
+}
+
+// ====== TOAST ======
+function showToast(msg, isError) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.remove(); }, 3000);
+}
+
+// ====== RENDER USERS TABLE ======
+function renderUsersTable() {
+  const container = document.getElementById('users-table-container');
+  if (!container) return;
+  const users = loadUsers();
+  const count = document.getElementById('user-count');
+  if (count) count.textContent = `(${users.length} total)`;
+  if (users.length === 0) {
+    container.innerHTML = '<div class="empty-state"><i class="ti ti-users"></i><p>Wala pang users. I-click ang "+ Add user" para gumawa.</p></div>';
+    return;
+  }
+  const rows = users.map(u => {
+    const mfaBadge = u.mfa ? `<span class="badge badge-green">✓</span>` : `<span class="badge badge-red">✗</span>`;
+    const statusBadge = u.status === 'Active' ? `<span class="badge badge-green">Active</span>` : `<span class="badge badge-red">${u.status}</span>`;
+    const roleDisplay = ['Global Administrator','Helpdesk Administrator','User Administrator','Exchange Administrator','Security Administrator'].includes(u.role)
+      ? `<span class="badge badge-blue">${u.role}</span>` : u.role;
+    const nameClean = u.name.replace(/'/g, "\\'");
+    return `<tr class="clickable" onclick="openUserModal('${u.id}')"><td>${u.name}</td><td>${u.email}</td><td>${roleDisplay}</td><td>${mfaBadge}</td><td>${statusBadge}</td></tr>`;
+  }).join('');
+  container.innerHTML = `<table class="table"><tr><th>Display name</th><th>Email</th><th>Role</th><th>MFA</th><th>Status</th></tr>${rows}</table>`;
+}
+
+function openUserModal(id) {
+  const users = loadUsers();
+  const u = users.find(x => x.id === id);
+  if (!u) return;
+  openModal({
+    title: u.name,
+    icon: u.role === 'Global Administrator' ? 'ti-user-shield' : 'ti-user',
+    rows: [
+      ['UPN', u.email],
+      ['Role', u.role],
+      ['MFA', u.mfa ? '✅ Enabled' : '❌ Not enrolled'],
+      ['Licenses', u.licenses && u.licenses.length > 0 ? u.licenses.join(', ') : 'None assigned'],
+      ['Department', u.dept || '—'],
+      ['Status', u.status]
+    ]
+  });
+}
+
+// ====== CREATE USER ======
+function autoGenerateUPN() {
+  const first = document.getElementById('cu-first').value.trim().toLowerCase().replace(/\s+/g,'');
+  const last = document.getElementById('cu-last').value.trim().toLowerCase().replace(/\s+/g,'');
+  const display = document.getElementById('cu-display');
+  const upn = document.getElementById('cu-upn');
+  const fn = document.getElementById('cu-first').value.trim();
+  const ln = document.getElementById('cu-last').value.trim();
+  if (fn && ln) {
+    const initial = fn.charAt(0).toLowerCase();
+    display.value = `${fn} ${ln}`;
+    upn.value = `${initial}.${last}@kalyx.com`;
+  }
+}
+
+function openCreateUser() {
+  document.getElementById('create-user-form').style.display = 'block';
+  document.getElementById('create-user-success').style.display = 'none';
+  // Clear fields
+  ['cu-first','cu-last','cu-display'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('cu-upn').value = '';
+  document.getElementById('cu-password').value = generatePassword();
+  document.getElementById('cu-location').value = 'PH';
+  document.getElementById('cu-dept').value = '';
+  document.getElementById('cu-role').value = 'User';
+  document.getElementById('cu-lic-e3').checked = true;
+  document.getElementById('cu-lic-p2').checked = false;
+  document.getElementById('cu-lic-def').checked = false;
+  document.getElementById('cu-mfa').checked = true;
+  // Load groups
+  const groups = loadGroups();
+  const ghtml = groups.map(g => `<label class="form-check" style="margin-bottom:4px"><input type="checkbox" class="cu-group-cb" value="${g.name}"> <span>${g.name} (${g.type})</span></label>`).join('');
+  document.getElementById('cu-groups').innerHTML = ghtml || '<span style="color:#c8c6c4;font-size:12px">No groups available</span>';
+  document.getElementById('create-user-overlay').classList.add('open');
+}
+
+function generatePassword() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
+  let pw = '';
+  for (let i = 0; i < 12; i++) pw += chars.charAt(Math.floor(Math.random() * chars.length));
+  // Ensure at least one uppercase, one number, one special
+  if (!/[A-Z]/.test(pw)) pw = 'X' + pw.substring(1);
+  if (!/[0-9]/.test(pw)) pw = pw.substring(0, 5) + '7' + pw.substring(6);
+  if (!/[!@#$]/.test(pw)) pw = pw.substring(0, 9) + '!' + pw.substring(10);
+  document.getElementById('cu-pw-hint').textContent = 'I-copy ang password na ito';
+  return pw;
+}
+
+function submitCreateUser() {
+  const first = document.getElementById('cu-first').value.trim();
+  const last = document.getElementById('cu-last').value.trim();
+  const display = document.getElementById('cu-display').value.trim();
+  const upn = document.getElementById('cu-upn').value.trim();
+  const password = document.getElementById('cu-password').value;
+  const location = document.getElementById('cu-location').value;
+  const dept = document.getElementById('cu-dept').value;
+  const role = document.getElementById('cu-role').value;
+  const mfa = document.getElementById('cu-mfa').checked;
+
+  if (!first || !last || !display || !upn) {
+    showToast('Please fill in all required fields', true);
+    return;
+  }
+
+  // Gather licenses
+  const licenses = [];
+  if (document.getElementById('cu-lic-e3').checked) licenses.push('M365 E3');
+  if (document.getElementById('cu-lic-p2').checked) licenses.push('Azure AD P2');
+  if (document.getElementById('cu-lic-def').checked) licenses.push('Defender P2');
+
+  // Gather groups
+  const selectedGroups = [];
+  document.querySelectorAll('.cu-group-cb:checked').forEach(cb => selectedGroups.push(cb.value));
+
+  const newUser = {
+    id: 'u_' + Date.now(),
+    name: display,
+    email: upn,
+    role: role,
+    mfa: mfa,
+    status: 'Active',
+    dept: dept,
+    licenses: licenses,
+    created: new Date().toISOString()
+  };
+
+  const data = getAppData();
+  if (!data.users) data.users = [];
+  // Check for duplicate UPN
+  const allUsers = [...DEFAULT_USERS, ...data.users];
+  if (allUsers.some(u => u.email.toLowerCase() === upn.toLowerCase())) {
+    showToast('User with this email already exists', true);
+    return;
+  }
+  data.users.push(newUser);
+  saveAppData(data);
+
+  // Show success
+  document.getElementById('create-user-form').style.display = 'none';
+  document.getElementById('create-user-success').style.display = 'block';
+  document.getElementById('cu-success-name').textContent = `${display} Created!`;
+  document.getElementById('cu-success-detail').innerHTML =
+    `<strong>Email:</strong> ${upn}<br><strong>Password:</strong> ${password}<br>` +
+    (dept ? `<strong>Department:</strong> ${dept}<br>` : '') +
+    (licenses.length > 0 ? `<strong>Licenses:</strong> ${licenses.join(', ')}` : 'No licenses assigned');
+
+  addActivity(`👤 Created user: ${display} (${upn})`);
+  renderUsersTable();
+  showToast(`User ${display} created successfully!`);
+}
+
+function closeCreateUser() {
+  document.getElementById('create-user-overlay').classList.remove('open');
+  renderUsersTable();
+  updateAllDisplays();
+}
+
+// ====== CREATE GROUP ======
+function openCreateGroup() {
+  document.getElementById('create-group-form').style.display = 'block';
+  document.getElementById('create-group-success').style.display = 'none';
+  document.getElementById('cg-name').value = '';
+  document.getElementById('cg-type').value = 'Security';
+  document.getElementById('cg-desc').value = '';
+  document.getElementById('create-group-overlay').classList.add('open');
+}
+
+function submitCreateGroup() {
+  const name = document.getElementById('cg-name').value.trim();
+  const type = document.getElementById('cg-type').value;
+  const desc = document.getElementById('cg-desc').value.trim();
+  if (!name) { showToast('Please enter a group name', true); return; }
+  const data = getAppData();
+  if (!data.groups) data.groups = [];
+  data.groups.push({ id: 'g_' + Date.now(), name, type, desc, members: 0 });
+  saveAppData(data);
+  document.getElementById('create-group-form').style.display = 'none';
+  document.getElementById('create-group-success').style.display = 'block';
+  document.getElementById('cg-success-detail').textContent = `${name} (${type})`;
+  addActivity(`👥 Created group: ${name}`);
+  showToast(`Group "${name}" created!`);
+}
+
+function closeCreateGroup() {
+  document.getElementById('create-group-overlay').classList.remove('open');
+  updateAllDisplays();
+}
+
+// ====== ASSIGN LICENSE ======
+function openAssignLicense() {
+  document.getElementById('assign-license-form').style.display = 'block';
+  document.getElementById('assign-license-success').style.display = 'none';
+  const users = getAllUsersForSelect();
+  const sel = document.getElementById('al-user');
+  sel.innerHTML = users.map(u => `<option value="${u.id}">${u.name} (${u.email})</option>`).join('');
+  if (users.length === 0) sel.innerHTML = '<option value="">— No active users —</option>';
+  document.getElementById('al-product').value = 'M365 E3';
+  document.getElementById('assign-license-overlay').classList.add('open');
+}
+
+function submitAssignLicense() {
+  const userId = document.getElementById('al-user').value;
+  const product = document.getElementById('al-product').value;
+  if (!userId) { showToast('Please select a user', true); return; }
+  const users = getAllUsersForSelect();
+  const user = users.find(u => u.id === userId);
+  if (!user) { showToast('User not found', true); return; }
+  const data = getAppData();
+  if (!data.licenseAssignments) data.licenseAssignments = [];
+  data.licenseAssignments.push({ userId, userEmail: user.email, product, date: new Date().toISOString() });
+  // Also add to user's licenses in memory
+  if (!data.users) data.users = [];
+  const createdUser = data.users.find(u => u.id === userId);
+  if (createdUser) {
+    if (!createdUser.licenses) createdUser.licenses = [];
+    if (!createdUser.licenses.includes(product)) createdUser.licenses.push(product);
+  }
+  saveAppData(data);
+  document.getElementById('assign-license-form').style.display = 'none';
+  document.getElementById('assign-license-success').style.display = 'block';
+  document.getElementById('al-success-detail').textContent = `${product} → ${user.name}`;
+  addActivity(`📝 Assigned license: ${product} to ${user.name}`);
+  showToast(`License ${product} assigned to ${user.name}!`);
+  renderLicenseStats();
+}
+
+function closeAssignLicense() {
+  document.getElementById('assign-license-overlay').classList.remove('open');
+  updateAllDisplays();
+}
+
+// ====== ENROLL DEVICE ======
+function openEnrollDevice() {
+  document.getElementById('enroll-device-form').style.display = 'block';
+  document.getElementById('enroll-device-success').style.display = 'none';
+  document.getElementById('ed-name').value = '';
+  document.getElementById('ed-os').value = 'Windows 11';
+  document.getElementById('ed-ownership').value = 'Corporate';
+  document.getElementById('ed-enroll-type').value = 'MDM';
+  const users = getAllUsersForSelect();
+  const sel = document.getElementById('ed-user');
+  sel.innerHTML = users.map(u => `<option value="${u.id}">${u.name} (${u.email})</option>`).join('');
+  if (users.length === 0) sel.innerHTML = '<option value="">— No active users —</option>';
+  document.getElementById('enroll-device-overlay').classList.add('open');
+}
+
+function submitEnrollDevice() {
+  const name = document.getElementById('ed-name').value.trim().toUpperCase();
+  const os = document.getElementById('ed-os').value;
+  const ownership = document.getElementById('ed-ownership').value;
+  const enrollType = document.getElementById('ed-enroll-type').value;
+  const userId = document.getElementById('ed-user').value;
+  if (!name) { showToast('Please enter a device name', true); return; }
+  if (!userId) { showToast('Please select a user', true); return; }
+  const users = getAllUsersForSelect();
+  const user = users.find(u => u.id === userId);
+  if (!user) { showToast('User not found', true); return; }
+  const data = getAppData();
+  if (!data.devices) data.devices = [];
+  data.devices.push({
+    id: 'd_' + Date.now(),
+    name,
+    user: user.email,
+    os,
+    compliance: 'Compliant',
+    enrollType,
+    lastSync: 'Just now',
+    ownership
+  });
+  saveAppData(data);
+  document.getElementById('enroll-device-form').style.display = 'none';
+  document.getElementById('enroll-device-success').style.display = 'block';
+  document.getElementById('ed-success-detail').textContent = `${name} (${os}) → ${user.name}`;
+  addActivity(`💻 Enrolled device: ${name} (${user.name})`);
+  showToast(`Device ${name} enrolled successfully!`);
+  renderDevicesTable();
+}
+
+function closeEnrollDevice() {
+  document.getElementById('enroll-device-overlay').classList.remove('open');
+  renderDevicesTable();
+  updateAllDisplays();
+}
+
+// ====== RENDER DEVICES TABLE ======
+function renderDevicesTable() {
+  const container = document.getElementById('devices-table-container');
+  if (!container) return;
+  const devices = loadDevices();
+  if (devices.length === 0) {
+    container.innerHTML = '<div class="empty-state"><i class="ti ti-device-laptop"></i><p>Wala pang enrolled devices. I-click ang "Enroll device".</p></div>';
+    return;
+  }
+  const rows = devices.map(d => {
+    const badge = d.compliance === 'Compliant' ? `<span class="badge badge-green">Compliant</span>`
+      : d.compliance === 'Non-compliant' ? `<span class="badge badge-red">Non-compliant</span>`
+      : `<span class="badge badge-amber">${d.compliance}</span>`;
+    return `<tr class="clickable" onclick="openModal({title:'${d.name}',icon:'ti-device-laptop',rows:[['OS','${d.os}'],['User','${d.user}'],['Compliance','${d.compliance}'],['Enrollment','${d.enrollType}'],['Last sync','${d.lastSync}']]})">
+      <td>${d.name}</td><td>${d.user.split('@')[0]}</td><td>${d.os}</td><td>${badge}</td><td>${d.enrollType}</td><td>${d.lastSync}</td></tr>`;
+  }).join('');
+  container.innerHTML = `<table class="table"><tr><th>Device name</th><th>User</th><th>OS</th><th>Compliance</th><th>Enrollment</th><th>Last sync</th></tr>${rows}</table>`;
+  // Update stats
+  const total = devices.length;
+  const compliant = devices.filter(d => d.compliance === 'Compliant').length;
+  const nonCompliant = devices.filter(d => d.compliance === 'Non-compliant').length;
+  const win = devices.filter(d => d.os && d.os.startsWith('Windows')).length;
+  const ios = devices.filter(d => d.os && d.os.startsWith('iOS')).length;
+  const android = devices.filter(d => d.os && d.os.startsWith('Android')).length;
+  document.getElementById('intune-device-count').textContent = total;
+  document.getElementById('intune-compliant-count').textContent = compliant;
+  document.getElementById('intune-noncompliant-count').textContent = nonCompliant;
+  document.getElementById('intune-windows-count').textContent = win;
+  document.getElementById('intune-ios-count').textContent = ios;
+  document.getElementById('intune-android-count').textContent = android;
+}
+
+// ====== RENDER LICENSE STATS ======
+function renderLicenseStats() {
+  const stats = loadLicenseStats();
+  const el = document.getElementById('license-counts');
+  if (el) {
+    const total = Object.values(stats).reduce((a, b) => a + b, 0);
+    el.textContent = `(${total} total assigned)`;
+  }
+}
+
+// ====== INITIALIZE INTERACTIVE TABLES ======
+function initInteractiveTables() {
+  renderUsersTable();
+  renderDevicesTable();
+  renderLicenseStats();
+}
+
+// Extend switchPanel to init tables when switching to relevant panels
+const origSwitchPanel = switchPanel;
+switchPanel = function(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('topbar-title').textContent = titles[id];
+  hideAllInfo();
+  if (id === 'training' || id === 'home') updateAllDisplays();
+  if (id === 'users') renderUsersTable();
+  if (id === 'intune') renderDevicesTable();
+  if (id === 'licenses') renderLicenseStats();
+};
+
+// ====== ORIGINAL FUNCTIONS ======
+function switchPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('topbar-title').textContent = titles[id];
+  hideAllInfo();
+  if (id === 'training') updateAllDisplays();
+}
+
+function showInfo(id) {
+  var el = document.getElementById('info-'+id);
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function hideAllInfo() {
+  document.querySelectorAll('[id^="info-"]').forEach(el => el.style.display = 'none');
+}
+
+function openModal(data) {
+  document.getElementById('modal-icon').className = 'ti ' + (data.icon || 'ti-info-circle');
+  document.getElementById('modal-title-text').textContent = data.title;
+  document.getElementById('modal-content').innerHTML = data.rows ? data.rows.map(r =>
+    '<div class="modal-row"><span class="modal-key">'+r[0]+'</span><span class="modal-val">'+r[1]+'</span></div>'
+  ).join('') : (data.content || '');
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target.id === 'modal-overlay') document.getElementById('modal-overlay').classList.remove('open');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.getElementById('quiz-overlay').classList.remove('open');
+    document.getElementById('scenario-overlay').classList.remove('open');
+  }
+});
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', function() {
+  updateAllDisplays();
+  initInteractiveTables();
+});
+</script>
+<div style="text-align:center;padding:12px 24px;font-size:11px;color:#8a8a8a;border-top:1px solid #e1dfdd;background:#faf9f8;">Disclaimer: Independent training simulation. Not affiliated with, endorsed by, or associated with Microsoft Corporation. Microsoft, Microsoft 365, Azure, Intune, Exchange, Defender, and SharePoint are trademarks of Microsoft Corporation.</div>
+<script>
+(function(){function p(e){e.preventDefault()}document.addEventListener('contextmenu',p);document.addEventListener('keydown',function(e){if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(e.key.toLowerCase()))||(e.ctrlKey&&['u','c','x'].includes(e.key.toLowerCase()))){e.preventDefault();return false}});document.addEventListener('copy',p);document.addEventListener('cut',p)})();
+</script>
+</body>
+</html>

@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google Workspace Training Simulator</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Google Sans','Segoe UI',system-ui,sans-serif;background:#f8f9fa;min-height:100vh;font-size:14px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+.app{display:flex;height:100vh}
+.sidebar{width:240px;background:#fff;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;border-right:1px solid #dadce0}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:#fff;border-bottom:1px solid #dadce0;padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.content{flex:1;overflow-y:auto;padding:24px 32px}
+.sidebar-header{padding:14px 16px;border-bottom:1px solid #dadce0}
+.sidebar-logo{display:flex;align-items:center;gap:10px;color:#5f6368}
+.sidebar-logo i{font-size:24px}
+.sidebar-logo-text{font-size:15px;font-weight:500;color:#3c4043}
+.sidebar-logo-sub{font-size:11px;color:#5f6368;margin-top:1px}
+.sidebar-section-title{padding:16px 16px 6px;font-size:11px;color:#5f6368;text-transform:uppercase;letter-spacing:0.5px;font-weight:500}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 16px;color:#3c4043;font-size:13px;cursor:pointer;border-radius:0 20px 20px 0;margin-right:12px;transition:background 0.1s}
+.nav-item:hover{background:#f1f3f4}
+.nav-item.active{background:#e8f0fe;color:#1a73e8;font-weight:500}
+.nav-item i{font-size:18px;color:#5f6368}
+.nav-item.active i{color:#1a73e8}
+.nav-item .nav-badge{margin-left:auto;background:#1a73e8;color:#fff;font-size:9px;padding:1px 7px;border-radius:8px;font-weight:600}
+.topbar-title{font-size:16px;font-weight:500;color:#3c4043}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-right i{font-size:20px;color:#5f6368;cursor:pointer;padding:8px;border-radius:50%}
+.topbar-right i:hover{background:#f1f3f4}
+.avatar{width:32px;height:32px;border-radius:50%;background:#1a73e8;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;flex-shrink:0;cursor:pointer}
+.panel{display:none}
+.panel.active{display:block}
+.page-title{font-size:24px;font-weight:400;color:#3c4043;margin-bottom:4px}
+.page-sub{font-size:13px;color:#5f6368;margin-bottom:24px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid #dadce0;border-radius:8px;padding:16px 20px;position:relative}
+.stat-card .stat-icon{position:absolute;top:16px;right:16px;font-size:24px;color:#dadce0}
+.stat-label{font-size:12px;color:#5f6368;margin-bottom:4px}
+.stat-val{font-size:28px;font-weight:400;color:#202124}
+.stat-change{font-size:12px;color:#188038;margin-top:2px}
+.card{background:#fff;border:1px solid #dadce0;border-radius:8px;margin-bottom:16px;overflow:hidden}
+.card-header{padding:14px 20px;border-bottom:1px solid #dadce0;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:500;color:#3c4043}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.table{width:100%;border-collapse:collapse;font-size:13px}
+.table th{padding:10px 20px;text-align:left;color:#5f6368;font-weight:500;font-size:12px;border-bottom:1px solid #dadce0;background:#f8f9fa}
+.table td{padding:10px 20px;border-bottom:1px solid #e8eaed;color:#3c4043}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:#f1f3f4}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500}
+.badge-green{background:#e6f4ea;color:#137333}
+.badge-red{background:#fce8e6;color:#c5221f}
+.badge-amber{background:#fef7e0;color:#ea8600}
+.badge-blue{background:#e8f0fe;color:#1a73e8}
+.badge-purple{background:#f3e8fd;color:#9334e6}
+.action-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.btn{padding:7px 16px;font-size:13px;border:1px solid #dadce0;border-radius:4px;background:#fff;color:#3c4043;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-weight:500}
+.btn:hover{background:#f1f3f4}
+.btn-primary{background:#1a73e8;color:#fff;border-color:#1a73e8}
+.btn-primary:hover{background:#1765cc}
+.btn-success{background:#188038;color:#fff;border-color:#188038}
+.btn-success:hover{background:#19692e}
+.btn-outline{background:transparent;border:1px solid #1a73e8;color:#1a73e8}
+.btn-outline:hover{background:#e8f0fe}
+.btn-sm{padding:4px 10px;font-size:12px}
+.alert{padding:10px 14px;border-radius:4px;font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.alert-warn{background:#fef7e0;color:#ea8600;border-left:3px solid #ea8600}
+.alert-info{background:#e8f0fe;color:#1a73e8;border-left:3px solid #1a73e8}
+.alert-succ{background:#e6f4ea;color:#137333;border-left:3px solid #188038}
+.progress-bar{height:8px;background:#e8eaed;border-radius:4px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;background:#1a73e8;border-radius:4px;transition:width 0.4s}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:#fff;border-radius:8px;padding:24px 28px;width:440px;max-width:92vw;box-shadow:0 4px 32px rgba(0,0,0,0.18)}
+.modal-box.wide{width:560px}
+.modal-title{font-size:16px;font-weight:500;color:#202124;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e8eaed;font-size:13px}
+.modal-row:last-of-type{border-bottom:none}
+.modal-key{color:#5f6368}
+.modal-val{color:#202124;font-weight:500;max-width:60%;text-align:right}
+.modal-actions{margin-top:16px;display:flex;gap:8px;justify-content:flex-end}
+.info-box{background:#f8f9fa;border-radius:8px;padding:14px 16px;font-size:13px;color:#3c4043;margin-top:12px;line-height:1.6;border:1px solid #e8eaed}
+.info-box strong{color:#1a73e8}
+.learn-section{background:#e8f0fe;border-radius:8px;padding:20px;margin-bottom:16px}
+.learn-section h3{font-size:15px;font-weight:500;color:#1a73e8;margin-bottom:8px}
+.learn-section p{font-size:13px;color:#3c4043;line-height:1.6}
+.learn-steps{margin:10px 0 0;padding-left:20px;font-size:13px;color:#3c4043;line-height:1.9}
+.tab-bar{display:flex;gap:0;margin-bottom:16px;background:#fff;border-bottom:1px solid #dadce0}
+.tab-btn{padding:10px 20px;font-size:13px;border:none;background:transparent;cursor:pointer;color:#5f6368;font-weight:500;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab-btn.active{color:#1a73e8;border-bottom-color:#1a73e8}
+.tab-btn:hover:not(.active){color:#3c4043;background:#f1f3f4}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.quiz-question{font-size:15px;font-weight:500;color:#202124;margin-bottom:16px;line-height:1.5}
+.quiz-option{display:block;width:100%;text-align:left;padding:12px 16px;margin-bottom:8px;border:1px solid #dadce0;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;font-family:inherit;transition:all 0.12s}
+.quiz-option:hover{border-color:#1a73e8;background:#f8f9fa}
+.quiz-option.selected{border-color:#1a73e8;background:#e8f0fe;font-weight:500}
+.quiz-option.correct{border-color:#188038;background:#e6f4ea}
+.quiz-option.wrong{border-color:#c5221f;background:#fce8e6}
+.quiz-result{padding:14px;border-radius:8px;margin-top:16px;font-size:14px;font-weight:500}
+.quiz-result.pass{background:#e6f4ea;color:#137333}
+.quiz-result.fail{background:#fce8e6;color:#c5221f}
+.learn-check{list-style:none;margin:10px 0 0;font-size:13px;color:#3c4043;line-height:2}
+.learn-check li::before{content:"\2713";color:#188038;font-weight:700;margin-right:8px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:500;color:#5f6368;margin-bottom:4px}
+.form-group input,.form-group select{width:100%;padding:8px 12px;font-size:13px;border:1px solid #dadce0;border-radius:4px;font-family:inherit;background:#fff;color:#3c4043}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:#1a73e8;box-shadow:0 0 0 2px #e8f0fe}
+.form-group input:disabled{background:#f1f3f4;color:#5f6368}
+.form-hint{font-size:11px;color:#5f6368;margin-top:3px}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #e8eaed}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:13px;color:#3c4043;font-weight:500}
+.toggle-desc{font-size:11px;color:#5f6368;margin-top:2px}
+.switch{position:relative;width:36px;height:20px;flex-shrink:0;cursor:pointer}
+.switch input{opacity:0;width:0;height:0}
+.switch .slider{position:absolute;inset:0;background:#dadce0;border-radius:10px;transition:0.2s}
+.switch .slider::before{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;left:2px;transition:0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.switch input:checked+.slider{background:#1a73e8}
+.switch input:checked+.slider::before{transform:translateX(16px)}
+.scenario-card{background:#fff;border:1px solid #dadce0;border-radius:8px;padding:20px;margin-bottom:16px;cursor:pointer;transition:all 0.15s}
+.scenario-card:hover{border-color:#1a73e8;box-shadow:0 1px 6px rgba(26,115,232,0.12)}
+.scenario-card h4{font-size:14px;font-weight:500;color:#202124;margin-bottom:4px}
+.scenario-card p{font-size:13px;color:#5f6368;line-height:1.5}
+.scenario-card .badge{margin-top:8px}
+.scenario-detail{display:none}
+.scenario-detail.open{display:block}
+.activity-item{padding:10px 0;border-bottom:1px solid #e8eaed;font-size:13px;color:#3c4043;display:flex;align-items:center;gap:10px}
+.activity-item:last-child{border-bottom:none}
+.activity-icon{font-size:16px;flex-shrink:0}
+.activity-icon.done{color:#188038}
+.activity-icon.warn{color:#ea8600}
+.activity-icon.info{color:#1a73e8}
+.activity-time{color:#5f6368;font-size:11px;margin-left:auto;flex-shrink:0}
+.goog-hr{border:none;border-top:1px solid #dadce0;margin:20px 0}
+@media(max-width:768px){.sidebar{width:60px}.sidebar-logo-text,.sidebar-logo-sub,.sidebar-section-title,.nav-item span,.nav-item .nav-badge{display:none}.nav-item{justify-content:center;padding:14px;margin-right:0;border-radius:50%;width:44px;height:44px;margin:2px auto}.sidebar-section-title{text-align:center}.content{padding:16px}.two-col{grid-template-columns:1fr}.stat-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <i class="ti ti-brand-google"></i>
+        <div>
+          <div class="sidebar-logo-text">Google Workspace</div>
+          <div class="sidebar-logo-sub">Admin Training</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-section-title">Admin Console</div>
+    <div class="nav-item active" data-page="dashboard"><i class="ti ti-dashboard"></i><span>Dashboard</span></div>
+    <div class="nav-item" data-page="directory"><i class="ti ti-users"></i><span>Directory</span><span class="nav-badge" id="userCount">0</span></div>
+    <div class="nav-item" data-page="security"><i class="ti ti-shield"></i><span>Security</span></div>
+    <div class="nav-item" data-page="apps"><i class="ti ti-apps"></i><span>Apps</span></div>
+    <div class="nav-item" data-page="reports"><i class="ti ti-report-analytics"></i><span>Reports</span></div>
+    <div class="sidebar-section-title">Training</div>
+    <div class="nav-item" data-page="training"><i class="ti ti-book"></i><span>Mga Aralin</span><span class="nav-badge" id="trainingBadge">0%</span></div>
+    <div class="nav-item" data-page="scenarios"><i class="ti ti-flask"></i><span>Scenarios</span></div>
+    <div class="nav-item" data-page="activity"><i class="ti ti-activity"></i><span>Activity Log</span></div>
+  </div>
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-right">
+        <i class="ti ti-refresh" onclick="location.reload()" title="Refresh"></i>
+        <div class="avatar" title="Admin">A</div>
+      </div>
+    </div>
+    <div class="content" id="mainContent">
+      <!-- All panels rendered by JS -->
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal-box" id="modalBox"></div></div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const APP_NAME = 'Google Workspace Admin Trainer';
+const DOMAIN = 'kalyx.com';
+
+function getProgress(){try{return JSON.parse(localStorage.getItem('gws_trainer'))||{modules:{},quizzes:{},scenarios:{}} }catch{return{modules:{},quizzes:{},scenarios:{}}}}
+function saveProgress(p){localStorage.setItem('gws_trainer',JSON.stringify(p))}
+function getData(){try{return JSON.parse(localStorage.getItem('gws_trainer_data'))||{users:[],groups:[],domains:[],appSettings:{gmail:true,drive:true,meet:true,calendar:true,chat:true,sites:true}}}catch{return{users:[],groups:[],domains:[],appSettings:{gmail:true,drive:true,meet:true,calendar:true,chat:true,sites:true}}}}
+function saveData(d){localStorage.setItem('gws_trainer_data',JSON.stringify(d))}
+function getActivity(){try{return JSON.parse(localStorage.getItem('gws_trainer_activity'))||[]}catch{return[]}}
+function saveActivity(a){localStorage.setItem('gws_trainer_activity',JSON.stringify(a))}
+function addActivity(msg,type='info'){const a=getActivity();a.unshift({msg,type,time:new Date().toISOString()});if(a.length>200)a.length=200;saveActivity(a)}
+
+// ============================================================
+// MODULES
+// ============================================================
+const modules = [
+  {
+    id:'m1',title:'Pagpapakilala sa Google Workspace',
+    content:`<div class="learn-section"><h3>Ano ang Google Workspace?</h3>
+<p>Ang Google Workspace (dating G Suite) ay koleksyon ng cloud-based productivity tools ng Google — Gmail, Google Drive, Google Meet, Google Calendar, Google Chat, at Google Sites. Bilang admin, ikaw ang namamahala sa mga user, groups, settings, at security ng inyong organisasyon.</p>
+<h3 style="margin-top:14px;color:#1a73e8;">Admin Console</h3>
+<p>Ang admin console (admin.google.com) ang iyong pangunahing tool para i-manage ang lahat ng aspeto ng Google Workspace — mula sa paggawa ng user hanggang sa pag-set ng security policies.</p>
+<h3 style="margin-top:14px;color:#1a73e8;">Mga Pangunahing Konsepto</h3>
+<ul class="learn-steps">
+<li><strong>Organizational Units (OUs)</strong> — para ma-group ang users at mag-apply ng iba't ibang settings</li>
+<li><strong>Groups</strong> — para sa mailing lists at permission management</li>
+<li><strong>Services</strong> — pwedeng i-on o i-off ang Gmail, Drive, Meet, at iba pa</li>
+<li><strong>2-Step Verification</strong> — dagdag na seguridad para sa lahat ng user</li>
+</ul></div>`,
+    quiz:[
+      {q:'Ano ang tawag sa dating pangalan ng Google Workspace?',o:['G Suite','Google Apps','Google Cloud','Google Office'],a:0},
+      {q:'Saan pangunahing tool ginagawa ang admin tasks?',o:['Google Drive','Admin Console','Gmail','Google Meet'],a:1},
+      {q:'Ano ang gamit ng Organizational Units (OUs)?',o:['Mag-imbak ng files','Mag-group ng users para iba-ibang settings','Mag-send ng email','Mag-create ng websites'],a:1},
+      {q:'Alin sa mga ito ang HINDI kasama sa Google Workspace?',o:['Gmail','Google Drive','Microsoft Word','Google Meet'],a:2},
+      {q:'Bilang admin, ano ang dapat mong i-manage?',o:['Users at security lang','Users, groups, security, at services','Email lang','Drive storage lang'],a:1}
+    ]
+  },
+  {
+    id:'m2',title:'Pamamahala ng Users at Groups',
+    content:`<div class="learn-section"><h3>User Management</h3>
+<p>Maaari kang mag-create, mag-suspend, at mag-delete ng users sa Google Workspace. Ang bawat user ay may email address (username@kalyx.com) at password. Pwedeng mag-apply ng iba't ibang roles tulad ng Super Admin, Groups Admin, at User.</p>
+<h3 style="margin-top:14px;color:#1a73e8;">Group Management</h3>
+<p>Ang Google Groups ay ginagamit para mag-send ng email sa maraming tao nang sabay at para i-manage ang permissions. Maaari kang mag-create ng group, mag-add ng members, at mag-set ng access level.</p>
+<ul class="learn-steps">
+<li>Pumunta sa Directory > Users para i-manage ang users</li>
+<li>Pumunta sa Directory > Groups para i-manage ang groups</li>
+<li>Pwedeng mag-assign ng admin roles para iba't ibang responsibilidad</li>
+</ul></div>`,
+    quiz:[
+      {q:'Saan mo makikita ang user management tools?',o:['Apps','Directory > Users','Security','Reports'],a:1},
+      {q:'Ano ang gamit ng Google Groups?',o:['Mag-imbak ng files','Mag-send ng email sa maraming tao','Mag-edit ng documents','Mag-set ng password'],a:1},
+      {q:'Ano ang pwedeng gawin sa isang user account?',o:['I-create lang','I-suspend lang','I-delete lang','Lahat ng nabanggit'],a:3},
+      {q:'Anong role ang may pinakamataas na access?',o:['User','Groups Admin','Super Admin','Help Desk Admin'],a:2},
+      {q:'Ano ang email domain ng simulation na ito?',o:['google.com','gmail.com','kalyx.com','workspace.com'],a:2}
+    ]
+  },
+  {
+    id:'m3',title:'Seguridad at Authentication',
+    content:`<div class="learn-section"><h3>Security Settings</h3>
+<p>Mahalaga ang seguridad sa Google Workspace. Pwedeng mag-set ng password policies, i-enforce ang 2-Step Verification (2SV), at mag-configure ng recovery options para sa lahat ng user.</p>
+<h3 style="margin-top:14px;color:#1a73e8;">2-Step Verification</h3>
+<p>Ang 2SV ay nagdadagdag ng extra layer ng seguridad. Bukod sa password, kailangan ng code mula sa phone o security key para makapasok ang user.</p>
+<h3 style="margin-top:14px;color:#1a73e8;">Password Policies</h3>
+<ul class="learn-steps">
+<li>Minimum password length</li>
+<li>Password strength requirements</li>
+<li>Password expiration (opsyonal)</li>
+<li>Account recovery options</li>
+</ul></div>`,
+    quiz:[
+      {q:'Ano ang tawag sa extra layer ng security bukod sa password?',o:['Firewall','2-Step Verification','VPN','Antivirus'],a:1},
+      {q:'Saan mo io-configure ang security settings?',o:['Directory','Apps','Security','Reports'],a:2},
+      {q:'Ano ang pwedeng i-set sa password policy?',o:['Minimum length','Strength requirements','Expiration','Lahat ng nabanggit'],a:3},
+      {q:'Anong device ang pwedeng gamitin para sa 2SV?',o:['Phone lang','Security key lang','Pareho ng nabanggit','Computer lang'],a:2},
+      {q:'Bakit mahalaga ang 2SV?',o:['Mas mabilis ang internet','Mas secure ang account','Mas maraming storage','Mas maganda ang UI'],a:1}
+    ]
+  },
+  {
+    id:'m4',title:'Apps at Services',
+    content:`<div class="learn-section"><h3>Service Management</h3>
+<p>Bilang admin, maaari mong i-on o i-off ang iba't ibang Google services para sa inyong organisasyon. Ito ay ginagawa sa Apps section ng admin console.</p>
+<h3 style="margin-top:14px;color:#1a73e8;">Mga Serbisyo</h3>
+<ul class="learn-steps">
+<li><strong>Gmail</strong> — email para sa inyong domain</li>
+<li><strong>Google Drive</strong> — cloud storage at file sharing</li>
+<li><strong>Google Meet</strong> — video conferencing</li>
+<li><strong>Google Calendar</strong> — scheduling at events</li>
+<li><strong>Google Chat</strong> — instant messaging</li>
+<li><strong>Google Sites</strong> — website creation</li>
+</ul>
+<p style="margin-top:10px;">Pwedeng i-customize ang settings para sa bawat service, tulad ng storage limits, sharing permissions, at accessibility.</p></div>`,
+    quiz:[
+      {q:'Saan mo io-on o io-off ang Google services?',o:['Directory','Security','Apps','Reports'],a:2},
+      {q:'Alin sa mga ito ang serbisyo ng Google Workspace?',o:['Gmail','Google Drive','Google Meet','Lahat ng nabanggit'],a:3},
+      {q:'Ano ang pwedeng i-customize sa bawat service?',o:['Storage limits','Sharing permissions','Accessibility','Lahat ng nabanggit'],a:3},
+      {q:'Anong service ang ginagamit para sa video conferencing?',o:['Gmail','Google Drive','Google Meet','Google Sites'],a:2},
+      {q:'Anong service ang ginagamit para sa cloud storage?',o:['Gmail','Google Drive','Google Calendar','Google Chat'],a:1}
+    ]
+  },
+  {
+    id:'m5',title:'Reports at Compliance',
+    content:`<div class="learn-section"><h3>Monitoring at Reporting</h3>
+<p>Ang Reports section ay nagbibigay ng visibility sa kung ano ang nangyayari sa inyong Google Workspace. Maaaring makita ang audit logs, usage reports, at security investigations.</p>
+<h3 style="margin-top:14px;color:#1a73e8;">Mga Uri ng Reports</h3>
+<ul class="learn-steps">
+<li><strong>Audit Log</strong> — sino ang gumawa ng ano at kailan</li>
+<li><strong>User Reports</strong> — aktibidad ng bawat user</li>
+<li><strong>Security Reports</strong> — mga security events at alerts</li>
+<li><strong>App Usage</strong> — gaano kadalas ginagamit ang mga services</li>
+</ul>
+<p style="margin-top:10px;">Ang audit logs ay mahalaga para sa compliance at security investigations.</p></div>`,
+    quiz:[
+      {q:'Saan makikita ang audit logs?',o:['Directory','Apps','Security','Reports'],a:3},
+      {q:'Ano ang gamit ng audit log?',o:['Mag-send ng email','Mag-edit ng documents','Itrack kung sino gumawa ng ano','Mag-set ng password'],a:2},
+      {q:'Anong report ang nagpapakita ng security events?',o:['User Reports','Security Reports','App Usage','Drive Reports'],a:1},
+      {q:'Bakit mahalaga ang reports?',o:['Mas mabilis ang internet','Para sa compliance at investigation','Para maglaro','Para mag-edit ng docs'],a:1},
+      {q:'Ano ang tawag sa log na nagre-record ng admin actions?',o:['Email Log','Audit Log','Chat Log','Drive Log'],a:1}
+    ]
+  }
+];
+
+// ============================================================
+// SCENARIOS
+// ============================================================
+const scenarios = [
+  {id:'gs1',title:'Onboarding Bagong Empleyado',desc:'May bagong empleyado sa kumpanya — si Maria Santos. Kailangan mong gumawa ng kanyang account, i-add sa tamang group, at i-configure ang kanyang access sa apps.',steps:[
+    'Buksan ang Directory > Users at i-click ang "Create User"',
+    'Ilagay ang pangalan: Maria Santos, email: maria.santos@kalyx.com',
+    'Auto-generate ang password at i-save',
+    'Pumunta sa Directory > Groups at i-add si Maria sa "All Employees" group',
+    'Tiyakin na naka-ON ang Gmail at Drive para sa kanya'
+  ],done:false,icon:'ti ti-user-plus'},
+  {id:'gs2',title:'Security Incident Response',desc:'May nakitang kahina-hinalang aktibidad sa account ni Juan. Kailangan mong pansamantalang i-suspend ang account at i-enforce ang 2SV.',steps:[
+    'Pumunta sa Directory > Users at hanapin si Juan',
+    'I-suspend and account ni Juan',
+    'Pumunta sa Security at i-enforce ang 2SV',
+    'I-set ang password policy sa minimum 12 characters',
+    'I-log ang insidente sa activity log'
+  ],done:false,icon:'ti ti-shield-alert'},
+  {id:'gs3',title:'Company-Wide Service Update',desc:'Nag-decision ang management na i-disable ang Google Chat at i-turn off ang external sharing sa Drive para sa lahat ng user.',steps:[
+    'Pumunta sa Apps section',
+    'I-turn OFF ang Google Chat service',
+    'I-configure ang Drive sharing settings',
+    'Gumawa ng announcement group para sa update',
+    'I-verify na updated na ang lahat ng settings'
+  ],done:false,icon:'ti ti-settings-cog'},
+  {id:'gs4',title:'New Domain Setup',desc:'Bumili ang kumpanya ng bagong domain (kalyxenterprises.com) at kailangan itong i-add sa Google Workspace para magkaroon ng email addresses ang mga user.',steps:[
+    'Pumunta sa Directory > Domains',
+    'I-add ang bagong domain: kalyxenterprises.com',
+    'Gumawa ng test user sa bagong domain',
+    'I-configure ang email routing',
+    'I-document ang changes'
+  ],done:false,icon:'ti ti-world'}
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentPage = 'dashboard';
+let prog = getProgress();
+let data = getData();
+
+function switchPage(page) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===page));
+  currentPage=page;
+  renderPage(page);
+}
+function renderPage(page) {
+  const mc = document.getElementById('mainContent');
+  const titles = {dashboard:'Dashboard',directory:'Directory',security:'Security',apps:'Apps',reports:'Reports',training:'Mga Aralin',scenarios:'Scenarios',activity:'Activity Log'};
+  document.getElementById('topbarTitle').textContent=titles[page]||'';
+  const r = {dashboard:renderDashboard,directory:renderDirectory,security:renderSecurity,apps:renderApps,reports:renderReports,training:renderTraining,scenarios:renderScenarios,activity:renderActivity};
+  if(r[page]){mc.innerHTML='<div class="panel active">'+r[page]()+'</div>';}
+  updateCounts();
+}
+function updateCounts() {
+  document.getElementById('userCount').textContent=data.users.length;
+  const p=getProgress();const tot=modules.length*3+scenarios.length*3;let done=0;
+  modules.forEach(m=>{if(p.modules[m.id])done+=3;else if(p.quizzes[m.id])done+=2;else if(p.quizzes[m.id+'half'])done+=1});
+  scenarios.forEach(s=>{if(p.scenarios[s.id])done+=3});
+  const pc=tot?Math.round(done/tot*100):0;
+  document.getElementById('trainingBadge').textContent=pc+'%';
+}
+// ... loaded from modules/scenarios above
+
+// ============================================================
+// RENDER: DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const p=getProgress();const d=getData();
+  const modDone=modules.filter(m=>p.modules[m.id]).length;
+  const quizDone=modules.filter(m=>p.quizzes[m.id]).length;
+  const scDone=scenarios.filter(s=>p.scenarios[s.id]).length;
+  return `
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub">Google Workspace Admin Training — ${DOMAIN}</p>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon ti ti-users" style="position:absolute;top:16px;right:16px;font-size:24px;color:#dadce0"></div><div class="stat-label">Users</div><div class="stat-val">${d.users.length}</div><div class="stat-change">+${d.users.filter(u=>u.suspended).length} suspended</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-tags" style="position:absolute;top:16px;right:16px;font-size:24px;color:#dadce0"></div><div class="stat-label">Groups</div><div class="stat-val">${d.groups.length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-book" style="position:absolute;top:16px;right:16px;font-size:24px;color:#dadce0"></div><div class="stat-label">Modules Done</div><div class="stat-val">${modDone}/${modules.length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-certificate" style="position:absolute;top:16px;right:16px;font-size:24px;color:#dadce0"></div><div class="stat-label">Quizzes Passed</div><div class="stat-val">${quizDone}/${modules.length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-flask" style="position:absolute;top:16px;right:16px;font-size:24px;color:#dadce0"></div><div class="stat-label">Scenarios Done</div><div class="stat-val">${scDone}/${scenarios.length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-activity" style="position:absolute;top:16px;right:16px;font-size:24px;color:#dadce0"></div><div class="stat-label">Progress</div><div class="stat-val">${document.getElementById('trainingBadge').textContent}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Quick Actions</span></div>
+      <div style="padding:16px 20px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="openCreateUserModal()"><i class="ti ti-user-plus"></i> Create User</button>
+        <button class="btn" onclick="openCreateGroupModal()"><i class="ti ti-tags"></i> Create Group</button>
+        <button class="btn" onclick="switchPage('training')"><i class="ti ti-book"></i> Magsimulang Mag-aral</button>
+        <button class="btn" onclick="switchPage('scenarios')"><i class="ti ti-flask"></i> Scenarios</button>
+      </div>
+    </div>
+    <div class="alert alert-info"><i class="ti ti-info-circle"></i> <strong>Maligayang pagdating!</strong> Gamitin ang Admin Console sa kaliwa para i-manage ang ${DOMAIN}. Mag-aral sa pamamagitan ng modules, quiz, at scenarios.</div>
+  `;
+}
+
+// ============================================================
+// RENDER: DIRECTORY
+// ============================================================
+function renderDirectory() {
+  const d=getData();
+  return `
+    <h1 class="page-title">Directory</h1>
+    <p class="page-sub">Manage users, groups, at organizational units para sa ${DOMAIN}</p>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('dirUsers',this)"><i class="ti ti-users" style="font-size:16px;vertical-align:middle;margin-right:4px"></i> Users (${d.users.length})</button>
+      <button class="tab-btn" onclick="switchTab('dirGroups',this)"><i class="ti ti-tags" style="font-size:16px;vertical-align:middle;margin-right:4px"></i> Groups (${d.groups.length})</button>
+      <button class="tab-btn" onclick="switchTab('dirDomains',this)"><i class="ti ti-world" style="font-size:16px;vertical-align:middle;margin-right:4px"></i> Domains</button>
+    </div>
+    <div id="dirUsers" class="tab-content active">${renderUserList()}</div>
+    <div id="dirGroups" class="tab-content">${renderGroupList()}</div>
+    <div id="dirDomains" class="tab-content">${renderDomainList()}</div>
+  `;
+}
+function renderUserList() {
+  const d=getData();
+  if(!d.users.length)return `<div class="alert alert-info">Wala pang users. <button class="btn btn-primary btn-sm" onclick="openCreateUserModal()">Gumawa ng User</button></div>`;
+  let h=`<div class="action-bar"><button class="btn btn-primary btn-sm" onclick="openCreateUserModal()"><i class="ti ti-user-plus"></i> Create User</button></div><table class="table"><thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead><tbody>`;
+  d.users.forEach((u,i)=>{
+    h+=`<tr><td>${u.name}</td><td>${u.email}</td><td><span class="badge ${u.suspended?'badge-red':'badge-green'}">${u.suspended?'Suspended':'Active'}</span></td><td>
+      <button class="btn btn-sm ${u.suspended?'btn-success':'btn-outline'}" onclick="toggleSuspendUser(${i})">${u.suspended?'<i class="ti ti-player-play"></i> Activate':'<i class="ti ti-player-stop"></i> Suspend'}</button>
+      <button class="btn btn-sm btn-outline" style="color:#c5221f;border-color:#c5221f" onclick="deleteUser(${i})"><i class="ti ti-trash"></i></button>
+    </td></tr>`;
+  });
+  h+=`</tbody></table>`;
+  return h;
+}
+function renderGroupList() {
+  const d=getData();
+  if(!d.groups.length)return `<div class="alert alert-info">Wala pang groups. <button class="btn btn-primary btn-sm" onclick="openCreateGroupModal()">Gumawa ng Group</button></div>`;
+  let h=`<div class="action-bar"><button class="btn btn-primary btn-sm" onclick="openCreateGroupModal()"><i class="ti ti-tags"></i> Create Group</button></div><table class="table"><thead><tr><th>Name</th><th>Email</th><th>Members</th><th>Actions</th></tr></thead><tbody>`;
+  d.groups.forEach((g,i)=>{
+    h+=`<tr><td>${g.name}</td><td>${g.email}</td><td>${g.members||0}</td><td><button class="btn btn-sm btn-outline" style="color:#c5221f;border-color:#c5221f" onclick="deleteGroup(${i})"><i class="ti ti-trash"></i></button></td></tr>`;
+  });
+  h+=`</tbody></table>`;
+  return h;
+}
+function renderDomainList() {
+  const d=getData();
+  let h=`<div class="action-bar"><button class="btn btn-primary btn-sm" onclick="openAddDomainModal()"><i class="ti ti-world"></i> Add Domain</button></div><table class="table"><thead><tr><th>Domain</th><th>Status</th><th>Primary</th></tr></thead><tbody>
+    <tr><td>${DOMAIN}</td><td><span class="badge badge-green">Verified</span></td><td><span class="badge badge-blue">Yes</span></td></tr>`;
+  (d.domains||[]).forEach(dm=>{
+    h+=`<tr><td>${dm.name}</td><td><span class="badge ${dm.verified?'badge-green':'badge-amber'}">${dm.verified?'Verified':'Pending'}</span></td><td>—</td></tr>`;
+  });
+  h+=`</tbody></table>`;
+  return h;
+}
+
+// ============================================================
+// RENDER: SECURITY
+// ============================================================
+function renderSecurity() {
+  const d=getData();
+  const pwLen=d.passwordMinLen||8;
+  const enforce2sv=d.enforce2sv||false;
+  return `
+    <h1 class="page-title">Security</h1>
+    <p class="page-sub">I-configure ang security settings at authentication para sa ${DOMAIN}</p>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Password Policy</span></div>
+        <div style="padding:16px 20px">
+          <div class="form-group">
+            <label>Minimum Password Length</label>
+            <input type="number" id="pwMinLen" value="${pwLen}" min="6" max="20">
+            <div class="form-hint">Inirerekomenda: 12 characters</div>
+          </div>
+          <button class="btn btn-primary" onclick="saveSecuritySettings()"><i class="ti ti-device-floppy"></i> I-save ang Password Policy</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">2-Step Verification</span></div>
+        <div style="padding:16px 20px">
+          <div class="toggle-row">
+            <div><div class="toggle-label">I-enforce ang 2SV</div><div class="toggle-desc">Kailangan ng lahat ng user mag-setup ng 2SV</div></div>
+            <label class="switch"><input type="checkbox" ${enforce2sv?'checked':''} onchange="toggle2sv(this.checked)"><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Allow Recovery Email</div><div class="toggle-desc">Payagan ang users mag-set ng recovery email</div></div>
+            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+          </div>
+          <div style="margin-top:12px">
+            <span class="badge ${enforce2sv?'badge-green':'badge-amber'}">${enforce2sv?'Enforced':'Not Enforced'}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function toggle2sv(v){const d=getData();d.enforce2sv=v;saveData(d);addActivity(v?'2SV enforcement enabled':'2SV enforcement disabled','warn');renderPage('security')}
+function saveSecuritySettings(){
+  const d=getData();const v=parseInt(document.getElementById('pwMinLen').value)||8;
+  d.passwordMinLen=v;saveData(d);addActivity('Password policy updated: min '+v+' chars');alert('Na-save ang password policy! Minimum length: '+v)
+}
+
+// ============================================================
+// RENDER: APPS
+// ============================================================
+function renderApps() {
+  const d=getData();const s=d.appSettings||{gmail:true,drive:true,meet:true,calendar:true,chat:true,sites:true};
+  const apps=[{id:'gmail',label:'Gmail',desc:'Email service'},{id:'drive',label:'Google Drive',desc:'Cloud storage at file sharing'},{id:'meet',label:'Google Meet',desc:'Video conferencing'},{id:'calendar',label:'Google Calendar',desc:'Scheduling at events'},{id:'chat',label:'Google Chat',desc:'Instant messaging'},{id:'sites',label:'Google Sites',desc:'Website creation'}];
+  let h=`<h1 class="page-title">Apps</h1><p class="page-sub">I-on o i-off ang Google services para sa ${DOMAIN}</p><div class="card"><div class="card-header"><span class="card-title">Google Services</span></div><div style="padding:12px 20px">`;
+  apps.forEach(a=>{
+    h+=`<div class="toggle-row"><div><div class="toggle-label">${a.label}</div><div class="toggle-desc">${a.desc}</div></div><label class="switch"><input type="checkbox" ${s[a.id]?'checked':''} onchange="toggleApp('${a.id}',this.checked)"><span class="slider"></span></label></div>`;
+  });
+  h+=`</div></div><div class="alert alert-info"><i class="ti ti-info-circle"></i> Ang pag-toggle ng services ay naka-save sa browser. Sa totoong Google Workspace, 15-30 min bago mag-reflect ang changes.</div>`;
+  return h;
+}
+function toggleApp(id,v){const d=getData();if(!d.appSettings)d.appSettings={gmail:true,drive:true,meet:true,calendar:true,chat:true,sites:true};d.appSettings[id]=v;saveData(d);addActivity((v?'Enabled ':'Disabled ')+id,'warn')}
+
+// ============================================================
+// RENDER: REPORTS
+// ============================================================
+function renderReports() {
+  const ac=getActivity();
+  let h=`<h1 class="page-title">Reports</h1><p class="page-sub">Audit logs at activity monitoring para sa ${DOMAIN}</p><div class="card"><div class="card-header"><span class="card-title">Audit Log (${ac.length} entries)</span></div><div style="padding:8px 20px">`;
+  if(!ac.length){h+=`<div class="alert alert-info">Wala pang activity na na-log. Magsimulang gumawa ng actions sa admin console.</div>`;}
+  else{ac.forEach(a=>{h+=`<div class="activity-item"><i class="ti ${a.type==='done'?'ti-check-circle activity-icon done':a.type==='warn'?'ti-alert-triangle activity-icon warn':'ti-info-circle activity-icon info'}"></i><span>${a.msg}</span><span class="activity-time">${new Date(a.time).toLocaleString('fil-PH')}</span></div>`});}
+  h+=`</div></div><button class="btn" onclick="addActivity('Manually refreshed reports page')"><i class="ti ti-refresh"></i> Refresh Log</button>`;
+  return h;
+}
+
+// ============================================================
+// RENDER: TRAINING
+// ============================================================
+function renderTraining() {
+  const p=getProgress();
+  let h=`<h1 class="page-title">Mga Aralin</h1><p class="page-sub">5 modules na may lessons, quizzes, at progress tracking</p>`;
+  modules.forEach((m,i)=>{
+    const done=p.modules[m.id];const quizDone=p.quizzes[m.id];const started=p.quizzes[m.id+'half'];
+    const status=done?'completed':quizDone?'quiz-done':started?'started':'pending';
+    let stLabel='<span class="badge badge-amber">Not Started</span>';
+    if(done)stLabel='<span class="badge badge-green">Completed</span>';
+    else if(quizDone)stLabel='<span class="badge badge-blue">Quiz Passed</span>';
+    else if(started)stLabel='<span class="badge badge-amber">In Progress</span>';
+    h+=`<div class="card" style="opacity:${done||i===0||p.quizzes[modules[i-1]?.id]?1:0.5};cursor:${done||i===0||p.quizzes[modules[i-1]?.id]?'pointer':'not-allowed'}">
+      <div class="card-header"><span class="card-title">Module ${i+1}: ${m.title}</span> ${stLabel}</div>
+      <div style="padding:16px 20px">
+        <div class="learn-content" id="learn_${m.id}">${m.content}</div>
+        <div id="quizArea_${m.id}"></div>
+        ${!done?`<button class="btn btn-primary" onclick="startQuiz('${m.id}')" id="quizBtn_${m.id}" ${(i>0&&!p.quizzes[modules[i-1]?.id])?'disabled':''}><i class="ti ti-edit"></i> ${p.quizzes[m.id]?'Retake Quiz':'Take Quiz'}</button>`:''}
+        ${done?`<span style="color:#188038;font-weight:500"><i class="ti ti-check-circle"></i> Module Completed!</span>`:''}
+      </div>
+    </div>`;
+  });
+  const tot=modules.length*3;let done=0;
+  modules.forEach(m=>{if(p.modules[m.id])done+=3;else if(p.quizzes[m.id])done+=2;else if(p.quizzes[m.id+'half'])done+=1});
+  const pc=tot?Math.round(done/tot*100):0;
+  h+=`<div class="card"><div class="card-header"><span class="card-title">Overall Progress</span><span>${pc}%</span></div><div style="padding:10px 20px"><div class="progress-bar"><div class="progress-fill" style="width:${pc}%"></div></div></div></div>`;
+  return h;
+}
+
+// ============================================================
+// QUIZ ENGINE
+// ============================================================
+function startQuiz(modId) {
+  const m=modules.find(x=>x.id===modId);if(!m)return;
+  const area=document.getElementById('quizArea_'+modId);
+  const btn=document.getElementById('quizBtn_'+modId);
+  if(btn)btn.style.display='none';
+  let h=`<div class="card"><div class="card-header"><span class="card-title">Quiz: ${m.title}</span></div><div style="padding:16px 20px" id="quizBody_${modId}"><p style="margin-bottom:12px;color:#5f6368">Sagutan ang mga tanong. Kailangan ng ${Math.ceil(m.quiz.length*0.7)}/5 para pumasa.</p>`;
+  m.quiz.forEach((q,qi)=>{
+    h+=`<div style="margin-bottom:16px" id="qq_${modId}_${qi}"><div class="quiz-question">${qi+1}. ${q.q}</div>`;
+    q.o.forEach((opt,oi)=>{
+      h+=`<button class="quiz-option" onclick="selectQuizOption('${modId}',${qi},${oi})" id="qo_${modId}_${qi}_${oi}">${opt}</button>`;
+    });
+    h+=`</div>`;
+  });
+  h+=`<button class="btn btn-primary" onclick="submitQuiz('${modId}')"><i class="ti ti-send"></i> I-submit ang Quiz</button><div id="quizResult_${modId}"></div></div></div>`;
+  area.innerHTML=h;
+  window._quizSelections=window._quizSelections||{};window._quizSelections[modId]=[];
+  const p=getProgress();if(!p.quizzes[modId+'half']){p.quizzes[modId+'half']=true;saveProgress(p);updateCounts();}
+}
+function selectQuizOption(modId,qi,oi) {
+  window._quizSelections=window._quizSelections||{};if(!window._quizSelections[modId])window._quizSelections[modId]=[];
+  window._quizSelections[modId][qi]=oi;
+  document.querySelectorAll('#qq_'+modId+'_'+qi+' .quiz-option').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('qo_'+modId+'_'+qi+'_'+oi).classList.add('selected');
+}
+function submitQuiz(modId) {
+  const m=modules.find(x=>x.id===modId);if(!m)return;
+  const sel=window._quizSelections?.[modId]||[];
+  let correct=0;
+  m.quiz.forEach((q,qi)=>{
+    const chosen=sel[qi];
+    document.querySelectorAll('#qq_'+modId+'_'+qi+' .quiz-option').forEach((el,oi)=>{
+      el.classList.remove('selected','correct','wrong');el.disabled=true;
+      if(oi===q.a)el.classList.add('correct');
+      else if(oi===chosen)el.classList.add('wrong');
+    });
+    if(chosen===q.a)correct++;
+  });
+  const pass=correct>=Math.ceil(m.quiz.length*0.7);const p=getProgress();
+  if(pass){p.quizzes[modId]=true;saveProgress(p);addActivity('Pumasa sa quiz: '+m.title,'done');}
+  else{addActivity('Bagsak sa quiz: '+m.title+'. '+correct+'/'+m.quiz.length,'warn');}
+  document.getElementById('quizResult_'+modId).innerHTML=`<div class="quiz-result ${pass?'pass':'fail'}">${pass?'Passed!':'Bagsak. Kailangan ng '+(Math.ceil(m.quiz.length*0.7))+'/5. I-retry ang quiz.'} ${correct}/${m.quiz.length} tamang sagot.</div>`;
+  if(pass){setTimeout(()=>{markModuleDone(modId);renderPage('training');},1500);}
+  updateCounts();
+}
+function markModuleDone(modId) {
+  const p=getProgress();p.modules[modId]=true;saveProgress(p);addActivity('Natapos ang module: '+modules.find(m=>m.id===modId)?.title,'done');
+}
+
+// ============================================================
+// RENDER: SCENARIOS
+// ============================================================
+function renderScenarios() {
+  const p=getProgress();
+  let h=`<h1 class="page-title">Scenarios</h1><p class="page-sub">Hands-on practice gamit ang realistic scenarios</p>`;
+  scenarios.forEach(s=>{
+    const done=p.scenarios[s.id];
+    h+=`<div class="scenario-card" onclick="toggleScenario('${s.id}')">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <i class="${s.icon}" style="font-size:24px;color:#1a73e8;margin-top:2px"></i>
+        <div style="flex:1">
+          <h4>${s.title} ${done?'<span class="badge badge-green">Done</span>':''}</h4>
+          <p>${s.desc}</p>
+        </div>
+      </div>
+      <div class="scenario-detail" id="scDetail_${s.id}">
+        <hr class="goog-hr">
+        <ol style="margin:0 0 12px 16px;font-size:13px;color:#3c4043;line-height:2">${s.steps.map(st=>`<li>${st}</li>`).join('')}</ol>
+        <button class="btn ${done?'btn-outline':'btn-success'}" onclick="event.stopPropagation();completeScenario('${s.id}')">${done?'<i class="ti ti-refresh"></i> Redo':'<i class="ti ti-check"></i> Mark Complete'}</button>
+      </div>
+    </div>`;
+  });
+  return h;
+}
+function toggleScenario(id) {
+  const el=document.getElementById('scDetail_'+id);
+  if(el){el.classList.toggle('open');if(!el.classList.contains('open'))el.style.display='none';else el.style.display='block';}
+}
+function completeScenario(id) {
+  const p=getProgress();const s=scenarios.find(x=>x.id===id);
+  if(p.scenarios[id]){delete p.scenarios[id];addActivity('Unmarked scenario: '+s.title);}
+  else{p.scenarios[id]=true;addActivity('Natapos ang scenario: '+s.title,'done');}
+  saveProgress(p);renderPage('scenarios');updateCounts();
+}
+
+// ============================================================
+// RENDER: ACTIVITY
+// ============================================================
+function renderActivity() {
+  const ac=getActivity();
+  let h=`<h1 class="page-title">Activity Log</h1><p class="page-sub">Record ng lahat ng actions na ginawa mo sa simulation</p><div class="card"><div style="padding:8px 20px;max-height:500px;overflow-y:auto">`;
+  if(!ac.length){h+=`<div class="alert alert-info">Wala pang activity. Magsimulang gumawa ng admin tasks!</div>`;}
+  else{ac.forEach(a=>{h+=`<div class="activity-item"><i class="ti ${a.type==='done'?'ti-check-circle activity-icon done':a.type==='warn'?'ti-alert-triangle activity-icon warn':'ti-info-circle activity-icon info'}"></i><span>${a.msg}</span><span class="activity-time">${new Date(a.time).toLocaleString('fil-PH')}</span></div>`});}
+  h+=`</div></div><button class="btn btn-outline" onclick="if(confirm('I-clear ang activity log?')){saveActivity([]);renderPage('activity');}"><i class="ti ti-trash"></i> Clear Log</button>`;
+  return h;
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+function openModal(html) {
+  document.getElementById('modalBox').innerHTML=html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() {document.getElementById('modalOverlay').classList.remove('open');}
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// ---- Create User Modal ----
+function openCreateUserModal() {
+  const n=Math.floor(Math.random()*9000+1000);
+  openModal(`
+    <div class="modal-title"><i class="ti ti-user-plus" style="color:#1a73e8"></i> Create User</div>
+    <div class="form-group"><label>Full Name</label><input id="cuName" placeholder="e.g. Juan Dela Cruz" oninput="autoGenEmail()"></div>
+    <div class="form-group"><label>Email</label><input id="cuEmail" placeholder="user@${DOMAIN}" value="user${n}@${DOMAIN}"><div class="form-hint">Auto-generated, pwedeng i-edit</div></div>
+    <div class="form-group"><label>Password</label><input id="cuPass" value="KalYx${n}!" disabled><div class="form-hint">Auto-generated na secure password</div></div>
+    <div class="form-group"><label>Organizational Unit</label><select id="cuOu"><option value="/">/ (Root)</option><option value="/Sales">/Sales</option><option value="/Engineering">/Engineering</option><option value="/HR">/HR</option></select></div>
+    <div class="form-group"><label>Admin Role</label><select id="cuRole"><option value="User">User</option><option value="Groups Admin">Groups Admin</option><option value="Help Desk Admin">Help Desk Admin</option><option value="Super Admin">Super Admin</option></select></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="createUser()"><i class="ti ti-device-floppy"></i> Create</button>
+    </div>
+  `);
+}
+function autoGenEmail() {
+  const name=document.getElementById('cuName')?.value||'';
+  if(name){const email=name.toLowerCase().replace(/[^a-z0-9]/g,'.').replace(/\.+/g,'.').replace(/^\.|\.$/g,'')+'@'+DOMAIN;document.getElementById('cuEmail').value=email;}
+}
+function createUser() {
+  const name=document.getElementById('cuName').value.trim();const email=document.getElementById('cuEmail').value.trim();const role=document.getElementById('cuRole').value;const ou=document.getElementById('cuOu').value;
+  if(!name||!email){alert('Please fill in name and email.');return;}
+  const d=getData();d.users.push({name,email,role,ou,suspended:false,created:new Date().toISOString()});saveData(d);
+  addActivity('Gumawa ng user: '+name+' ('+email+')','done');closeModal();renderPage('directory');
+}
+function toggleSuspendUser(idx) {
+  const d=getData();d.users[idx].suspended=!d.users[idx].suspended;saveData(d);
+  addActivity(d.users[idx].suspended?'Sinuspende ang user: ':'Na-activate ang user: '+d.users[idx].name,'warn');renderPage('directory');
+}
+function deleteUser(idx) {
+  if(!confirm('Delete user '+data.users[idx].name+'?'))return;
+  const d=getData();addActivity('Delete user: '+d.users[idx].name,'warn');d.users.splice(idx,1);saveData(d);renderPage('directory');
+}
+
+// ---- Create Group Modal ----
+function openCreateGroupModal() {
+  const n=Math.floor(Math.random()*900+100);
+  openModal(`
+    <div class="modal-title"><i class="ti ti-tags" style="color:#1a73e8"></i> Create Group</div>
+    <div class="form-group"><label>Group Name</label><input id="cgName" placeholder="e.g. Sales Team"></div>
+    <div class="form-group"><label>Group Email</label><input id="cgEmail" value="group${n}@${DOMAIN}"><div class="form-hint">Auto-generated, pwedeng i-edit</div></div>
+    <div class="form-group"><label>Description</label><input id="cgDesc" placeholder="Ilarawan ang grupo"></div>
+    <div class="form-group"><label>Access Level</label><select id="cgAccess"><option value="Public">Public (anyone can join)</option><option value="Private">Private (invitation only)</option></select></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="createGroup()"><i class="ti ti-device-floppy"></i> Create</button>
+    </div>
+  `);
+}
+function createGroup() {
+  const name=document.getElementById('cgName').value.trim();const email=document.getElementById('cgEmail').value.trim();const desc=document.getElementById('cgDesc').value.trim();const access=document.getElementById('cgAccess').value;
+  if(!name||!email){alert('Please fill in group name and email.');return;}
+  const d=getData();d.groups.push({name,email,desc,access,members:0});saveData(d);
+  addActivity('Gumawa ng group: '+name,'done');closeModal();renderPage('directory');
+}
+function deleteGroup(idx) {
+  if(!confirm('Delete group '+data.groups[idx].name+'?'))return;
+  const d=getData();addActivity('Delete group: '+d.groups[idx].name,'warn');d.groups.splice(idx,1);saveData(d);renderPage('directory');
+}
+
+// ---- Add Domain Modal ----
+function openAddDomainModal() {
+  openModal(`
+    <div class="modal-title"><i class="ti ti-world" style="color:#1a73e8"></i> Add Domain</div>
+    <div class="form-group"><label>Domain Name</label><input id="adDomain" placeholder="e.g. example.com"></div>
+    <div class="alert alert-info"><i class="ti ti-info-circle"></i> Kailangan i-verify ang domain ownership. Dito sa simulation, automatic naka-verify.</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="addDomain()"><i class="ti ti-device-floppy"></i> Add Domain</button>
+    </div>
+  `);
+}
+function addDomain() {
+  const name=document.getElementById('adDomain').value.trim().toLowerCase();
+  if(!name||!name.includes('.')){alert('Please enter a valid domain name.');return;}
+  const d=getData();if(!d.domains)d.domains=[];
+  if(d.domains.find(dm=>dm.name===name)){alert('Domain already added.');return;}
+  d.domains.push({name,verified:true});saveData(d);addActivity('Nag-add ng domain: '+name,'done');closeModal();renderPage('directory');
+}
+
+// ============================================================
+// TAB HELPER
+// ============================================================
+function switchTab(id,btn) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(btn)btn.classList.add('active');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.querySelectorAll('.nav-item').forEach(el=>{
+  el.addEventListener('click',function(){switchPage(this.dataset.page);});
+});
+renderPage('dashboard');
+</script>
+<div style="text-align:center;padding:12px 24px;font-size:11px;color:#80868b;border-top:1px solid #dadce0;background:#f8f9fa;">Disclaimer: Independent training simulation. Not affiliated with, endorsed by, or associated with Google LLC. Google Workspace, Google, and related marks are trademarks of Google LLC.</div>
+<script>
+(function(){function p(e){e.preventDefault()}document.addEventListener('contextmenu',p);document.addEventListener('keydown',function(e){if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(e.key.toLowerCase()))||(e.ctrlKey&&['u','c','x'].includes(e.key.toLowerCase()))){e.preventDefault();return false}});document.addEventListener('copy',p);document.addEventListener('cut',p)})();
+</script>
+</body>
+</html>

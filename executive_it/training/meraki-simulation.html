@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cisco Meraki — Training Simulator</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f5f7;min-height:100vh;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+
+/* ─── LOGIN ─── */
+.login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0a1628 0%,#1a2d44 40%,#0d2840 100%);}
+.login-card{background:#fff;border-radius:12px;padding:40px 44px;width:360px;box-shadow:0 8px 40px rgba(0,0,0,0.25);}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:24px;justify-content:center;}
+.login-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#00bceb,#0095c7);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.login-logo-icon i{font-size:20px;color:#fff;}
+.login-logo-text{font-size:20px;font-weight:600;color:#0a1628;}
+.login-subtitle{font-size:13px;color:#6b7a8d;text-align:center;margin-bottom:28px;margin-top:-18px;}
+.login-label{font-size:12px;font-weight:500;color:#3d4a5a;margin-bottom:5px;display:block;}
+.login-input{width:100%;border:1px solid #d1d5db;border-radius:7px;padding:9px 12px;font-size:14px;color:#1a2332;outline:none;transition:border 0.15s;}
+.login-input:focus{border-color:#00bceb;box-shadow:0 0 0 3px rgba(0,188,235,0.12);}
+.login-group{margin-bottom:16px;}
+.login-btn{width:100%;background:linear-gradient(135deg,#00bceb,#0095c7);color:#fff;border:none;border-radius:7px;padding:11px;font-size:15px;font-weight:600;cursor:pointer;transition:background 0.15s;}
+.login-btn:hover{background:linear-gradient(135deg,#0095c7,#007aa8);}
+.login-hint{font-size:12px;color:#9aa3ad;text-align:center;margin-top:18px;}
+.login-error{background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:8px 12px;font-size:13px;color:#dc2626;margin-bottom:14px;display:none;}
+
+/* ─── APP SHELL ─── */
+.app{display:none;flex-direction:column;height:100vh;}
+.topnav{background:linear-gradient(135deg,#0a1628,#1a2d44);color:#fff;display:flex;align-items:center;gap:0;height:46px;flex-shrink:0;}
+.topnav-brand{display:flex;align-items:center;gap:9px;padding:0 16px;border-right:1px solid rgba(255,255,255,0.08);height:100%;}
+.topnav-brand-icon{width:26px;height:26px;background:linear-gradient(135deg,#00bceb,#0095c7);border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.topnav-brand-icon i{font-size:15px;color:#fff;}
+.topnav-brand-text{font-size:14px;font-weight:600;color:#fff;}
+.topnav-org{padding:0 14px;font-size:12px;color:#aab4c0;display:flex;align-items:center;gap:6px;cursor:pointer;height:100%;border-right:1px solid rgba(255,255,255,0.08);}
+.topnav-org i{color:#00bceb;}
+.topnav-right{margin-left:auto;display:flex;align-items:center;gap:2px;padding-right:12px;}
+.topnav-btn{background:none;border:none;color:#aab4c0;cursor:pointer;padding:7px 8px;border-radius:5px;font-size:15px;display:flex;align-items:center;gap:5px;}
+.topnav-btn:hover{background:rgba(255,255,255,0.08);color:#fff;}
+.topnav-user{font-size:12px;color:#aab4c0;padding:0 10px;border-left:1px solid rgba(255,255,255,0.08);height:100%;display:flex;align-items:center;gap:7px;cursor:pointer;}
+.avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#00bceb,#0095c7);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;}
+.shell{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:210px;background:#0a1628;color:#fff;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;}
+.net-selector{margin:10px;background:rgba(255,255,255,0.06);border-radius:6px;padding:8px 12px;font-size:12px;color:#aab4c0;cursor:pointer;display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(255,255,255,0.04);}
+.net-selector i{font-size:14px;color:#00bceb;}
+.nav-section{padding:4px 0;}
+.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:#5a6a7a;padding:6px 18px 3px;font-weight:600;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:7px 18px;font-size:13px;color:#8a9aaa;cursor:pointer;border-left:3px solid transparent;transition:all 0.12s;}
+.nav-item:hover{background:rgba(0,188,235,0.06);color:#d0d8e0;}
+.nav-item.active{background:rgba(0,188,235,0.1);color:#00bceb;border-left-color:#00bceb;font-weight:500;}
+.nav-item i{font-size:15px;}
+.nav-item .nav-badge{margin-left:auto;background:#ffb900;color:#0a1628;font-size:9px;padding:1px 6px;border-radius:8px;font-weight:700;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.subbar{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 20px;height:44px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.breadcrumb{font-size:13px;color:#6b7a8d;display:flex;align-items:center;gap:6px;}
+.breadcrumb strong{color:#1a2332;font-weight:500;}
+.subbar-actions{display:flex;align-items:center;gap:8px;}
+.search-box{display:flex;align-items:center;gap:6px;background:#f4f5f7;border:1px solid #e5e7eb;border-radius:6px;padding:5px 10px;font-size:13px;color:#9aa3ad;width:200px;}
+.search-box input{background:none;border:none;outline:none;font-size:13px;color:#1a2332;width:100%;}
+.search-box input::placeholder{color:#9aa3ad;}
+.content{padding:18px 20px;flex:1;overflow-y:auto;}
+
+/* ─── COMPONENTS ─── */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
+.page-title{font-size:18px;font-weight:600;color:#1a2332;}
+.page-sub{font-size:12px;color:#6b7a8d;margin-top:2px;}
+.btn{background:#00bceb;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:13px;cursor:pointer;font-weight:500;font-family:inherit;display:inline-flex;align-items:center;gap:5px;}
+.btn:hover{background:#0095c7;}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn-danger{background:#e24b4a;}
+.btn-danger:hover{background:#c73b3a;}
+.btn-ghost{background:none;border:1px solid #d1d5db;color:#374151;}
+.btn-ghost:hover{background:#f9fafb;}
+.btn-success{background:#1d9e75;color:#fff;}
+.btn-success:hover{background:#167a5a;}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.stats-row-3{grid-template-columns:repeat(3,1fr);}
+.stat-card{background:#fff;border-radius:8px;border:1px solid #e5e7eb;padding:14px 16px;}
+.stat-label{font-size:11px;color:#6b7a8d;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.stat-value{font-size:22px;font-weight:600;color:#1a2332;}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;margin-top:4px;font-weight:500;}
+.pill-green{background:#e6f9f0;color:#0f6e56;}
+.pill-red{background:#fef2f2;color:#dc2626;}
+.pill-amber{background:#fef9ee;color:#854f0b;}
+.pill-gray{background:#f4f5f7;color:#6b7a8d;}
+.pill-blue{background:#eff6ff;color:#1d4ed8;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.panel{background:#fff;border-radius:8px;border:1px solid #e5e7eb;margin-bottom:12px;}
+.panel-head{padding:12px 16px;border-bottom:1px solid #e5e7eb;font-size:13px;font-weight:600;color:#1a2332;display:flex;align-items:center;justify-content:space-between;}
+.panel-body{padding:12px 16px;}
+.device-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px;}
+.device-row:last-child{border-bottom:none;}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot-green{background:#1d9e75;}
+.dot-red{background:#e24b4a;}
+.dot-amber{background:#ef9f27;}
+.device-name{font-weight:500;color:#1a2332;flex:1;}
+.device-meta{color:#6b7a8d;font-size:12px;}
+.tag{font-size:11px;padding:2px 8px;border-radius:10px;background:#eff6ff;color:#1d4ed8;}
+.tbl{width:100%;font-size:12px;border-collapse:collapse;}
+.tbl th{text-align:left;color:#6b7a8d;font-weight:500;padding:7px 0;border-bottom:1px solid #e5e7eb;}
+.tbl td{padding:8px 0;border-bottom:1px solid #f3f4f6;color:#1a2332;vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tab-row{display:flex;border-bottom:1px solid #e5e7eb;margin-bottom:14px;}
+.tab{font-size:13px;padding:8px 16px;cursor:pointer;color:#6b7a8d;border-bottom:2px solid transparent;}
+.tab.active{color:#00bceb;border-bottom-color:#00bceb;font-weight:500;}
+.tab:hover:not(.active){color:#1a2332;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.form-group{margin-bottom:14px;}
+.form-label{font-size:12px;font-weight:500;color:#374151;margin-bottom:5px;display:block;}
+.form-input{width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 11px;font-size:13px;color:#1a2332;outline:none;font-family:inherit;}
+.form-input:focus{border-color:#00bceb;box-shadow:0 0 0 3px rgba(0,188,235,0.12);}
+.form-select{width:100%;border:1px solid #d1d5db;border-radius:6px;padding:8px 11px;font-size:13px;color:#1a2332;background:#fff;outline:none;font-family:inherit;}
+.form-actions{display:flex;gap:8px;margin-top:8px;justify-content:flex-end;}
+.form-success{text-align:center;padding:20px;}
+.form-success i{font-size:48px;color:#1d9e75;margin-bottom:12px;}
+.form-success h3{font-size:16px;color:#1a2332;margin-bottom:4px;}
+.form-success p{font-size:13px;color:#6b7a8d;}
+.toggle{position:relative;width:38px;height:20px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;background:#d1d5db;border-radius:20px;cursor:pointer;transition:0.2s;}
+.toggle-slider:before{content:'';position:absolute;width:16px;height:16px;left:2px;top:2px;background:#fff;border-radius:50%;transition:0.2s;}
+.toggle input:checked+.toggle-slider{background:#00bceb;}
+.toggle input:checked+.toggle-slider:before{transform:translateX(18px);}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:10px;padding:24px 28px;width:440px;max-width:95vw;}
+.modal.wide{width:520px;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-title{font-size:16px;font-weight:600;color:#1a2332;}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:#6b7a8d;line-height:1;}
+.toast{position:fixed;bottom:24px;right:24px;background:#1a2332;color:#fff;border-radius:8px;padding:12px 18px;font-size:13px;display:flex;align-items:center;gap:10px;z-index:200;opacity:0;transform:translateY(10px);transition:all 0.25s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast i{font-size:18px;color:#00bceb;}
+.empty-state{text-align:center;padding:30px 20px;color:#c8c6c4;}
+.empty-state i{font-size:36px;margin-bottom:6px;display:block;}
+.empty-state p{font-size:13px;}
+
+/* ─── TRAINING STYLES ─── */
+.module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:16px;}
+.module-card{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;cursor:pointer;transition:all 0.15s;}
+.module-card:hover{border-color:#00bceb;box-shadow:0 2px 8px rgba(0,188,235,0.1);}
+.module-card-title{font-size:14px;font-weight:600;color:#1a2332;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.module-card-desc{font-size:12px;color:#6b7a8d;margin-bottom:8px;line-height:1.5;}
+.module-card .progress-bar{height:5px;background:#e5e7eb;border-radius:3px;overflow:hidden;margin-top:8px;}
+.module-card .progress-bar .progress-fill{height:100%;background:#00bceb;border-radius:3px;transition:width 0.4s;}
+.tab-bar{display:flex;gap:4px;margin-bottom:16px;background:#e5e7eb;padding:3px;border-radius:6px;}
+.tab-btn{padding:7px 16px;font-size:13px;border:none;background:transparent;border-radius:4px;cursor:pointer;color:#6b7a8d;font-weight:500;font-family:inherit;}
+.tab-btn.active{background:#fff;color:#1a2332;box-shadow:0 1px 3px rgba(0,0,0,0.1);}
+.tab-btn:hover:not(.active){color:#1a2332;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+.quiz-question{font-size:15px;font-weight:600;color:#1a2332;margin-bottom:16px;line-height:1.5;}
+.quiz-option{display:block;width:100%;text-align:left;padding:10px 14px;margin-bottom:8px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;font-family:inherit;transition:all 0.15s;}
+.quiz-option:hover{border-color:#00bceb;background:#f0fafe;}
+.quiz-option.correct{border-color:#1d9e75;background:#e6f9f0;}
+.quiz-option.wrong{border-color:#e24b4a;background:#fef2f2;}
+.quiz-option:disabled{cursor:default;opacity:0.8;}
+.quiz-option.correct::after{content:' ✓';color:#1d9e75;font-weight:700;}
+.quiz-option.wrong::after{content:' ✗';color:#e24b4a;font-weight:700;}
+.quiz-progress{font-size:12px;color:#6b7a8d;margin-bottom:12px;}
+.quiz-result-score{font-size:48px;font-weight:700;text-align:center;padding:20px 0;}
+.scenario-step-content{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:6px;border:1px solid #e5e7eb;margin-bottom:8px;}
+.scenario-step.active .scenario-step-content{border-color:#00bceb;background:#f0fafe;}
+.scenario-step.completed .scenario-step-content{border-color:#1d9e75;background:#f6fff6;}
+.scenario-step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#00bceb;color:#fff;font-size:13px;font-weight:700;flex-shrink:0;}
+.scenario-step.completed .scenario-step-num{background:#1d9e75;}
+.scenario-step-text{flex:1;font-size:13px;line-height:1.6;}
+.scenario-step-text strong{display:block;margin-bottom:4px;font-size:14px;}
+.achievement{display:inline-flex;align-items:center;gap:6px;padding:4px 12px 4px 8px;border-radius:20px;font-size:12px;font-weight:600;}
+.achievement.unlocked{background:#fff4ce;color:#7a5008;}
+.achievement.locked{background:#f4f5f7;color:#9aa3ad;}
+.info-box{background:#f4f5f7;border-radius:6px;padding:12px 14px;font-size:13px;color:#1a2332;margin-top:12px;line-height:1.6;}
+.info-box strong{color:#00bceb;}
+.learn-section{background:#e8f8fe;border-radius:6px;padding:16px;margin-bottom:16px;}
+.learn-section h3{font-size:14px;font-weight:600;color:#0369a1;margin-bottom:8px;}
+.learn-section p{font-size:13px;color:#1a2332;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<!-- ═══════ LOGIN ═══════ -->
+<div class="login-page" id="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon"><i class="ti ti-topology-star"></i></div>
+      <span class="login-logo-text">Cisco Meraki</span>
+    </div>
+    <p class="login-subtitle">Training Sandbox</p>
+    <div class="login-error" id="login-error"><i class="ti ti-alert-circle"></i> Invalid email or password.</div>
+    <div class="login-group">
+      <label class="login-label">Email address</label>
+      <input class="login-input" id="login-email" type="email" value="admin@kalyx.com">
+    </div>
+    <div class="login-group">
+      <label class="login-label">Password</label>
+      <input class="login-input" id="login-pass" type="password" value="meraki123">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <p class="login-hint">Demo: admin@kalyx.com / meraki123</p>
+  </div>
+</div>
+
+<!-- ═══════ APP ═══════ -->
+<div class="app" id="app">
+  <div class="topnav">
+    <div class="topnav-brand">
+      <div class="topnav-brand-icon"><i class="ti ti-topology-star"></i></div>
+      <span class="topnav-brand-text">Meraki</span>
+    </div>
+    <div class="topnav-org"><i class="ti ti-building"></i> ACME Corp</div>
+    <div class="topnav-right">
+      <button class="topnav-btn" title="Alerts" onclick="setPage('alerts')"><i class="ti ti-bell"></i> <span style="background:#e24b4a;color:#fff;font-size:10px;padding:1px 5px;border-radius:8px;" id="alert-count">3</span></button>
+      <div class="topnav-user" onclick="setPage('admin')">
+        <div class="avatar">AD</div>
+        <span>admin@kalyx.com</span>
+      </div>
+      <button class="topnav-btn" onclick="doLogout()" style="margin-left:4px;"><i class="ti ti-logout"></i></button>
+    </div>
+  </div>
+
+  <div class="shell">
+    <div class="sidebar">
+      <div class="net-selector"><span><i class="ti ti-wifi"></i> ACME-HQ</span><i class="ti ti-chevron-down"></i></div>
+      <div class="nav-section">
+        <div class="nav-label">Network</div>
+        <div class="nav-item active" onclick="setPage('overview')"><i class="ti ti-layout-dashboard"></i> Overview</div>
+        <div class="nav-item" onclick="setPage('clients')"><i class="ti ti-users"></i> Clients</div>
+        <div class="nav-item" onclick="setPage('devices')"><i class="ti ti-server"></i> Devices</div>
+        <div class="nav-item" onclick="setPage('topology')"><i class="ti ti-sitemap"></i> Topology</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Security & SD-WAN</div>
+        <div class="nav-item" onclick="setPage('firewall')"><i class="ti ti-shield"></i> Firewall</div>
+        <div class="nav-item" onclick="setPage('vpn')"><i class="ti ti-lock"></i> Site-to-Site VPN</div>
+        <div class="nav-item" onclick="setPage('alerts')"><i class="ti ti-bell"></i> Alerts <span class="badge-red" id="sidebar-alert-count" style="background:#e24b4a;color:#fff;font-size:10px;padding:1px 5px;border-radius:8px;margin-left:auto;">3</span></div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Wireless</div>
+        <div class="nav-item" onclick="setPage('ssids')"><i class="ti ti-wifi"></i> SSIDs</div>
+        <div class="nav-item" onclick="setPage('rf')"><i class="ti ti-antenna"></i> RF Spectrum</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Switching</div>
+        <div class="nav-item" onclick="setPage('switch')"><i class="ti ti-switch"></i> Switch Ports</div>
+        <div class="nav-item" onclick="setPage('vlans')"><i class="ti ti-layers-intersect"></i> VLANs</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">System</div>
+        <div class="nav-item" onclick="setPage('admin')"><i class="ti ti-user-shield"></i> Administrators</div>
+        <div class="nav-item" onclick="setPage('settings')"><i class="ti ti-settings"></i> Settings</div>
+      </div>
+      <div class="nav-section" style="border-top:1px solid rgba(255,255,255,0.06);margin-top:4px;">
+        <div class="nav-label">Training</div>
+        <div class="nav-item" onclick="setPage('training')" style="border-left-color:#ffb900"><i class="ti ti-school" style="color:#ffb900"></i> Training Center <span class="nav-badge" id="training-badge">NEW</span></div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="subbar">
+        <div class="breadcrumb">ACME Corp <i class="ti ti-chevron-right"></i> <strong id="bc-title">Network Overview</strong></div>
+        <div class="subbar-actions">
+          <div class="search-box"><i class="ti ti-search"></i><input placeholder="Search..." onkeyup="if(event.key==='Enter'){showToast('Search: '+this.value,'ti-search');this.value='';}"></div>
+          <button class="btn btn-ghost btn-sm" onclick="showToast('Data refreshed','ti-refresh')"><i class="ti ti-refresh"></i></button>
+        </div>
+      </div>
+      <div class="content" id="page-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ MODAL ═══════ -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-box">
+    <div class="modal-head">
+      <span class="modal-title" id="modal-title-text">Modal</span>
+      <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><i class="ti ti-check"></i><span id="toast-msg">Saved</span></div>
+
+<script>
+// ═══════ AUTH ═══════
+function doLogin(){
+  if(document.getElementById('login-email').value&&document.getElementById('login-pass').value){
+    document.getElementById('login-page').style.display='none';
+    document.getElementById('app').style.display='flex';
+    initApp();
+  } else {
+    document.getElementById('login-error').style.display='block';
+  }
+}
+document.getElementById('login-pass').addEventListener('keyup',function(e){if(e.key==='Enter')doLogin();});
+function doLogout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-page').style.display='flex';
+  document.getElementById('login-error').style.display='none';
+}
+
+// ═══════ TOAST ═══════
+function showToast(msg,icon){
+  icon=icon||'ti-check';
+  var t=document.getElementById('toast');
+  t.querySelector('i').className='ti '+icon;
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2500);
+}
+
+// ═══════ MODAL ═══════
+function openModal(title,html){
+  document.getElementById('modal-title-text').textContent=title;
+  document.getElementById('modal-body').innerHTML=html;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ═══════ NAV ═══════
+var breadcrumbs={
+  overview:'Network Overview',clients:'Clients',devices:'Devices',topology:'Network Topology',
+  firewall:'Security / Firewall',vpn:'Security / VPN',alerts:'Alerts',
+  ssids:'Wireless / SSIDs',rf:'Wireless / RF Spectrum',
+  switch:'Switching / Switch Ports',vlans:'Switching / VLANs',
+  admin:'System / Administrators',settings:'Network Settings',training:'Training Center'
+};
+
+function setPage(key){
+  document.querySelectorAll('.nav-item').forEach(function(el){el.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(el){
+    if(el.getAttribute('onclick')&&el.getAttribute('onclick').includes("'"+key+"'"))el.classList.add('active');
+  });
+  document.getElementById('bc-title').textContent=breadcrumbs[key]||key;
+  if(key==='training'){renderTraining();return;}
+  if(key==='overview'){renderOverview();return;}
+  if(key==='clients'){renderClients();return;}
+  if(key==='devices'){renderDevices();return;}
+  if(key==='topology'){renderTopology();return;}
+  if(key==='firewall'){renderFirewall();return;}
+  if(key==='vpn'){renderVpn();return;}
+  if(key==='alerts'){renderAlerts();return;}
+  if(key==='ssids'){renderSsids();return;}
+  if(key==='rf'){renderRf();return;}
+  if(key==='switch'){renderSwitch();return;}
+  if(key==='vlans'){renderVlans();return;}
+  if(key==='admin'){renderAdmin();return;}
+  if(key==='settings'){renderSettings();return;}
+}
+
+// ═══════ DATA STORE ═══════
+var STORAGE_KEY='meraki_trainer';
+function getData(){
+  try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{};}catch(e){return{};}
+}
+function saveData(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d));}
+
+function getDevices(){
+  var d=getData();return (d.devices||[]).concat(defaultDevices);
+}
+function getFirewallRules(){
+  var d=getData();return (d.firewallRules||[]).concat(defaultFirewallRules);
+}
+function getVlans(){
+  var d=getData();return (d.vlans||[]).concat(defaultVlans);
+}
+function getAdmins(){
+  var d=getData();return (d.admins||[]).concat(defaultAdmins);
+}
+function getAlertCount(){
+  return getData().alertsAcknowledged||0;
+}
+
+var defaultDevices=[
+  {name:'MX68-Firewall-Main',model:'MX68',serial:'Q2QN-ABCD-0001',ip:'192.168.1.1',fw:'MX 18.107',clients:'—',status:'Online'},
+  {name:'MS120-Switch-Floor1',model:'MS120-8FP',serial:'Q2HP-ABCD-0002',ip:'192.168.1.10',fw:'MS 14.32',clients:'—',status:'Online'},
+  {name:'MS120-Switch-Floor2',model:'MS120-8FP',serial:'Q2HP-ABCD-0003',ip:'—',fw:'MS 14.32',clients:'—',status:'Offline'},
+  {name:'MR36-AP-Lobby',model:'MR36',serial:'Q2KD-ABCD-0010',ip:'192.168.1.20',fw:'MR 29.7',clients:'32',status:'Online'},
+  {name:'MR36-AP-Conf-Room',model:'MR36',serial:'Q2KD-ABCD-0011',ip:'192.168.1.21',fw:'MR 29.7',clients:'8',status:'Alerting'},
+  {name:'MR36-AP-Floor1',model:'MR36',serial:'Q2KD-ABCD-0012',ip:'192.168.1.22',fw:'MR 29.7',clients:'24',status:'Online'},
+  {name:'MR36-AP-Canteen',model:'MR36',serial:'Q2KD-ABCD-0013',ip:'192.168.1.23',fw:'MR 29.7',clients:'15',status:'Online'},
+  {name:'MS120-Switch-Floor3',model:'MS120-8FP',serial:'Q2HP-ABCD-0004',ip:'192.168.1.11',fw:'MS 14.32',clients:'—',status:'Online'}
+];
+
+var defaultFirewallRules=[
+  {num:1,policy:'Allow',proto:'TCP',src:'Any',dst:'192.168.10.0/24',port:'443',comment:'HTTPS internal'},
+  {num:2,policy:'Allow',proto:'UDP',src:'Any',dst:'Any',port:'53',comment:'DNS'},
+  {num:3,policy:'Deny',proto:'TCP',src:'192.168.30.0/24',dst:'192.168.10.0/24',port:'Any',comment:'Block CCTV to Corp'},
+  {num:4,policy:'Deny',proto:'Any',src:'Any',dst:'Any',port:'Any',comment:'Default deny all'}
+];
+
+var defaultVlans=[
+  {id:10,name:'Corporate',subnet:'192.168.10.0/24',gw:'192.168.10.1',dhcp:'Enabled',clients:64},
+  {id:20,name:'Printers',subnet:'192.168.20.0/24',gw:'192.168.20.1',dhcp:'Enabled',clients:3},
+  {id:30,name:'CCTV / IoT',subnet:'192.168.30.0/24',gw:'192.168.30.1',dhcp:'Enabled',clients:5},
+  {id:40,name:'Guest',subnet:'192.168.40.0/24',gw:'192.168.40.1',dhcp:'Enabled',clients:21}
+];
+
+var defaultAdmins=[
+  {name:'Admin User',email:'admin@kalyx.com',role:'Full access',lastLogin:'Just now','2fa':'Enabled'},
+  {name:'Juan dela Cruz',email:'juan@kalyx.com',role:'Read-only',lastLogin:'2 days ago','2fa':'Disabled'},
+  {name:'Maria Santos',email:'maria@kalyx.com',role:'Network admin',lastLogin:'1 hour ago','2fa':'Enabled'}
+];
+
+// ═══════ PAGES ═══════
+function pageHeader(title,subtitle,action){
+  return '<div class="page-header"><div><div class="page-title">'+title+'</div><div class="page-sub">'+subtitle+'</div></div>'+(action||'')+'</div>';
+}
+
+function renderOverview(){
+  var d=getDevices();
+  var online=d.filter(function(x){return x.status==='Online';}).length;
+  var alerts=getData().alertsAcknowledged||0;
+  var unackedAlerts=Math.max(0,3-alerts);
+  document.getElementById('page-content').innerHTML=pageHeader('Network Overview','ACME-HQ — Last updated: just now')+
+    '<div class="stats-row">'+
+      '<div class="stat-card"><div class="stat-label">Online Devices</div><div class="stat-value">'+online+'</div><span class="pill pill-green">'+d.length+' total</span></div>'+
+      '<div class="stat-card"><div class="stat-label">Connected Clients</div><div class="stat-value">87</div><span class="pill pill-green">+5 today</span></div>'+
+      '<div class="stat-card"><div class="stat-label">Active Alerts</div><div class="stat-value">'+unackedAlerts+'</div><span class="pill pill-amber">'+Math.max(0,unackedAlerts-1)+' warnings</span></div>'+
+      '<div class="stat-card"><div class="stat-label">30-Day Uptime</div><div class="stat-value">99.8%</div><span class="pill pill-green">Excellent</span></div>'+
+    '</div>'+
+    '<div class="two-col">'+
+      '<div class="panel"><div class="panel-head">Device Status <span style="font-size:11px;color:#6b7a8d;font-weight:400;">'+d.length+' total</span></div><div class="panel-body">'+
+        d.slice(0,6).map(function(x){return '<div class="device-row"><div class="dot dot-'+((x.status==='Online')?'green':(x.status==='Offline')?'red':'amber')+'"></div><div class="device-name">'+x.name+'</div><span class="tag">'+x.model.replace(/[0-9].*/,'')+'</span><span class="device-meta">'+x.ip+'</span></div>';}).join('')+
+      '</div></div>'+
+      '<div class="panel"><div class="panel-head">Top Applications <span style="font-size:11px;color:#6b7a8d;">Last 24 hrs</span></div><div class="panel-body">'+
+        '<div class="chart-bars">'+
+          '<div class="bar-row"><div class="bar-lbl">YouTube</div><div class="bar-track"><div class="bar-fill" style="width:82%;background:#00bceb;"></div></div><div class="bar-val">41.2 GB</div></div>'+
+          '<div class="bar-row"><div class="bar-lbl">Teams</div><div class="bar-track"><div class="bar-fill" style="width:60%;background:#185fa5;"></div></div><div class="bar-val">30.1 GB</div></div>'+
+          '<div class="bar-row"><div class="bar-lbl">Google</div><div class="bar-track"><div class="bar-fill" style="width:44%;background:#1d9e75;"></div></div><div class="bar-val">22.0 GB</div></div>'+
+          '<div class="bar-row"><div class="bar-lbl">Zoom</div><div class="bar-track"><div class="bar-fill" style="width:30%;background:#ba7517;"></div></div><div class="bar-val">15.0 GB</div></div>'+
+        '</div></div></div>'+
+    '</div>'+
+    '<div class="panel"><div class="panel-head">Recent Events</div><div class="panel-body">'+
+      '<div class="device-row"><div class="dot dot-red"></div><div class="device-name">MS120-Switch-Floor2 went offline</div><div class="device-meta">2 hours ago</div></div>'+
+      '<div class="device-row"><div class="dot dot-amber"></div><div class="device-name">MR36-AP-Conf-Room: RSSI below threshold (-75 dBm)</div><div class="device-meta">5 hours ago</div></div>'+
+      '<div class="device-row"><div class="dot dot-amber"></div><div class="device-name">VPN tunnel latency spike to Branch-Davao: 210ms</div><div class="device-meta">Yesterday</div></div>'+
+    '</div></div>';
+}
+
+function renderClients(){
+  document.getElementById('page-content').innerHTML=pageHeader('Clients','87 active clients across all networks','<button class="btn btn-sm btn-ghost" onclick="showToast(\'Exporting client list…\',\'ti-download\')"><i class="ti ti-download"></i> Export</button>')+
+    '<div class="tab-row"><div class="tab active">All (87)</div><div class="tab">Wireless (64)</div><div class="tab">Wired (23)</div></div>'+
+    '<div class="panel"><div class="panel-body" style="padding:0 16px;">'+
+    '<table class="tbl"><thead><tr><th>Description</th><th>IP</th><th>MAC</th><th>SSID / VLAN</th><th>Usage</th><th>Last Seen</th><th>Status</th></tr></thead><tbody>'+
+    '<tr><td><strong>Juan-Laptop</strong></td><td>192.168.10.45</td><td>A4:C3:F0:12:34:56</td><td>Corp-WiFi / 10</td><td>1.2 GB</td><td>Just now</td><td><span class="pill pill-green">Online</span></td></tr>'+
+    '<tr><td><strong>iPhone-Maria</strong></td><td>192.168.10.67</td><td>B8:27:EB:AA:BB:CC</td><td>Corp-WiFi / 10</td><td>540 MB</td><td>2 min ago</td><td><span class="pill pill-green">Online</span></td></tr>'+
+    '<tr><td><strong>Printer-HR</strong></td><td>192.168.20.10</td><td>00:1A:2B:3C:4D:5E</td><td>VLAN 20</td><td>12 MB</td><td>5 min ago</td><td><span class="pill pill-green">Online</span></td></tr>'+
+    '<tr><td><strong>CCTV-Camera-01</strong></td><td>192.168.30.5</td><td>F0:9F:C2:10:20:30</td><td>VLAN 30</td><td>8.1 GB</td><td>1 min ago</td><td><span class="pill pill-green">Online</span></td></tr>'+
+    '<tr><td><strong>Ana-MacBook</strong></td><td>—</td><td>88:66:5A:CC:DD:EE</td><td>Corp-WiFi</td><td>0 MB</td><td>3 hours ago</td><td><span class="pill pill-gray">Offline</span></td></tr>'+
+    '</tbody></table></div></div>';
+}
+
+function renderDevices(){
+  var d=getDevices();
+  var mx=d.filter(function(x){return x.model.startsWith('MX');}).length;
+  var ms=d.filter(function(x){return x.model.startsWith('MS');}).length;
+  var mr=d.filter(function(x){return x.model.startsWith('MR');}).length;
+  var online=d.filter(function(x){return x.status==='Online';}).length;
+  document.getElementById('page-content').innerHTML=pageHeader('Devices',d.length+' managed devices','<button class="btn btn-sm" onclick="openAddDevice()"><i class="ti ti-plus"></i> Claim Device</button>')+
+    '<div class="stats-row">'+
+      '<div class="stat-card"><div class="stat-label">MX Firewalls</div><div class="stat-value">'+mx+'</div><span class="pill pill-green">All online</span></div>'+
+      '<div class="stat-card"><div class="stat-label">MS Switches</div><div class="stat-value">'+ms+'</div><span class="pill pill-amber">Online</span></div>'+
+      '<div class="stat-card"><div class="stat-label">MR Access Points</div><div class="stat-value">'+mr+'</div><span class="pill pill-green">Online</span></div>'+
+      '<div class="stat-card"><div class="stat-label">Online</div><div class="stat-value">'+online+'</div><span class="pill pill-green">of '+d.length+'</span></div>'+
+    '</div>'+
+    '<div class="panel"><div class="panel-head">All Devices</div><div class="panel-body" style="padding:0 16px;">'+
+    '<table class="tbl"><thead><tr><th>Name</th><th>Model</th><th>Serial</th><th>IP</th><th>Firmware</th><th>Clients</th><th>Status</th></tr></thead><tbody>'+
+    d.map(function(x){return '<tr><td><strong>'+x.name+'</strong></td><td>'+x.model+'</td><td>'+x.serial+'</td><td>'+x.ip+'</td><td>'+x.fw+'</td><td>'+x.clients+'</td><td><span class="pill pill-'+(x.status==='Online'?'green':x.status==='Offline'?'red':'amber')+'">'+x.status+'</span></td></tr>';}).join('')+
+    '</tbody></table></div></div>';
+}
+
+function renderTopology(){
+  document.getElementById('page-content').innerHTML=pageHeader('Network Topology','Auto-discovered — ACME-HQ')+
+    '<div class="panel"><div class="panel-body" style="text-align:center;padding:24px 0;">'+
+    '<svg width="560" height="320" viewBox="0 0 560 320" style="max-width:100%;"><defs><marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#d1d5db"/></marker></defs>'+
+    '<rect x="215" y="10" width="130" height="36" rx="8" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5"/><text x="280" y="33" text-anchor="middle" font-size="13" fill="#0369a1" font-family="sans-serif" font-weight="600">Internet</text>'+
+    '<line x1="280" y1="46" x2="280" y2="86" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#arr)"/>'+
+    '<rect x="210" y="86" width="140" height="40" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/><text x="280" y="111" text-anchor="middle" font-size="12" fill="#166534" font-family="sans-serif" font-weight="600">MX68 Firewall</text>'+
+    '<line x1="240" y1="126" x2="140" y2="166" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#arr)"/>'+
+    '<rect x="60" y="166" width="160" height="40" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/><text x="140" y="191" text-anchor="middle" font-size="12" fill="#166534" font-family="sans-serif" font-weight="600">MS120 Floor 1</text>'+
+    '<line x1="320" y1="126" x2="420" y2="166" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#arr)"/>'+
+    '<rect x="340" y="166" width="160" height="40" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="1.5"/><text x="420" y="186" text-anchor="middle" font-size="12" fill="#dc2626" font-family="sans-serif" font-weight="600">MS120 Floor 2</text><text x="420" y="200" text-anchor="middle" font-size="11" fill="#dc2626" font-family="sans-serif">⚡ Offline</text>'+
+    '<line x1="110" y1="206" x2="80" y2="246" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#arr)"/>'+
+    '<rect x="10" y="246" width="140" height="40" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/><text x="80" y="271" text-anchor="middle" font-size="11" fill="#166534" font-family="sans-serif" font-weight="600">MR36 AP-Lobby</text>'+
+    '<line x1="170" y1="206" x2="200" y2="246" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#arr)"/>'+
+    '<rect x="130" y="246" width="140" height="40" rx="8" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5"/><text x="200" y="266" text-anchor="middle" font-size="11" fill="#92400e" font-family="sans-serif" font-weight="600">MR36 Conf-Room</text><text x="200" y="280" text-anchor="middle" font-size="10" fill="#92400e" font-family="sans-serif">Low RSSI</text>'+
+    '<line x1="390" y1="206" x2="360" y2="246" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#arr)"/>'+
+    '<rect x="280" y="246" width="140" height="40" rx="8" fill="#f8f8f8" stroke="#d1d5db" stroke-width="1.5"/><text x="350" y="271" text-anchor="middle" font-size="11" fill="#6b7280" font-family="sans-serif" font-weight="600">MR36 Floor1</text>'+
+    '</svg><p style="font-size:12px;color:#6b7a8d;margin-top:8px;">Click a device in the actual dashboard to view status.</p></div></div>';
+}
+
+function renderFirewall(){
+  var rules=getFirewallRules();
+  document.getElementById('page-content').innerHTML=pageHeader('L3 Firewall Rules','MX68-Firewall-Main — Outbound rules','<button class="btn btn-sm" onclick="openAddFirewall()"><i class="ti ti-plus"></i> Add Rule</button>')+
+    '<div class="panel"><div class="panel-head">Outbound Rules <span style="font-weight:400;">Default: deny all</span></div><div class="panel-body" style="padding:0 16px;">'+
+    '<table class="tbl"><thead><tr><th>#</th><th>Policy</th><th>Proto</th><th>Source</th><th>Dest</th><th>Port</th><th>Comment</th><th></th></tr></thead><tbody>'+
+    rules.map(function(r){return '<tr><td>'+r.num+'</td><td><span class="pill pill-'+(r.policy==='Allow'?'green':'red')+'">'+r.policy+'</span></td><td>'+r.proto+'</td><td>'+r.src+'</td><td>'+r.dst+'</td><td>'+r.port+'</td><td>'+r.comment+'</td><td><button class="btn btn-ghost" style="font-size:11px;padding:2px 7px;" onclick="showToast(\'Rule edited\',\'ti-edit\')">Edit</button></td></tr>';}).join('')+
+    '</tbody></table></div></div>';
+}
+
+function renderVpn(){
+  document.getElementById('page-content').innerHTML=pageHeader('Site-to-Site VPN','Meraki AutoVPN — ACME-HQ hub')+
+    '<div class="stats-row stats-row-3">'+
+      '<div class="stat-card"><div class="stat-label">VPN Peers</div><div class="stat-value">3</div><span class="pill pill-green">2 active</span></div>'+
+      '<div class="stat-card"><div class="stat-label">Avg Latency</div><div class="stat-value">18ms</div><span class="pill pill-green">Good</span></div>'+
+      '<div class="stat-card"><div class="stat-label">Total VPN Traffic</div><div class="stat-value">2.8 GB</div><span class="pill pill-blue">Today</span></div>'+
+    '</div>'+
+    '<div class="panel"><div class="panel-head">VPN Peers</div><div class="panel-body" style="padding:0 16px;">'+
+    '<table class="tbl"><thead><tr><th>Site</th><th>Public IP</th><th>Latency</th><th>Sent</th><th>Recv</th><th>Status</th></tr></thead><tbody>'+
+    '<tr><td><strong>Branch-Cebu</strong></td><td>203.0.113.10</td><td>14ms</td><td>130 MB</td><td>100 MB</td><td><span class="pill pill-green">Up</span></td></tr>'+
+    '<tr><td><strong>Branch-Davao</strong></td><td>203.0.113.22</td><td>22ms</td><td>70 MB</td><td>45 MB</td><td><span class="pill pill-green">Up</span></td></tr>'+
+    '<tr><td><strong>DR-Site-BGC</strong></td><td>203.0.113.50</td><td>—</td><td>—</td><td>—</td><td><span class="pill pill-red">Down</span></td></tr>'+
+    '</tbody></table></div></div>';
+}
+
+function renderAlerts(){
+  var acked=getData().alertsAcknowledged||0;
+  var alertsData=[
+    {sev:'red',msg:'MS120-Switch-Floor2 is offline',time:'2 hrs ago'},
+    {sev:'amber',msg:'MR36-AP-Conf-Room RSSI below threshold (-75 dBm)',time:'5 hrs ago'},
+    {sev:'amber',msg:'VPN tunnel latency spike to Branch-Davao (210ms)',time:'Yesterday'}
+  ];
+  document.getElementById('page-content').innerHTML=pageHeader('Alerts',Math.max(0,3-acked)+' unresolved alerts')+
+    '<div class="panel"><div class="panel-head">Active Alerts</div><div class="panel-body">'+
+    alertsData.map(function(a,i){
+      var disabled=i<acked?'disabled':'';
+      var label=i<acked?'Acknowledged':'Acknowledge';
+      var cls=i<acked?'btn-ghost':'';
+      return '<div class="device-row"><div class="dot dot-'+a.sev+'"></div><div class="device-name" style="flex:1;">'+(i<acked?'<span style="color:#1d9e75;">✓</span> ':'')+'<strong>'+(a.sev==='red'?'Critical':'Warning')+':</strong> '+a.msg+'</div><div class="device-meta">'+a.time+'</div><button class="btn btn-sm '+cls+'" onclick="acknowledgeAlert('+i+')" '+disabled+'>'+label+'</button></div>';
+    }).join('')+
+    '</div></div>'+
+    '<div class="panel"><div class="panel-head">Alert Settings</div><div class="panel-body">'+
+    '<div class="device-row"><div class="device-name">Device goes offline</div><label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>'+
+    '<div class="device-row"><div class="device-name">VPN tunnel down</div><label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>'+
+    '<div class="device-row"><div class="device-name">High client usage (&gt;80%)</div><label class="toggle"><input type="checkbox"><div class="toggle-slider"></div></label></div>'+
+    '</div></div>';
+}
+
+function acknowledgeAlert(idx){
+  var d=getData();
+  if(!d.alertsAcknowledged)d.alertsAcknowledged=0;
+  if(idx<3&&idx>=d.alertsAcknowledged)d.alertsAcknowledged++;
+  saveData(d);
+  updateAlertBadges();
+  showToast('Alert acknowledged','ti-check');
+  renderAlerts();
+}
+
+function renderSsids(){
+  document.getElementById('page-content').innerHTML=pageHeader('Wireless SSIDs','3 configured SSIDs','<button class="btn btn-sm btn-ghost" onclick="showToast(\'Max 15 SSIDs per AP\',\'ti-info-circle\')"><i class="ti ti-plus"></i> Add SSID</button>')+
+    '<div class="panel"><div class="panel-body" style="padding:0 16px;">'+
+    '<table class="tbl"><thead><tr><th>#</th><th>SSID</th><th>Security</th><th>VLAN</th><th>Band</th><th>Clients</th><th>Enabled</th></tr></thead><tbody>'+
+    '<tr><td>1</td><td><strong>ACME-Corp</strong></td><td>WPA2-Enterprise (802.1X)</td><td>10</td><td>2.4/5 GHz</td><td>64</td><td><label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></td></tr>'+
+    '<tr><td>2</td><td><strong>ACME-Guest</strong></td><td>WPA2-PSK</td><td>40</td><td>2.4/5 GHz</td><td>21</td><td><label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></td></tr>'+
+    '<tr><td>3</td><td><strong>ACME-IoT</strong></td><td>WPA2-PSK</td><td>50</td><td>2.4 GHz</td><td>2</td><td><label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></td></tr>'+
+    '</tbody></table></div></div>';
+}
+
+function renderRf(){
+  document.getElementById('page-content').innerHTML=pageHeader('RF Spectrum','Channel utilization per Access Point')+
+    '<div class="two-col">'+
+    '<div class="panel"><div class="panel-head">2.4 GHz</div><div class="panel-body">'+
+    '<div class="chart-bars"><div class="bar-row"><div class="bar-lbl" style="width:110px;">AP-Lobby (Ch 6)</div><div class="bar-track"><div class="bar-fill" style="width:35%;background:#00bceb;"></div></div><div class="bar-val">35%</div></div>'+
+    '<div class="bar-row"><div class="bar-lbl" style="width:110px;">AP-Conf-Room (Ch 11)</div><div class="bar-track"><div class="bar-fill" style="width:72%;background:#e24b4a;"></div></div><div class="bar-val">72% ⚠</div></div>'+
+    '<div class="bar-row"><div class="bar-lbl" style="width:110px;">AP-Floor1 (Ch 1)</div><div class="bar-track"><div class="bar-fill" style="width:48%;background:#185fa5;"></div></div><div class="bar-val">48%</div></div>'+
+    '</div></div></div>'+
+    '<div class="panel"><div class="panel-head">5 GHz</div><div class="panel-body">'+
+    '<div class="chart-bars"><div class="bar-row"><div class="bar-lbl" style="width:110px;">AP-Lobby (Ch 36)</div><div class="bar-track"><div class="bar-fill" style="width:28%;background:#00bceb;"></div></div><div class="bar-val">28%</div></div>'+
+    '<div class="bar-row"><div class="bar-lbl" style="width:110px;">AP-Conf-Room (Ch 40)</div><div class="bar-track"><div class="bar-fill" style="width:55%;background:#ba7517;"></div></div><div class="bar-val">55%</div></div>'+
+    '<div class="bar-row"><div class="bar-lbl" style="width:110px;">AP-Floor1 (Ch 44)</div><div class="bar-track"><div class="bar-fill" style="width:38%;background:#185fa5;"></div></div><div class="bar-val">38%</div></div>'+
+    '</div></div></div></div>';
+}
+
+function renderSwitch(){
+  document.getElementById('page-content').innerHTML=pageHeader('Switch Ports','MS120-Switch-Floor1 — 8 ports')+
+    '<div class="panel"><div class="panel-head">Port Status — MS120-Switch-Floor1</div><div class="panel-body" style="padding:0 16px;">'+
+    '<table class="tbl"><thead><tr><th>Port</th><th>Name</th><th>VLAN</th><th>Speed</th><th>PoE</th><th>Traffic</th><th>Status</th></tr></thead><tbody>'+
+    '<tr><td>1</td><td>Uplink-MX68</td><td>Trunk</td><td>1 Gbps</td><td>—</td><td>12.3 GB</td><td><span class="pill pill-green">Up</span></td></tr>'+
+    '<tr><td>2</td><td>AP-Lobby</td><td>10,40,50</td><td>100 Mbps</td><td>15.4W</td><td>4.2 GB</td><td><span class="pill pill-green">Up</span></td></tr>'+
+    '<tr><td>3</td><td>AP-Conf-Room</td><td>10,40</td><td>100 Mbps</td><td>15.4W</td><td>1.1 GB</td><td><span class="pill pill-amber">Degraded</span></td></tr>'+
+    '<tr><td>4</td><td>Printer-HR</td><td>20</td><td>100 Mbps</td><td>—</td><td>45 MB</td><td><span class="pill pill-green">Up</span></td></tr>'+
+    '<tr><td>5</td><td>CCTV-Camera</td><td>30</td><td>100 Mbps</td><td>7.5W</td><td>8.1 GB</td><td><span class="pill pill-green">Up</span></td></tr>'+
+    '<tr><td>6-8</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="pill pill-gray">Down</span></td></tr>'+
+    '</tbody></table></div></div>';
+}
+
+function renderVlans(){
+  var v=getVlans();
+  document.getElementById('page-content').innerHTML=pageHeader('VLANs','ACME-HQ — '+v.length+' configured VLANs','<button class="btn btn-sm" onclick="openAddVlan()"><i class="ti ti-plus"></i> Add VLAN</button>')+
+    '<div class="panel"><div class="panel-body" style="padding:0 16px;">'+
+    '<table class="tbl"><thead><tr><th>VLAN ID</th><th>Name</th><th>Subnet</th><th>Gateway</th><th>DHCP</th><th>Clients</th></tr></thead><tbody>'+
+    v.map(function(x){return '<tr><td><strong>'+x.id+'</strong></td><td>'+x.name+'</td><td>'+x.subnet+'</td><td>'+x.gw+'</td><td><span class="pill pill-green">'+x.dhcp+'</span></td><td>'+x.clients+'</td></tr>';}).join('')+
+    '</tbody></table></div></div>';
+}
+
+function renderAdmin(){
+  var a=getAdmins();
+  document.getElementById('page-content').innerHTML=pageHeader('Administrators','Manage dashboard access','<button class="btn btn-sm" onclick="openAddAdmin()"><i class="ti ti-plus"></i> Invite Admin</button>')+
+    '<div class="panel"><div class="panel-body" style="padding:0 16px;">'+
+    '<table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Last Login</th><th>2FA</th><th></th></tr></thead><tbody>'+
+    a.map(function(x){return '<tr><td><strong>'+x.name+'</strong></td><td>'+x.email+'</td><td><span class="pill pill-'+((x.role==='Full access')?'blue':(x.role==='Read-only')?'gray':'amber')+'">'+x.role+'</span></td><td>'+x.lastLogin+'</td><td><span class="pill pill-'+(x['2fa']==='Enabled'?'green':'red')+'">'+x['2fa']+'</span></td><td><button class="btn btn-ghost" style="font-size:11px;padding:2px 7px;" onclick="showToast(\'Admin edited\',\'ti-edit\')">Edit</button></td></tr>';}).join('')+
+    '</tbody></table></div></div>';
+}
+
+function renderSettings(){
+  document.getElementById('page-content').innerHTML=pageHeader('Network Settings','ACME-HQ Network','<button class="btn btn-sm" onclick="showToast(\'Settings saved\',\'ti-check\')"><i class="ti ti-device-floppy"></i> Save Changes</button>')+
+    '<div class="two-col">'+
+    '<div class="panel"><div class="panel-head">General</div><div class="panel-body">'+
+    '<div class="form-group"><label class="form-label">Network name</label><input class="form-input" value="ACME-HQ"></div>'+
+    '<div class="form-group"><label class="form-label">Time zone</label><select class="form-select"><option>Asia/Manila (UTC+8)</option><option>Asia/Singapore</option><option>UTC</option></select></div>'+
+    '</div></div>'+
+    '<div class="panel"><div class="panel-head">SNMP</div><div class="panel-body">'+
+    '<div class="device-row"><div class="device-name">SNMP v2c</div><label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>'+
+    '<div class="device-row"><div class="device-name">SNMP v3</div><label class="toggle"><input type="checkbox"><div class="toggle-slider"></div></label></div>'+
+    '</div></div></div>'+
+    '<div class="panel"><div class="panel-head">Syslog</div><div class="panel-body">'+
+    '<div class="form-row"><div><label class="form-label">Server</label><input class="form-input" value="192.168.10.200"></div><div><label class="form-label">Port</label><input class="form-input" value="514"></div></div>'+
+    '</div></div>';
+}
+
+// ═══════ INTERACTIVE FORMS ═══════
+function openAddDevice(){
+  openModal('Claim a Device',
+    '<div class="form-group"><label class="form-label">Device Name *</label><input class="form-input" id="fd-name" placeholder="e.g. MR36-AP-New"></div>'+
+    '<div class="form-row"><div><label class="form-label">Model</label><select class="form-select" id="fd-model"><option>MR36</option><option>MR46</option><option>MS120-8FP</option><option>MS125-24</option><option>MX68</option><option>MX85</option></select></div>'+
+    '<div><label class="form-label">Serial Number *</label><input class="form-input" id="fd-serial" placeholder="Q2XX-XXXX-XXXX"></div></div>'+
+    '<div class="form-actions"><button class="btn" onclick="submitAddDevice()">Claim Device</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>'
+  );
+}
+function submitAddDevice(){
+  var name=document.getElementById('fd-name').value.trim();
+  var model=document.getElementById('fd-model').value;
+  var serial=document.getElementById('fd-serial').value.trim();
+  if(!name||!serial){showToast('Please fill required fields','ti-alert-circle');return;}
+  var d=getData();
+  if(!d.devices)d.devices=[];
+  // Check duplicate serial
+  for(var i=0;i<d.devices.length;i++){if(d.devices[i].serial===serial){showToast('Serial already exists','ti-alert-circle');return;}}
+  d.devices.push({name:name,model:model,serial:serial,ip:'Pending',fw:'Latest',clients:'0',status:'Online'});
+  saveData(d);
+  closeModal();
+  addActivity('📡 Claimed device: '+name+' ('+serial+')');
+  showToast('Device '+name+' claimed!','ti-check');
+  if(document.getElementById('bc-title').textContent==='Devices')renderDevices();
+}
+
+function openAddFirewall(){
+  openModal('Add Firewall Rule',
+    '<div class="form-row"><div><label class="form-label">Policy</label><select class="form-select" id="fr-policy"><option>Allow</option><option>Deny</option></select></div>'+
+    '<div><label class="form-label">Protocol</label><select class="form-select" id="fr-proto"><option>Any</option><option>TCP</option><option>UDP</option><option>ICMP</option></select></div></div>'+
+    '<div class="form-row"><div><label class="form-label">Source</label><input class="form-input" id="fr-src" placeholder="Any or CIDR"></div>'+
+    '<div><label class="form-label">Destination</label><input class="form-input" id="fr-dst" placeholder="Any or CIDR"></div></div>'+
+    '<div class="form-row"><div><label class="form-label">Port</label><input class="form-input" id="fr-port" placeholder="e.g. 443"></div>'+
+    '<div><label class="form-label">Comment</label><input class="form-input" id="fr-comment" placeholder="Rule description"></div></div>'+
+    '<div class="form-actions"><button class="btn" onclick="submitAddFirewall()">Add Rule</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>'
+  );
+}
+function submitAddFirewall(){
+  var d=getData();
+  if(!d.firewallRules)d.firewallRules=[];
+  var num=(d.firewallRules.length||0)+defaultFirewallRules.length+1;
+  d.firewallRules.push({num:num,policy:document.getElementById('fr-policy').value,proto:document.getElementById('fr-proto').value,src:document.getElementById('fr-src').value||'Any',dst:document.getElementById('fr-dst').value||'Any',port:document.getElementById('fr-port').value||'Any',comment:document.getElementById('fr-comment').value||'—'});
+  saveData(d);
+  closeModal();
+  addActivity('🛡️ Added firewall rule #'+num);
+  showToast('Firewall rule added','ti-shield');
+  if(document.getElementById('bc-title').textContent.includes('Firewall'))renderFirewall();
+}
+
+function openAddVlan(){
+  openModal('Add VLAN',
+    '<div class="form-row"><div><label class="form-label">VLAN ID *</label><input class="form-input" id="fv-id" type="number" placeholder="e.g. 50"></div>'+
+    '<div><label class="form-label">Name *</label><input class="form-input" id="fv-name" placeholder="e.g. Management"></div></div>'+
+    '<div class="form-row"><div><label class="form-label">Subnet</label><input class="form-input" id="fv-subnet" placeholder="192.168.50.0/24"></div>'+
+    '<div><label class="form-label">Gateway</label><input class="form-input" id="fv-gw" placeholder="192.168.50.1"></div></div>'+
+    '<div class="form-actions"><button class="btn" onclick="submitAddVlan()">Create VLAN</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>'
+  );
+}
+function submitAddVlan(){
+  var id=parseInt(document.getElementById('fv-id').value);
+  var name=document.getElementById('fv-name').value.trim();
+  if(!id||!name){showToast('Please fill required fields','ti-alert-circle');return;}
+  var d=getData();
+  if(!d.vlans)d.vlans=[];
+  for(var i=0;i<d.vlans.length;i++){if(d.vlans[i].id===id){showToast('VLAN ID already exists','ti-alert-circle');return;}}
+  d.vlans.push({id:id,name:name,subnet:document.getElementById('fv-subnet').value||'—',gw:document.getElementById('fv-gw').value||'—',dhcp:'Enabled',clients:0});
+  saveData(d);
+  closeModal();
+  addActivity('🏷️ Created VLAN '+id+': '+name);
+  showToast('VLAN '+id+' created!','ti-check');
+  if(document.getElementById('bc-title').textContent==='Switching / VLANs')renderVlans();
+}
+
+function openAddAdmin(){
+  openModal('Invite Administrator',
+    '<div class="form-group"><label class="form-label">Name *</label><input class="form-input" id="fa-name" placeholder="Full name"></div>'+
+    '<div class="form-group"><label class="form-label">Email *</label><input class="form-input" id="fa-email" type="email" placeholder="admin@kalyx.com"></div>'+
+    '<div class="form-group"><label class="form-label">Role</label><select class="form-select" id="fa-role"><option>Full access</option><option>Network admin</option><option>Read-only</option></select></div>'+
+    '<div class="form-actions"><button class="btn" onclick="submitAddAdmin()">Send Invitation</button><button class="btn btn-ghost" onclick="closeModal()">Cancel</button></div>'
+  );
+}
+function submitAddAdmin(){
+  var name=document.getElementById('fa-name').value.trim();
+  var email=document.getElementById('fa-email').value.trim();
+  if(!name||!email){showToast('Please fill required fields','ti-alert-circle');return;}
+  var d=getData();
+  if(!d.admins)d.admins=[];
+  d.admins.push({name:name,email:email,role:document.getElementById('fa-role').value,lastLogin:'Just now','2fa':'Disabled'});
+  saveData(d);
+  closeModal();
+  addActivity('👤 Invited admin: '+name+' ('+email+')');
+  showToast('Invitation sent to '+email,'ti-mail');
+  if(document.getElementById('bc-title').textContent==='System / Administrators')renderAdmin();
+}
+
+// ═══════ TRAINING ═══════
+var trainingData={
+  lessons:{
+    'meraki-fundamentals':{
+      title:'Meraki Cloud Architecture',
+      steps:[
+        {title:'Cloud-Managed Networking',text:'Ang Cisco Meraki ay isang cloud-managed networking platform. Ibig sabihin, ang lahat ng devices (MX, MS, MR, MV) ay nire-remote manage sa pamamagitan ng Meraki Cloud Dashboard. Walang need ng on-premise controller.'},
+        {title:'Meraki Dashboard',text:'Ang Meraki Dashboard ay ang web-based management interface. Dito mo makikita ang lahat ng networks, devices, clients, at configuration settings. Ang UI ay nahahati sa: Network Overview, Clients, Devices, Firewall, VPN, Wireless, at Switch sections.'},
+        {title:'MX Security Appliance',text:'Ang MX series ay ang mga firewall/SD-WAN appliances ng Meraki. Features: L3/L7 firewall, Site-to-Site VPN (AutoVPN), content filtering, at traffic shaping. Ang MX ay ang core ng network connectivity at security.'},
+        {title:'MS Switches',text:'Ang MS series ay ang Meraki managed switches. Features: VLAN configuration, PoE, port management, at stackable switching. Lahat ng configuration ay ginagawa sa Dashboard at automatic na nag-pu-push sa switches.'},
+        {title:'MR Access Points',text:'Ang MR series ay ang Meraki wireless access points. Features: Multi-SSID, band steering, RF optimization, at WPA2-Enterprise/WPA3 security. Pwedeng mag-create ng multiple SSIDs na may iba-ibang VLAN at security settings.'}
+      ]
+    },
+    'firewall-security':{
+      title:'Firewall & Security',
+      steps:[
+        {title:'L3 Firewall Rules',text:'Ang Layer 3 firewall rules ay nagco-control ng traffic based sa IP addresses at ports. Rules are evaluated top-down, at ang default ay "deny all". Pwede kang gumawa ng Allow o Deny rules para sa specific na source, destination, at port.'},
+        {title:'L7 Firewall (Application Control)',text:'Ang Layer 7 firewall ay nagco-control ng traffic based sa application (e.g., YouTube, Facebook, Netflix). Hindi lang IP/port ang tinitignan — kundi ang actual application traffic. Ito ay mas intelligent kaysa L3 rules.'},
+        {title:'Site-to-Site VPN (AutoVPN)',text:'Ang Meraki AutoVPN ay automatic na nag-e-establish ng encrypted tunnels sa pagitan ng MX appliances. Hub-and-spoke topology: ang HQ ang hub, at ang branches ang spokes. May built-in redundancy at failover.'},
+        {title:'Content Filtering',text:'Pwedeng mag-block ng websites based sa category (e.g., Social Media, Adult Content, P2P). Gamit ang Cisco Umbrella integration, mas mapapalawak ang security coverage.'},
+        {title:'Threat Protection',text:'Kasama ang IDS/IPS, Anti-Malware, at AMP (Advanced Malware Protection) sa MX. Ang mga threats ay automatic na na-de-detect at bina-block bago makarating sa internal network.'}
+      ]
+    },
+    'wireless':{
+      title:'Wireless & RF',
+      steps:[
+        {title:'SSID Configuration',text:'Ang SSID ay ang pangalan ng WiFi network na nakikita ng clients. Pwede kang magkaroon ng hanggang 15 SSIDs per MR AP. Bawat SSID ay pwedeng may ibang VLAN, security (WPA2/WPA3), at bandwidth limits.'},
+        {title:'RF Optimization',text:'Ang Meraki ay may auto-RF feature na automatic na nag-a-adjust ng channel at transmit power. Pwedeng i-manual override kung kinakailangan. Ang ideal na RSSI ay -67 dBm o mas mataas para sa magandang performance.'},
+        {title:'Band Steering',text:'Ito ay nag-e-encourage ng mga dual-band clients na kumonekta sa 5 GHz (faster, less interference) instead of 2.4 GHz (mas crowded). Malaking tulong ito sa high-density environments.'},
+        {title:'Client Monitoring',text:'Sa Clients page, makikita mo ang lahat ng connected clients — kung anong SSID, IP, MAC address, usage, at signal strength. Pwede ring i-block ang specific clients.'},
+        {title:'RF Spectrum Analysis',text:'Sa RF Spectrum page, makikita mo ang channel utilization ng bawat AP. Kung ang utilization ay >70%, ibig sabihin crowded ang channel at kailangan ng adjustment.'}
+      ]
+    },
+    'switching':{
+      title:'Switching & VLANs',
+      steps:[
+        {title:'VLAN Concepts',text:'Ang VLAN (Virtual LAN) ay nagse-segment ng network sa logical groups. Example: VLAN 10 for Corporate, VLAN 20 for Printers, VLAN 30 for CCTV, VLAN 40 for Guest. Pwedeng magkaroon ng hanggang 4094 VLANs.'},
+        {title:'Port Management',text:'Ang bawat port sa MS switch ay pwedeng i-configure: VLAN assignment, PoE settings, speed/duplex, at port name. Pwedeng i-enable/disable ang ports remotely.'},
+        {title:'Switch Stacking',text:'Pwedeng i-stack ang multiple MS switches para i-manage bilang isang unit. Ito ay nagse-simplify ng management at nag-i-increase ng port density.'},
+        {title:'PoE (Power over Ethernet)',text:'Ang MS switches ay nagpo-provide ng power sa mga devices tulad ng APs at cameras through Ethernet cable. Ibig sabihin, hindi na kailangan ng separate power source para sa mga devices na ito.'},
+        {title:'STP & Loop Protection',text:'Ang Spanning Tree Protocol (STP) ay pumipigil ng network loops. Ang Meraki ay may built-in na loop protection at automatic na nagdi-disable ng ports na nagca-cause ng loops.'}
+      ]
+    },
+    'monitoring':{
+      title:'Monitoring & Alerts',
+      steps:[
+        {title:'Dashboard Monitoring',text:'Ang Overview page ay nagbibigay ng real-time status ng network. Makikita mo ang: online devices, connected clients, active alerts, at uptime percentage.'},
+        {title:'Alerts & Notifications',text:'Pwedeng i-configure ang alerts para sa: device going offline, VPN tunnel down, high client usage, rogue SSID detected, at marami pa. Pwedeng magpadala ng email o SMS notifications.'},
+        {title:'Traffic Analytics',text:'Makikita mo ang top applications na ginagamit sa network, usage per client, at traffic patterns. Ito ay makakatulong sa capacity planning at troubleshooting.'},
+        {title:'Event Log',text:'Ang event log ay nagre-record ng lahat ng changes at events sa network. Kasama ang: configuration changes, device status changes, client connections/disconnections.'},
+        {title:'Firmware Management',text:'Ang firmware ng lahat ng devices ay nire-remote manage. Pwedeng i-set ang upgrade window para ma-update ang firmware nang hindi naaapektuhan ang operations.'}
+      ]
+    }
+  },
+  quizzes:{
+    'meraki-fundamentals':[
+      {q:'Ano ang Meraki MX series?',options:['Access Points','Switches','Firewall/SD-WAN Appliances','Cameras'],answer:2},
+      {q:'Paano nire-remote manage ang Meraki devices?',options:['SSH','SNMP','Meraki Cloud Dashboard','Console cable'],answer:2},
+      {q:'Ano ang tawag sa Meraki VPN technology?',options:['IPsec','AutoVPN','OpenVPN','WireGuard'],answer:1},
+      {q:'Ilang SSIDs ang maximum per MR AP?',options:['5','10','15','30'],answer:2},
+      {q:'Ano ang default firewall policy sa Meraki?',options:['Allow all','Deny all','Ask each time','Log only'],answer:1}
+    ],
+    'firewall-security':[
+      {q:'Ano ang L3 firewall rules base sa?',options:['Application','IP/Port','MAC address','Username'],answer:1},
+      {q:'Ano ang L7 firewall rules base sa?',options:['IP address','Port number','Application','VLAN'],answer:2},
+      {q:'Ano ang topology ng Meraki AutoVPN?',options:['Mesh','Hub-and-spoke','Ring','Star'],answer:1},
+      {q:'Ano ang gamit ng Content Filtering?',options:['Block websites by category','Filter emails','Block IPs','Encrypt traffic'],answer:0},
+      {q:'Ano ang AMP sa Meraki?',options:['Auto Management Protocol','Advanced Malware Protection','Access Point Management','Application Monitoring'],answer:1}
+    ],
+    'wireless':[
+      {q:'Ano ang ideal RSSI value para sa magandang WiFi?',options:['-50 dBm','-67 dBm','-80 dBm','-90 dBm'],answer:1},
+      {q:'Ano ang ginagawa ng Band Steering?',options:['Steers clients to 5 GHz','Steers clients to 2.4 GHz','Balances channels','Increases power'],answer:0},
+      {q:'Anong security ang recommended para sa corporate SSID?',options:['WPA2-PSK','WPA2-Enterprise','Open','WEP'],answer:1},
+      {q:'Ano ang tawag sa auto-adjustment ng channel at power?',options:['AutoRF','SmartRF','RF Optimizer','Channel Master'],answer:0},
+      {q:'Ano ang dahilan kung bakit >70% ang channel utilization?',options:['Maganda ang signal','Crowded/interference','Maraming VLANs','Mataas ang power'],answer:1}
+    ],
+    'switching':[
+      {q:'Ilang VLAN ID ang maximum?',options:['256','1024','4094','65535'],answer:2},
+      {q:'Ano ang gamit ng PoE sa switch?',options:['Power devices through Ethernet','Increase speed','Connect to internet','Manage VLANs'],answer:0},
+      {q:'Ano ang STP?',options:['Speed Test Protocol','Spanning Tree Protocol','Switch Transfer Protocol','Security Tunnel Protocol'],answer:1},
+      {q:'Ano ang tawag sa pag-group ng multiple switches bilang isa?',options:['Clustering','Stacking','Bonding','Linking'],answer:1},
+      {q:'Anong VLAN ang dapat gamitin para sa guest WiFi?',options:['Same as corporate','Isolated VLAN','VLAN 1','Management VLAN'],answer:1}
+    ],
+    'monitoring':[
+      {q:'Saan makikita ang real-time status ng network?',options:['Settings page','Overview page','Admin page','Switch page'],answer:1},
+      {q:'Ano ang pwedeng i-notify ng Meraki alerts?',options:['Device offline','VPN down','High usage','All of the above'],answer:3},
+      {q:'Ano ang gamit ng traffic analytics?',options:['See top applications','Block websites','Manage VLANs','Configure ports'],answer:0},
+      {q:'Ano ang nire-record ng event log?',options:['Configuration changes','Client connections','Device status','All of the above'],answer:3},
+      {q:'Paano ina-update ang Meraki firmware?',options:['Manual download','Remote via Dashboard','USB stick','Auto only'],answer:1}
+    ]
+  },
+  scenarios:{
+    'troubleshoot-device':{
+      title:'Troubleshoot Offline Device',
+      desc:'Exercise: May MS120-Switch-Floor2 na naka-status na "Offline". I-troubleshoot at i-resolve ang issue.',
+      steps:[
+        {text:'Pumunta sa Devices page at hanapin ang MS120-Switch-Floor2. I-confirm ang status at tingnan ang last seen IP address.'},
+        {text:'I-check ang power: Pumunta sa Switch Ports page at tingnan kung may PoE o power issue sa port na connected dito.'},
+        {text:'I-check ang uplink: I-verify kung ang switch ay may fiber/Ethernet uplink connection sa MX firewall. Kung wala, baka may physical connection issue.'},
+        {text:'I-reboot ang switch remotely: Devices > MS120-Switch-Floor2 > Reboot. Hintaying mag-online ulit (nasa 3-5 minutes).'},
+        {text:'Kung hindi pa rin online, i-check ang alert logs para sa error messages. Pwedeng mag-fault ang switch at kailangan ng RMA replacement.'},
+        {text:'✅ Document ang resolution: If reboot fixed it, add a note. If hardware failure, process RMA sa Cisco Meraki support.'}
+      ]
+    },
+    'configure-vlan':{
+      title:'Configure a New VLAN',
+      desc:'Exercise: Gumawa ng bagong VLAN 50 para sa "Management" network na may subnet 192.168.50.0/24.',
+      steps:[
+        {text:'Pumunta sa Switching > VLANs page. I-click ang "Add VLAN" button.'},
+        {text:'I-set ang VLAN ID: 50. Name: "Management". Subnet: 192.168.50.0/24. Gateway: 192.168.50.1.'},
+        {text:'I-configure ang DHCP: Pumunta sa Settings, i-enable ang DHCP para sa VLAN 50. I-set ang range: 192.168.50.100 - 192.168.50.200.'},
+        {text:'I-apply ang VLAN sa switch ports: Pumunta sa Switch Ports page, i-assign ang port 6 sa VLAN 50 at lagyan ng name na "Mgmt-PC".'},
+        {text:'I-configure ang firewall rule: Pumunta sa Firewall page, mag-add ng Allow rule para sa VLAN 50 papuntang Corporate VLAN 10 sa port 443 at 3389.'},
+        {text:'✅ Testing: I-connect ang isang PC sa port 6 at dapat makakuha ito ng IP mula sa 192.168.50.0/24 range. I-verify ang internet access.'}
+      ]
+    },
+    'vpn-setup':{
+      title:'Setup Site-to-Site VPN',
+      desc:'Exercise: I-configure ang VPN tunnel sa pagitan ng ACME-HQ at bagong Branch-Baguio.',
+      steps:[
+        {text:'Pumunta sa Security & SD-WAN > Site-to-Site VPN page. I-confirm na ang ACME-HQ MX ay naka-set bilang VPN hub.'},
+        {text:'I-configure ang new branch: Sa remote side, i-set ang MX appliance at i-configure ang VPN settings na may public IP ng Branch-Baguio.'},
+        {text:'I-set ang VPN topology: I-ensure na ang Branch-Baguio ay connected bilang spoke sa ACME-HQ hub. I-enable ang AutoVPN.'},
+        {text:'I-configure ang subnet advertising: I-ensure na ang branch subnet (192.168.80.0/24) ay naka-advertise sa VPN network.'},
+        {text:'I-monitor ang VPN status: I-check kung ang tunnel ay "Up". I-verify ang latency at traffic sa VPN Peers table.'},
+        {text:'✅ I-test: Mag-ping mula Branch-Baguio papuntang ACME-HQ server (192.168.10.100). Dapat successful ang connection.'}
+      ]
+    },
+    'block-app':{
+      title:'Block Application via L7 Firewall',
+      desc:'Exercise: I-block ang Facebook at Netflix sa Corporate SSID para hindi ma-aksaya ang bandwidth.',
+      steps:[
+        {text:'Pumunta sa Security & SD-WAN > Firewall page. Tingnan ang kasalukuyang L3 rules.'},
+        {text:'I-switch sa L7 firewall tab. Dito makikita ang application-based rules.'},
+        {text:'I-click ang "Add L7 Rule". Sa application selector, hanapin ang "Facebook". I-set ang action sa "Block".'},
+        {text:'Mag-add ng isa pang rule para i-block ang "Netflix". I-apply ang rules sa Corporate SSID / VLAN 10 lamang.'},
+        {text:'I-save ang changes at i-monitor: Pumunta sa Clients page at i-verify na hindi na maka-access ng Facebook ang corporate users.'},
+        {text:'✅ Test: I-try mag-access ng facebook.com mula sa corporate network — dapat ma-block. Ang guest SSID ay dapat hindi apektado.'}
+      ]
+    }
+  }
+};
+
+var TRAINING_KEY='meraki_training';
+function getTraining(){
+  try{return JSON.parse(localStorage.getItem(TRAINING_KEY))||{};}catch(e){return{};}
+}
+function saveTraining(k,sub,v){
+  var t=getTraining();
+  if(!t[k])t[k]={};
+  t[k][sub]=v;
+  t._updated=Date.now();
+  localStorage.setItem(TRAINING_KEY,JSON.stringify(t));
+  updateTrainingDisplays();
+}
+
+function addActivity(msg){
+  var t=getTraining();
+  if(!t.activity)t.activity=[];
+  var time=new Date().toLocaleString('en-PH',{hour:'2-digit',minute:'2-digit',month:'short',day:'numeric'});
+  t.activity.unshift({text:msg,time:time});
+  if(t.activity.length>50)t.activity=t.activity.slice(0,50);
+  localStorage.setItem(TRAINING_KEY,JSON.stringify(t));
+}
+
+function renderTraining(){
+  document.getElementById('page-content').innerHTML=
+    '<div class="page-header"><div><div class="page-title"><i class="ti ti-school" style="color:#00bceb;"></i> Training Center</div><div class="page-sub">Interactive lessons, quizzes, at scenarios para ma-master mo ang Meraki</div></div></div>'+
+    '<div class="tab-bar">'+
+    '<button class="tab-btn active" onclick="switchT(\'mod\',this)"><i class="ti ti-book"></i> Modules</button>'+
+    '<button class="tab-btn" onclick="switchT(\'quiz\',this)"><i class="ti ti-checklist"></i> Quizzes</button>'+
+    '<button class="tab-btn" onclick="switchT(\'scen\',this)"><i class="ti ti-flask"></i> Scenarios</button>'+
+    '<button class="tab-btn" onclick="switchT(\'prog\',this)"><i class="ti ti-trophy"></i> Progress</button>'+
+    '</div>'+
+    '<div class="tab-content active" id="t-mod">'+renderModuleGrid()+'</div>'+
+    '<div class="tab-content" id="t-quiz">'+renderQuizGrid()+'</div>'+
+    '<div class="tab-content" id="t-scen">'+renderScenarioGrid()+'</div>'+
+    '<div class="tab-content" id="t-prog">'+renderProgressTab()+'</div>';
+}
+
+function switchT(tab,el){
+  document.querySelectorAll('#page-content .tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('#page-content .tab-btn').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('t-'+tab).classList.add('active');
+  el.classList.add('active');
+}
+
+function renderModuleGrid(){
+  var keys=Object.keys(trainingData.lessons);
+  return '<p style="font-size:13px;color:#6b7a8d;margin-bottom:16px">Pumili ng module at sundan ang step-by-step na aralin.</p><div class="module-grid">'+
+    keys.map(function(k){
+      var ls=trainingData.lessons[k];
+      var t=getTraining();
+      var mod=t.modules&&t.modules[k];
+      var steps=mod&&mod.steps?mod.steps.filter(Boolean).length:0;
+      var total=ls.steps.length;
+      var pct=Math.round((steps/total)*100);
+      return '<div class="module-card" onclick="startLesson(\''+k+'\')"><div class="module-card-title"><i class="ti ti-book" style="color:#00bceb"></i> '+ls.title+'</div><div class="module-card-desc">'+ls.steps.length+' lessons</div><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div><div style="margin-top:6px;font-size:12px;color:'+(pct>=100?'#1d9e75':pct>0?'#00bceb':'#6b7a8d')+'">'+(pct>=100?'✅ Completed':pct>0?'In progress ('+steps+'/'+total+')':'Not started')+'</div></div>';
+    }).join('')+'</div>';
+}
+
+function renderQuizGrid(){
+  var keys=Object.keys(trainingData.quizzes);
+  return '<p style="font-size:13px;color:#6b7a8d;margin-bottom:16px">Sukatin ang iyong kaalaman. 5 questions each.</p><div class="module-grid">'+
+    keys.map(function(k){
+      var t=getTraining();
+      var q=t.quizzes&&t.quizzes[k];
+      var label=q?q.correct+'/'+q.total:'Not taken';
+      var cls=q?((q.correct/q.total)>=0.8?'pill-green':(q.correct/q.total)>=0.6?'pill-amber':'pill-red'):'pill-gray';
+      return '<div class="module-card" onclick="startQuiz(\''+k+'\')"><div class="module-card-title"><i class="ti ti-checklist" style="color:#00bceb"></i> '+trainingData.lessons[k].title+' Quiz</div><div class="module-card-desc">Meraki '+k.replace('-',' ')+' concepts</div><div style="margin-top:8px"><span class="pill '+cls+'">'+label+'</span></div></div>';
+    }).join('')+'</div>';
+}
+
+function renderScenarioGrid(){
+  var keys=Object.keys(trainingData.scenarios);
+  return '<p style="font-size:13px;color:#6b7a8d;margin-bottom:16px">Hands-on exercises para sa real-world tasks.</p><div class="module-grid">'+
+    keys.map(function(k){
+      var s=trainingData.scenarios[k];
+      var t=getTraining();
+      var scen=t.scenarios&&t.scenarios[k];
+      var done=scen&&scen.steps?scen.steps.filter(Boolean).length:0;
+      var total=s.steps.length;
+      var label=done>=total?'✅ Completed':done>0?'In progress ('+done+'/'+total+')':'Not started';
+      var cls=done>=total?'pill-green':done>0?'pill-amber':'pill-gray';
+      return '<div class="module-card" onclick="startScenario(\''+k+'\')"><div class="module-card-title"><i class="ti ti-flask" style="color:#00bceb"></i> '+s.title+'</div><div class="module-card-desc">'+s.desc+'</div><div style="margin-top:8px"><span class="pill '+cls+'">'+label+'</span></div></div>';
+    }).join('')+'</div>';
+}
+
+function renderProgressTab(){
+  var t=getTraining();
+  var modIds=Object.keys(trainingData.lessons);
+  var modsDone=modIds.filter(function(k){var m=t.modules&&t.modules[k];return m&&m.steps&&m.steps.filter(Boolean).length>=trainingData.lessons[k].steps.length;}).length;
+  var quizIds=Object.keys(trainingData.quizzes);
+  var quizDone=quizIds.filter(function(k){return t.quizzes&&t.quizzes[k];}).length;
+  var scenIds=Object.keys(trainingData.scenarios);
+  var scenDone=scenIds.filter(function(k){var s=t.scenarios&&t.scenarios[k];return s&&s.steps&&s.steps.filter(Boolean).length>=trainingData.scenarios[k].steps.length;}).length;
+  var totalItems=modIds.length+quizIds.length+scenIds.length;
+  var doneItems=modsDone+quizDone+scenDone;
+  var overall=Math.round((doneItems/totalItems)*100);
+  var acts=t.activity||[];
+  return '<div class="stats-row stats-row-3"><div class="stat-card"><div class="stat-label">Modules</div><div class="stat-value">'+modsDone+'/'+modIds.length+'</div></div><div class="stat-card"><div class="stat-label">Quizzes</div><div class="stat-value">'+quizDone+'/'+quizIds.length+'</div></div><div class="stat-card"><div class="stat-label">Scenarios</div><div class="stat-value">'+scenDone+'/'+scenIds.length+'</div></div></div>'+
+    '<div class="panel"><div class="panel-head">Overall Progress</div><div class="panel-body"><div class="stat-value" style="font-size:36px;text-align:center">'+overall+'%</div><div class="progress-bar" style="height:8px;margin-top:8px"><div class="progress-fill" style="width:'+overall+'%;background:#00bceb"></div></div></div></div>'+
+    '<div class="panel"><div class="panel-head"><i class="ti ti-history"></i> Activity Log</div><div class="panel-body">'+
+    (acts.length===0?'<p style="color:#6b7a8d;font-size:13px">Wala pang activity.</p>':acts.slice(0,10).map(function(a){return '<div class="device-row"><div class="device-name">'+a.text+'</div><div class="device-meta">'+a.time+'</div></div>';}).join(''))+
+    '</div></div>';
+}
+
+function updateTrainingDisplays(){
+  var t=getTraining();
+  var modIds=Object.keys(trainingData.lessons);
+  var quizIds=Object.keys(trainingData.quizzes);
+  var scenIds=Object.keys(trainingData.scenarios);
+  var doneItems=modIds.filter(function(k){var m=t.modules&&t.modules[k];return m&&m.steps&&m.steps.filter(Boolean).length>=trainingData.lessons[k].steps.length;}).length+
+    quizIds.filter(function(k){return t.quizzes&&t.quizzes[k];}).length+
+    scenIds.filter(function(k){var s=t.scenarios&&t.scenarios[k];return s&&s.steps&&s.steps.filter(Boolean).length>=trainingData.scenarios[k].steps.length;}).length;
+  var totalItems=modIds.length+quizIds.length+scenIds.length;
+  var overall=totalItems>0?Math.round((doneItems/totalItems)*100):0;
+  var badge=document.getElementById('training-badge');
+  if(badge){badge.textContent=overall+'%';badge.style.background=overall>=100?'#1d9e75':'#ffb900';}
+  updateAlertBadges();
+}
+
+function updateAlertBadges(){
+  var acked=getData().alertsAcknowledged||0;
+  var count=Math.max(0,3-acked);
+  ['alert-count','sidebar-alert-count'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.textContent=count;
+  });
+}
+
+// ═══════ LESSONS ═══════
+var currentLessonKey=null;
+function startLesson(k){
+  currentLessonKey=k;
+  var ls=trainingData.lessons[k];
+  var t=getTraining();
+  var mod=t.modules&&t.modules[k];
+  var steps=mod&&mod.steps?mod.steps:[];
+  var html='<div style="margin-bottom:12px;font-size:12px;color:#6b7a8d">'+ls.title+'</div>'+
+    ls.steps.map(function(s,i){
+      var done=steps[i]||false;
+      return '<div class="scenario-step '+(done?'completed':'')+'" id="ls-'+i+'"><div class="scenario-step-content"><div><span class="scenario-step-num">'+(i+1)+'</span></div><div class="scenario-step-text"><strong>'+s.title+(done?' <span style="color:#1d9e75">✓</span>':'')+'</strong><p>'+s.text+'</p>'+(done?'':'<button class="btn btn-success btn-sm" style="margin-top:8px" onclick="completeLesson('+i+')"><i class="ti ti-check"></i> Mark done</button>')+'</div></div></div>';
+    }).join('');
+  openModal(ls.title+' ('+ls.steps.filter(function(s,i){var m=getTraining().modules&&getTraining().modules[k];return m&&m.steps&&m.steps[i];}).length+'/'+ls.steps.length+')',html);
+}
+
+function completeLesson(idx){
+  if(!currentLessonKey)return;
+  var t=getTraining();
+  if(!t.modules)t.modules={};
+  if(!t.modules[currentLessonKey])t.modules[currentLessonKey]={steps:[]};
+  if(!t.modules[currentLessonKey].steps)t.modules[currentLessonKey].steps=[];
+  t.modules[currentLessonKey].steps[idx]=true;
+  t.modules[currentLessonKey]._updated=Date.now();
+  localStorage.setItem(TRAINING_KEY,JSON.stringify(t));
+  addActivity('📖 Completed lesson: '+trainingData.lessons[currentLessonKey].steps[idx].title);
+  updateTrainingDisplays();
+  closeModal();
+  startLesson(currentLessonKey);
+}
+
+// ═══════ QUIZZES ═══════
+var activeQuizKey=null;
+var quizQIdx=0;
+var quizAnswers=[];
+var quizAnswered=false;
+
+function startQuiz(k){
+  activeQuizKey=k;quizQIdx=0;quizAnswers=[];quizAnswered=false;
+  var qs=trainingData.quizzes[k];
+  if(!qs)return;
+  quizAnswers=new Array(qs.length).fill(null);
+  var label=trainingData.lessons[k]?trainingData.lessons[k].title:k;
+  openModal(label+' Quiz','<div class="quiz-progress" id="qprog">Question 1 of '+qs.length+'</div><div class="quiz-question" id="qq"></div><div id="qopts"></div><div id="qresult" style="display:none"><div class="quiz-result-score" id="qscore"></div><div style="text-align:center;margin-bottom:16px"><button class="btn btn-ghost" onclick="retakeQuiz()">Retake</button></div></div>');
+  document.querySelector('#modal-overlay .modal').classList.add('wide');
+  showQuizQuestion();
+}
+
+function showQuizQuestion(){
+  var qs=trainingData.quizzes[activeQuizKey];
+  if(!qs)return;
+  var q=qs[quizQIdx];
+  document.getElementById('qprog').textContent='Question '+(quizQIdx+1)+' of '+qs.length;
+  document.getElementById('qq').textContent=q.q;
+  var pa=quizAnswers[quizQIdx];
+  document.getElementById('qopts').innerHTML=q.options.map(function(o,i){
+    var cls='quiz-option';
+    if(pa!==null){cls+=i===q.answer?' correct':i===pa?' wrong':'';}
+    return '<button class="'+cls+'" onclick="answerQ('+i+')" '+(pa!==null?'disabled':'')+'>'+o+'</button>';
+  }).join('');
+  document.getElementById('qresult').style.display='none';
+  if(pa!==null){quizAnswered=true;}else{quizAnswered=false;}
+}
+
+function answerQ(idx){
+  if(quizAnswered)return;
+  var qs=trainingData.quizzes[activeQuizKey];
+  var q=qs[quizQIdx];
+  quizAnswers[quizQIdx]=idx;
+  quizAnswered=true;
+  showQuizQuestion();
+  // Auto-advance after 600ms delay
+  setTimeout(function(){
+    if(quizQIdx<qs.length-1){
+      quizQIdx++;
+      quizAnswered=false;
+      showQuizQuestion();
+    }else{
+      finishQuiz();
+    }
+  },800);
+}
+
+function finishQuiz(){
+  var qs=trainingData.quizzes[activeQuizKey];
+  var correct=0;
+  qs.forEach(function(q,i){if(quizAnswers[i]===q.answer)correct++;});
+  var total=qs.length;
+  var pct=Math.round((correct/total)*100);
+  document.getElementById('qopts').innerHTML='';
+  document.getElementById('qprog').style.display='none';
+  document.getElementById('qq').style.display='none';
+  document.getElementById('qresult').style.display='block';
+  document.getElementById('qscore').textContent=correct+'/'+total;
+  document.getElementById('qscore').style.color=pct>=80?'#1d9e75':pct>=60?'#ba7517':'#e24b4a';
+  var t=getTraining();
+  if(!t.quizzes)t.quizzes={};
+  t.quizzes[activeQuizKey]={correct:correct,total:total};
+  localStorage.setItem(TRAINING_KEY,JSON.stringify(t));
+  addActivity('📝 Quiz "'+(trainingData.lessons[activeQuizKey]?trainingData.lessons[activeQuizKey].title:activeQuizKey)+'": '+correct+'/'+total);
+  updateTrainingDisplays();
+}
+
+function retakeQuiz(){startQuiz(activeQuizKey);}
+
+// ═══════ SCENARIOS ═══════
+var activeScenarioKey=null;
+function startScenario(k){
+  activeScenarioKey=k;
+  var s=trainingData.scenarios[k];
+  var t=getTraining();
+  var scen=t.scenarios&&t.scenarios[k];
+  var steps=scen&&scen.steps?scen.steps:[];
+  var html='<div style="margin-bottom:12px;font-size:13px;color:#6b7a8d">'+s.desc+'</div>'+
+    s.steps.map(function(st,i){
+      var done=steps[i]||false;
+      return '<div class="scenario-step '+(done?'completed':'')+'" id="ss-'+i+'"><div class="scenario-step-content"><div><span class="scenario-step-num">'+(i+1)+'</span></div><div class="scenario-step-text">'+
+        (done?'<span style="color:#1d9e75;font-weight:600">✓ Completed</span>':'<strong>Step '+(i+1)+':</strong><p>'+st.text+'</p>'+(done?'':'<button class="btn btn-success btn-sm" style="margin-top:8px" onclick="completeScenario('+i+')"><i class="ti ti-check"></i> Mark done</button>'))+
+        '</div></div></div>';
+    }).join('');
+  openModal(s.title,html);
+  document.querySelector('#modal-overlay .modal').classList.add('wide');
+}
+
+function completeScenario(idx){
+  if(!activeScenarioKey)return;
+  var t=getTraining();
+  if(!t.scenarios)t.scenarios={};
+  if(!t.scenarios[activeScenarioKey])t.scenarios[activeScenarioKey]={steps:[]};
+  if(!t.scenarios[activeScenarioKey].steps)t.scenarios[activeScenarioKey].steps=[];
+  t.scenarios[activeScenarioKey].steps[idx]=true;
+  t.scenarios[activeScenarioKey]._updated=Date.now();
+  localStorage.setItem(TRAINING_KEY,JSON.stringify(t));
+  addActivity('🔧 Completed scenario step: '+trainingData.scenarios[activeScenarioKey].steps[idx].text.substring(0,50)+'…');
+  updateTrainingDisplays();
+  closeModal();
+  startScenario(activeScenarioKey);
+}
+
+// ═══════ INIT ═══════
+function initApp(){
+  setPage('overview');
+  updateTrainingDisplays();
+}
+</script>
+<div style="text-align:center;padding:10px 20px;font-size:11px;color:#8a9aaa;border-top:1px solid rgba(255,255,255,0.08);background:#0a1628;">Disclaimer: Independent training simulation. Not affiliated with, endorsed by, or associated with Cisco Systems, Inc. Cisco and Meraki are trademarks of Cisco Systems, Inc.</div>
+<script>
+(function(){function p(e){e.preventDefault()}document.addEventListener('contextmenu',p);document.addEventListener('keydown',function(e){if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(e.key.toLowerCase()))||(e.ctrlKey&&['u','c','x'].includes(e.key.toLowerCase()))){e.preventDefault();return false}});document.addEventListener('copy',p);document.addEventListener('cut',p)})();
+</script>
+</body>
+</html>
