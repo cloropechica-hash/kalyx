@@ -18,6 +18,7 @@ h1{font-size:28px;font-weight:700;color:#1a2332;text-align:center;margin-bottom:
 .card-header.meraki{background:linear-gradient(135deg,#1a2332,#2a3d5a,#00bceb33);}
 .card-header.ws{background:linear-gradient(135deg,#003d6b,#0078d4,#50e6ff33);}
 .card-header.fortinet{background:linear-gradient(135deg,#0d1520,#1a2332,#ee312433);}
+.card-header.cctv{background:linear-gradient(135deg,#0d1b1e,#1a3a3f,#00e5ff33);}
 .card-header.gws{background:linear-gradient(135deg,#1a73e8,#0d5bbd,#34a853);}
 .card-header.gws i{color:#fff;}
 .card-header.fortinet i{color:#ee3124;}
@@ -33,6 +34,7 @@ h1{font-size:28px;font-weight:700;color:#1a2332;text-align:center;margin-bottom:
 .card-badge.gws{background:#e8f0fe;color:#1a73e8;}
 .card-badge.ws{background:#dce5f5;color:#003d6b;}
 .card-badge.fortinet{background:#1e1a1a;color:#ee3124;}
+.card-badge.cctv{background:#0d1b1e;color:#00e5ff;}
 @media(max-width:600px){.grid{grid-template-columns:1fr;}}
 </style>
 </head>
@@ -101,7 +103,16 @@ h1{font-size:28px;font-weight:700;color:#1a2332;text-align:center;margin-bottom:
         </div>
       </div>
     </a>
-  </div>
+    <a class="card" href="cctv-simulation.html">
+      <div class="card-header cctv"><i class="ti ti-eye"></i></div>
+      <div class="card-body">
+        <div class="card-title">CCTV & Access Control</div>
+        <div class="card-desc">CCTV System Overview, NVR Configuration, Biometric Access Control, Maintenance, Troubleshooting, Audit and Reporting.</div>
+        <div class="card-stats">
+          <span class="card-badge cctv">6 Modules</span>
+          <span class="card-badge cctv">6 Quizzes</span>
+          <span class="card-badge cctv">4 Scenarios</span>
+        </div>
       </div>
     </a>
     <a class="card" href="windows-server-simulation.html">

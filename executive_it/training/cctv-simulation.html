@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCTV & Access Control System Training Simulator</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0e14;min-height:100vh;font-size:14px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;color:#c0c8d4}
+.app{display:flex;height:100vh}
+.sidebar{width:220px;background:#0d1117;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;border-right:1px solid #1c2333}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:#0d1117;border-bottom:1px solid #1c2333;padding:0 20px;height:48px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.content{flex:1;overflow-y:auto;padding:20px 24px}
+.sidebar-header{padding:16px 14px;border-bottom:1px solid #1c2333}
+.sidebar-logo{display:flex;align-items:center;gap:10px}
+.sidebar-logo i{font-size:22px;color:#00e676}
+.sidebar-logo-text{font-size:13px;font-weight:600;color:#e0e6ed}
+.sidebar-logo-sub{font-size:10px;color:#6b7a8d;margin-top:1px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;color:#6b7a8d;font-size:12px;cursor:pointer;transition:all 0.12s;border-left:3px solid transparent}
+.nav-item:hover{background:#151c28;color:#c0c8d4}
+.nav-item.active{background:#151c28;color:#00e676;border-left-color:#00e676;font-weight:500}
+.nav-item i{font-size:16px;color:#6b7a8d}
+.nav-item.active i{color:#00e676}
+.nav-item .nav-badge{margin-left:auto;background:#00e676;color:#0a0e14;font-size:9px;padding:1px 7px;border-radius:8px;font-weight:600}
+.topbar-title{font-size:13px;font-weight:500;color:#e0e6ed}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.topbar-right i{font-size:16px;color:#6b7a8d;cursor:pointer;padding:6px;border-radius:4px}
+.topbar-right i:hover{background:#1c2333;color:#e0e6ed}
+.avatar{width:28px;height:28px;border-radius:50%;background:#1c2333;border:2px solid #00e676;display:flex;align-items:center;justify-content:center;color:#00e676;font-size:10px;font-weight:700;flex-shrink:0;cursor:pointer}
+.panel{display:none}
+.panel.active{display:block}
+.page-title{font-size:20px;font-weight:600;color:#e0e6ed;margin-bottom:2px}
+.page-sub{font-size:12px;color:#6b7a8d;margin-bottom:18px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.stat-card{background:#0d1117;border:1px solid #1c2333;border-radius:8px;padding:14px 16px;position:relative}
+.stat-card .stat-icon{position:absolute;top:14px;right:14px;font-size:20px;color:#1c2333}
+.stat-label{font-size:11px;color:#6b7a8d;margin-bottom:2px}
+.stat-val{font-size:22px;font-weight:600;color:#e0e6ed}
+.stat-change{font-size:11px;color:#00e676;margin-top:2px}
+.card{background:#0d1117;border:1px solid #1c2333;border-radius:8px;margin-bottom:12px;overflow:hidden}
+.card-header{padding:10px 16px;border-bottom:1px solid #1c2333;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:12px;font-weight:600;color:#e0e6ed}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.table{width:100%;border-collapse:collapse;font-size:12px}
+.table th{padding:7px 14px;text-align:left;color:#6b7a8d;font-weight:600;font-size:11px;border-bottom:1px solid #1c2333;background:#0a0e14}
+.table td{padding:7px 14px;border-bottom:1px solid #151c28;color:#c0c8d4}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:#151c28}
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:500}
+.badge-green{background:#0a2e1a;color:#00e676}
+.badge-red{background:#2e0a0a;color:#ff5252}
+.badge-amber{background:#2e1a0a;color:#ffd740}
+.badge-blue{background:#0a1a2e;color:#40c4ff}
+.badge-purple{background:#1a0a2e;color:#b388ff}
+.action-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.btn{padding:6px 14px;font-size:12px;border:1px solid #1c2333;border-radius:6px;background:#0d1117;color:#c0c8d4;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-weight:500}
+.btn:hover{background:#151c28}
+.btn-primary{background:#00e676;color:#0a0e14;border-color:#00e676;font-weight:600}
+.btn-primary:hover{background:#00c853}
+.btn-success{background:#00c853;color:#0a0e14;border-color:#00c853;font-weight:600}
+.btn-success:hover{background:#00a844}
+.btn-danger{background:#ff5252;color:#fff;border-color:#ff5252}
+.btn-danger:hover{background:#e04848}
+.btn-outline{background:transparent;border:1px solid #00e676;color:#00e676}
+.btn-outline:hover{background:#0a2e1a}
+.btn-sm{padding:3px 8px;font-size:11px}
+.btn-warn{background:#ffd740;color:#0a0e14;border-color:#ffd740;font-weight:600}
+.alert{padding:8px 12px;border-radius:6px;font-size:12px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.alert-warn{background:#2e1a0a;color:#ffd740;border-left:3px solid #ffd740}
+.alert-info{background:#0a1a2e;color:#40c4ff;border-left:3px solid #40c4ff}
+.alert-succ{background:#0a2e1a;color:#00e676;border-left:3px solid #00e676}
+.alert-danger{background:#2e0a0a;color:#ff5252;border-left:3px solid #ff5252}
+.progress-bar{height:6px;background:#1c2333;border-radius:3px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;background:#00e676;border-radius:3px;transition:width 0.4s}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:#0d1117;border:1px solid #1c2333;border-radius:8px;padding:20px 24px;width:520px;max-width:92vw;box-shadow:0 4px 32px rgba(0,0,0,0.6)}
+.modal-box.wide{width:640px}
+.modal-title{font-size:14px;font-weight:600;color:#e0e6ed;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.modal-actions{margin-top:14px;display:flex;gap:8px;justify-content:flex-end}
+.info-box{background:#0a0e14;border-radius:6px;padding:12px 14px;font-size:12px;color:#c0c8d4;margin-top:10px;line-height:1.6;border:1px solid #1c2333}
+.info-box strong{color:#00e676}
+.learn-section{background:#0a1a2e;border-radius:8px;padding:18px;margin-bottom:12px;border:1px solid #1c2333}
+.learn-section h3{font-size:14px;font-weight:600;color:#40c4ff;margin-bottom:6px}
+.learn-section p{font-size:12px;color:#c0c8d4;line-height:1.6}
+.learn-steps{margin:8px 0 0;padding-left:18px;font-size:12px;color:#c0c8d4;line-height:1.8}
+.quiz-question{font-size:14px;font-weight:500;color:#e0e6ed;margin-bottom:14px;line-height:1.5}
+.quiz-option{display:block;width:100%;text-align:left;padding:10px 14px;margin-bottom:6px;border:1px solid #1c2333;border-radius:6px;background:#0a0e14;cursor:pointer;font-size:12px;font-family:inherit;transition:all 0.12s}
+.quiz-option:hover{border-color:#00e676;background:#151c28}
+.quiz-option.selected{border-color:#00e676;background:#0a2e1a;font-weight:500;color:#00e676}
+.quiz-option.correct{border-color:#00e676;background:#0a2e1a;color:#00e676}
+.quiz-option.wrong{border-color:#ff5252;background:#2e0a0a;color:#ff5252}
+.quiz-result{padding:12px;border-radius:6px;margin-top:14px;font-size:13px;font-weight:500}
+.quiz-result.pass{background:#0a2e1a;color:#00e676}
+.quiz-result.fail{background:#2e0a0a;color:#ff5252}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:11px;font-weight:600;color:#6b7a8d;margin-bottom:3px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:7px 10px;font-size:12px;border:1px solid #1c2333;border-radius:6px;font-family:inherit;background:#0a0e14;color:#c0c8d4}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#00e676;box-shadow:0 0 0 1px #00e67633}
+.form-group input:disabled{background:#0a0e14;color:#6b7a8d}
+.form-hint{font-size:10px;color:#6b7a8d;margin-top:2px}
+.switch{position:relative;width:36px;height:20px;flex-shrink:0;cursor:pointer;display:inline-block}
+.switch input{opacity:0;width:0;height:0}
+.switch .slider{position:absolute;inset:0;background:#1c2333;border-radius:10px;transition:0.2s}
+.switch .slider::before{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#6b7a8d;top:2px;left:2px;transition:0.2s}
+.switch input:checked+.slider{background:#00e676}
+.switch input:checked+.slider::before{background:#0a0e14;transform:translateX(16px)}
+.camera-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:12px}
+.camera-card{background:#0d1117;border:1px solid #1c2333;border-radius:8px;overflow:hidden;position:relative}
+.camera-feed{background:#000;height:160px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.camera-feed .cam-label{position:absolute;bottom:6px;left:8px;background:rgba(0,0,0,0.7);padding:2px 8px;border-radius:3px;font-size:10px;color:#c0c8d4}
+.camera-feed .cam-status{position:absolute;top:6px;right:8px;width:8px;height:8px;border-radius:50%}
+.feed-animation{width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative}
+.feed-animation .scan-line{position:absolute;width:100%;height:2px;background:rgba(0,230,118,0.15);animation:scan 3s linear infinite}
+@keyframes scan{0%{top:0}50%{top:100%}100%{top:0}}
+.camera-info{padding:8px 12px;display:flex;justify-content:space-between;align-items:center}
+.camera-name{font-size:12px;font-weight:500;color:#e0e6ed}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #151c28}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:12px;color:#c0c8d4}
+.toggle-desc{font-size:10px;color:#6b7a8d;margin-top:1px}
+.scenario-card{background:#0d1117;border:1px solid #1c2333;border-radius:8px;padding:16px;margin-bottom:12px;cursor:pointer;transition:all 0.15s}
+.scenario-card:hover{border-color:#00e676}
+.scenario-card h4{font-size:13px;font-weight:600;color:#e0e6ed;margin-bottom:3px}
+.scenario-card p{font-size:12px;color:#6b7a8d;line-height:1.5}
+.scenario-card .badge{margin-top:6px}
+.scenario-detail{display:none}
+.scenario-detail.open{display:block}
+.activity-item{padding:7px 0;border-bottom:1px solid #151c28;font-size:12px;color:#c0c8d4;display:flex;align-items:center;gap:8px}
+.activity-item:last-child{border-bottom:none}
+.activity-icon{font-size:14px;flex-shrink:0}
+.activity-icon.done{color:#00e676}
+.activity-icon.warn{color:#ffd740}
+.activity-icon.info{color:#40c4ff}
+.activity-icon.danger{color:#ff5252}
+.activity-time{color:#6b7a8d;font-size:10px;margin-left:auto;flex-shrink:0}
+.cctv-hr{border:none;border-top:1px solid #1c2333;margin:14px 0}
+@media(max-width:768px){.sidebar{width:50px}.sidebar-logo-text,.sidebar-logo-sub,.nav-item span,.nav-item .nav-badge{display:none}.nav-item{justify-content:center;padding:10px;margin:2px auto;border-radius:6px;width:36px;height:36px;border-left:none}.content{padding:14px}.two-col{grid-template-columns:1fr}.stat-grid{grid-template-columns:1fr 1fr}.camera-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <i class="ti ti-shield-lock"></i>
+        <div>
+          <div class="sidebar-logo-text">CCTV & Access Control</div>
+          <div class="sidebar-logo-sub">Security Systems Training</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-section-title" style="padding:12px 14px 4px;font-size:10px;color:#6b7a8d;text-transform:uppercase;letter-spacing:1px;font-weight:600">Security System</div>
+    <div class="nav-item active" data-page="dashboard"><i class="ti ti-dashboard"></i><span>Dashboard</span></div>
+    <div class="nav-item" data-page="cameras"><i class="ti ti-camera"></i><span>Cameras</span><span class="nav-badge" id="camCount">0</span></div>
+    <div class="nav-item" data-page="nvr"><i class="ti ti-server"></i><span>NVR Settings</span></div>
+    <div class="nav-item" data-page="doors"><i class="ti ti-door"></i><span>Access Control</span></div>
+    <div class="nav-item" data-page="maintenance"><i class="ti ti-tool"></i><span>Maintenance</span></div>
+    <div class="nav-item" data-page="audit"><i class="ti ti-report-search"></i><span>Audit Logs</span></div>
+    <div class="sidebar-section-title" style="padding:12px 14px 4px;font-size:10px;color:#6b7a8d;text-transform:uppercase;letter-spacing:1px;font-weight:600">Training</div>
+    <div class="nav-item" data-page="training"><i class="ti ti-book"></i><span>Mga Aralin</span><span class="nav-badge" id="trainingBadge">0%</span></div>
+    <div class="nav-item" data-page="scenarios"><i class="ti ti-flask"></i><span>Scenarios</span></div>
+    <div class="nav-item" data-page="activity"><i class="ti ti-activity"></i><span>Activity Log</span></div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title"><i class="ti ti-shield-lock" style="font-size:14px;color:#00e676;margin-right:6px;vertical-align:middle"></i><span id="topbarTitle">Dashboard</span></div>
+      <div class="topbar-right">
+        <span style="font-size:10px;color:#6b7a8d;display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#00e676;animation:pulse 1.5s infinite"></span> SYSTEM ONLINE</span>
+        <i class="ti ti-refresh" onclick="location.reload()" title="Refresh"></i>
+        <div class="avatar" title="Security Admin">SA</div>
+      </div>
+    </div>
+    <div class="content" id="mainContent"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal-box" id="modalBox"></div></div>
+<style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}</style>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const APP_NAME = 'CCTV & Access Control Trainer';
+const SITE = 'Kalyx HQ';
+
+function getProgress(){try{return JSON.parse(localStorage.getItem('cctv_trainer'))||{modules:{},quizzes:{},scenarios:{}} }catch{return{modules:{},quizzes:{},scenarios:{}}}}
+function saveProgress(p){localStorage.setItem('cctv_trainer',JSON.stringify(p))}
+function getData(){try{return JSON.parse(localStorage.getItem('cctv_trainer_data'))||{cameras:[],doors:[],users:[],recordings:[],alerts:[]}}catch{return{cameras:[],doors:[],users:[],recordings:[],alerts:[]}}}
+function saveData(d){localStorage.setItem('cctv_trainer_data',JSON.stringify(d))}
+function getActivity(){try{return JSON.parse(localStorage.getItem('cctv_trainer_activity'))||[]}catch{return[]}}
+function saveActivity(a){localStorage.setItem('cctv_trainer_activity',JSON.stringify(a))}
+function addActivity(msg,type='info'){const a=getActivity();a.unshift({msg,type,time:new Date().toISOString()});if(a.length>200)a.length=200;saveActivity(a)}
+function ts(){return new Date().toISOString()}
+function randomId(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+
+// Seed data
+function seedData(){
+  let d=getData();
+  if(!d.cameras.length){
+    d.cameras=[
+      {id:'CAM-001',name:'Main Entrance',location:'Ground Floor Lobby',type:'4K Bullet',status:'Online',ip:'192.168.1.101',rec:true,motion:true,stream:'live'},
+      {id:'CAM-002',name:'Parking Lot A',location:'Basement Parking',type:'4K PTZ',status:'Online',ip:'192.168.1.102',rec:true,motion:true,stream:'live'},
+      {id:'CAM-003',name:'Server Room',location:'2nd Floor - IT Room',type:'2K Dome',status:'Online',ip:'192.168.1.103',rec:true,motion:false,stream:'live'},
+      {id:'CAM-004',name:'HR Office',location:'3rd Floor',type:'2K Dome',status:'Online',ip:'192.168.1.104',rec:true,motion:true,stream:'live'},
+      {id:'CAM-005',name:'Warehouse Bay',location:'Warehouse Section C',type:'4K Bullet',status:'Online',ip:'192.168.1.105',rec:true,motion:true,stream:'live'},
+      {id:'CAM-006',name:'Rooftop',location:'Building Roof Deck',type:'4K PTZ',status:'Offline',ip:'192.168.1.106',rec:false,motion:false,stream:'offline'}
+    ];
+  }
+  if(!d.doors.length){
+    d.doors=[
+      {id:'DR-001',name:'Main Gate',location:'Front Entrance',type:'Biometric + RFID',status:'Locked',online:true},
+      {id:'DR-002',name:'Side Entrance',location:'East Wing',type:'RFID Only',status:'Locked',online:true},
+      {id:'DR-003',name:'Server Room',location:'2nd Floor',type:'Biometric + PIN',status:'Locked',online:true},
+      {id:'DR-004',name:'Executive Office',location:'3rd Floor',type:'Biometric + RFID',status:'Locked',online:true},
+      {id:'DR-005',name:'Warehouse Door',location:'Ground Floor Rear',type:'RFID Only',status:'Locked',online:false}
+    ];
+  }
+  if(!d.users.length){
+    d.users=[
+      {id:'USR-001',name:'Juan Dela Cruz',dept:'IT',fingerprint:true,pin:'****',rfid:'RF-A001',access:'All Areas',active:true},
+      {id:'USR-002',name:'Maria Santos',dept:'HR',fingerprint:true,pin:'****',rfid:'RF-A002',access:'HR, Lobby',active:true},
+      {id:'USR-003',name:'Pedro Reyes',dept:'IT',fingerprint:true,pin:'****',rfid:'RF-A003',access:'All Areas',active:true},
+      {id:'USR-004',name:'Ana Gonzales',dept:'Finance',fingerprint:true,pin:'****',rfid:'RF-A004',access:'Finance, Lobby',active:true},
+      {id:'USR-005',name:'Jose Villanueva',dept:'Marketing',fingerprint:false,pin:'****',rfid:'RF-A005',access:'Marketing, Lobby',active:false}
+    ];
+  }
+  if(!d.alerts.length){
+    d.alerts=[
+      {id:'ALT-001',type:'Door Forced',msg:'Side Entrance forced open alarm',time:Date.now()-3600000,level:'critical',ack:false},
+      {id:'ALT-002',type:'Motion',msg:'Motion detected - Warehouse Bay (after hours)',time:Date.now()-7200000,level:'warning',ack:false},
+      {id:'ALT-003',type:'Camera Offline',msg:'Rooftop camera connection lost',time:Date.now()-14400000,level:'warning',ack:true}
+    ];
+  }
+  saveData(d);
+}
+seedData();
+
+// ============================================================
+// MODULES
+// ============================================================
+const modules = [
+  {
+    id:'m1',title:'CCTV System Overview',
+    content:`<div class="learn-section"><h3>Ano ang CCTV System?</h3>
+<p>Ang CCTV (Closed-Circuit Television) ay isang video surveillance system na ginagamit para i-monitor at i-record ang activities sa loob at paligid ng isang facility. Ang modernong CCTV systems ay gumagamit ng IP cameras na kumokonekta sa network.</p>
+<h3 style="margin-top:12px;color:#40c4ff;">Mga Bahagi ng CCTV System</h3>
+<ul class="learn-steps">
+<li><strong>IP Camera</strong> — kumukuha ng video at nagpapadala sa network (PoE o WiFi)</li>
+<li><strong>NVR (Network Video Recorder)</strong> — nagre-record at nagma-manage ng video footage</li>
+<li><strong>PoE Switch</strong> — nagbibigay ng power at network connection sa cameras</li>
+<li><strong>Storage (HDD)</strong> — nag-iimbak ng recorded footage (2TB-16TB)</li>
+<li><strong>Monitor/Client</strong> — para sa live viewing at playback</li>
+</ul>
+<h3 style="margin-top:12px;color:#40c4ff;">Uri ng IP Cameras</h3>
+<p><strong>Bullet</strong> — pang-outdoor, long range, weatherproof. <strong>Dome</strong> — pang-indoor, discreet, vandal-resistant. <strong>PTZ</strong> — pwedeng i-pan, tilt, at zoom remotely.</p></div>`,
+    quiz:[
+      {q:'Ano ang ibig sabihin ng CCTV?',o:['Computer Connected Television','Closed-Circuit Television','Central Camera Tracking Video','Cloud Connected TV'],a:1},
+      {q:'Ano ang NVR?',o:['Network Video Recorder','National Video Registry','Network Virtual Router','Non-Volatile Recorder'],a:0},
+      {q:'Anong uri ng camera ang pang-outdoor at long range?',o:['Dome','Bullet','PTZ','Box'],a:1},
+      {q:'Paano nakakakuha ng power ang IP cameras?',o:['Battery','Solar Panel','PoE (Power over Ethernet)','USB'],a:2},
+      {q:'Anong camera ang pwedeng i-pan, tilt, at zoom?',o:['Bullet','Dome','PTZ','Fixed'],a:2}
+    ]
+  },
+  {
+    id:'m2',title:'NVR Configuration',
+    content:`<div class="learn-section"><h3>NVR Setup at Configuration</h3>
+<p>Ang NVR ang utak ng CCTV system. Dito mo ida-dagdag ang mga camera, magse-set ng recording schedules, at magko-configure ng motion detection.</p>
+<h3 style="margin-top:12px;color:#40c4ff;">Pag-add ng Camera</h3>
+<ul class="learn-steps">
+<li>I-connect ang camera sa network sa pamamagitan ng PoE switch</li>
+<li>I-access ang NVR interface at pumunta sa Camera Management</li>
+<li>I-scan para sa mga cameras sa network o manual i-input ang IP address</li>
+<li>I-configure ang resolution, FPS, at bitrate</li>
+</ul>
+<h3 style="margin-top:12px;color:#40c4ff;">Recording Schedules</h3>
+<p>Continuous recording (24/7), Motion-triggered (tipid sa storage), o Scheduled (e.g., office hours only). Recommended: gumamit ng motion detection para mas efficient ang storage usage.</p>
+<h3 style="margin-top:12px;color:#40c4ff;">Storage Management</h3>
+<p>Ang retention period ay depende sa storage capacity, resolution, at recording mode. Halimbawa: 8 cameras x 4K x 24/7 recording = ~4-6TB bawat linggo.</p></div>`,
+    quiz:[
+      {q:'Paano nagkokonekta ang IP cameras sa NVR?',o:['Via HDMI','Via network (PoE)','Via USB','Via VGA'],a:1},
+      {q:'Anong recording mode ang tipid sa storage?',o:['Continuous 24/7','Motion-triggered','Scheduled','Lahat pareho lang'],a:1},
+      {q:'Ano ang dapat mong gawin para mag-add ng camera sa NVR?',o:['I-plug sa monitor','I-scan ang network o manual input IP','Mag-install ng software','Mag-reboot ng NVR'],a:1},
+      {q:'Ano ang retention period?',o:['Resolution ng camera','Tagal ng video na iniimbak','Frame rate ng camera','Brand ng NVR'],a:1},
+      {q:'Anong factor ang pinaka-nakakaimpluwensya sa storage consumption?',o:['Brand ng camera','Resolution at recording mode','Laki ng monitor','Internet speed'],a:1}
+    ]
+  },
+  {
+    id:'m3',title:'Biometric Access Control',
+    content:`<div class="learn-section"><h3>Access Control System</h3>
+<p>Ang biometric access control ay gumagamit ng unique biological characteristics (fingerprint, face recognition) o credentials (PIN, RFID card) para i-verify ang identity ng isang tao bago magbigay ng access.</p>
+<h3 style="margin-top:12px;color:#40c4ff;">Mga Authentication Methods</h3>
+<ul class="learn-steps">
+<li><strong>Fingerprint</strong> — unique ridges ng daliri, pinaka-common na biometric</li>
+<li><strong>PIN Code</strong> — numeric code, madalas gamitin kasama ng ibang method</li>
+<li><strong>RFID Card/Tag</strong> — proximity card, pwedeng i-deactivate kung nawala</li>
+<li><strong>Face Recognition</strong> — gamit ang camera at AI algorithms</li>
+</ul>
+<h3 style="margin-top:12px;color:#40c4ff;">Access Levels at Schedules</h3>
+<p>Ang bawat user ay pwedeng magkaroon ng iba't ibang access level (e.g., "All Areas", "HR Only"). Pwede ring mag-set ng time schedules — sino ang pwedeng pumasok saan at kailan.</p>
+<h3 style="margin-top:12px;color:#40c4ff;">Anti-Passback</h3>
+<p>Pinipigilan ang isang tao na gamitin ang kanyang credential para ipasok ang ibang tao. Kapag may anti-passback, dapat lumabas muna ang isang tao sa isang area bago siya pwedeng pumasok muli.</p></div>`,
+    quiz:[
+      {q:'Ano ang pinaka-common na biometric authentication?',o:['Face recognition','Fingerprint','Iris scan','Voice recognition'],a:1},
+      {q:'Ano ang anti-passback?',o:['Anti-virus para sa access control','Pinipigilan ang credential sharing','Backup battery system','Password policy'],a:1},
+      {q:'Ano ang RFID?',o:['Radio Frequency IDentification','Remote Fingerprint ID','Real-time Face ID','Random File ID'],a:0},
+      {q:'Ano ang pwedeng i-configure para sa access schedule?',o:['Sino, saan, at kailan pwedeng pumasok','Brand ng door lock','Kulay ng door','Laki ng door'],a:0},
+      {q:'Anong authentication method ang hindi biometric?',o:['Fingerprint','Face recognition','PIN Code','Iris scan'],a:2}
+    ]
+  },
+  {
+    id:'m4',title:'System Maintenance',
+    content:`<div class="learn-section"><h3>Preventive Maintenance</h3>
+<p>Ang regular na maintenance ay mahalaga para matiyak na gumagana nang maayos ang CCTV at access control system. Ang preventive maintenance ay nakakatulong na maiwasan ang unexpected failures.</p>
+<h3 style="margin-top:12px;color:#40c4ff;">Camera Maintenance</h3>
+<ul class="learn-steps">
+<li>Linisin ang camera lenses gamit ang microfiber cloth (buwan-buwan)</li>
+<li>I-check ang cable connections at weatherproofing</li>
+<li>I-verify ang focus at image clarity</li>
+<li>I-update ang firmware ng cameras</li>
+</ul>
+<h3 style="margin-top:12px;color:#40c4ff;">Storage Health Check</h3>
+<p>I-check ang HDD health gamit ang S.M.A.R.T. status. Palitan ang HDD kapag may bad sectors o approaching end of life. Regular na i-verify ang backup ng configuration.</p>
+<h3 style="margin-top:12px;color:#40c4ff;">Battery Backup</h3>
+<p>Ang mga door controllers ay dapat may battery backup para manatiling naka-lock ang doors kapag may power outage. I-test ang batteries quarterly at palitan tuwing 2-3 taon.</p></div>`,
+    quiz:[
+      {q:'Gaano kadalas dapat linisin ang camera lenses?',o:['Araw-araw','Buwan-buwan','Taon-taon','Hindi na kailangan'],a:1},
+      {q:'Ano ang dapat gawin kapag may bad sectors ang HDD?',o:['Wala, normal lang','Palitan ang HDD','I-format ang HDD','I-restart ang NVR'],a:1},
+      {q:'Gaano kadalas dapat i-test ang backup batteries?',o:['Araw-araw','Quarterly','Isang beses lang','Hindi na kailangan'],a:1},
+      {q:'Kailan dapat palitan ang backup batteries?',o:['Taon-taon','Tuwing 2-3 taon','Tuwing 5 taon','Hindi na pinalitan'],a:1},
+      {q:'Ano ang tawag sa status check ng HDD health?',o:['HDD Format','S.M.A.R.T. status','Disk Cleanup','File System Check'],a:1}
+    ]
+  },
+  {
+    id:'m5',title:'Troubleshooting',
+    content:`<div class="learn-section"><h3>Common Issues at Solutions</h3>
+<p>Bilang security system technician, kailangan mong malaman ang common na issues at kung paano ito i-troubleshoot.</p>
+<h3 style="margin-top:12px;color:#40c4ff;">Camera Offline / No Video</h3>
+<ul class="learn-steps">
+<li>I-check ang physical connection (Ethernet cable, PoE injector/switch)</li>
+<li>I-verify ang IP address — naka-DHCP ba o static?</li>
+<li>I-check kung may power ang camera (LED indicator)</li>
+<li>I-reboot ang camera sa pamamagitan ng NVR interface</li>
+</ul>
+<h3 style="margin-top:12px;color:#40c4ff;">Biometric Reader Not Responding</h3>
+<ul class="learn-steps">
+<li>I-check ang power supply ng door controller</li>
+<li>I-clean ang fingerprint scanner surface</li>
+<li>I-verify ang network connection ng reader sa controller</li>
+<li>I-re-enroll ang user kung hindi nagma-match ang fingerprint</li>
+</ul>
+<h3 style="margin-top:12px;color:#40c4ff;">Door Not Locking/Unlocking</h3>
+<ul class="learn-steps">
+<li>I-check ang magnetic lock o electric strike kung may power</li>
+<li>I-verify ang door sensor alignment</li>
+<li>I-test ang manual override (key override)</li>
+<li>I-check ang schedule settings kung tama ang time</li>
+</ul></div>`,
+    quiz:[
+      {q:'Ano ang unang dapat i-check kapag offline ang camera?',o:['Palitan ang camera','I-check ang physical connection','I-reformat ang NVR','Mag-order ng bagong camera'],a:1},
+      {q:'Paano malalaman kung may power ang camera?',o:['Sa manual','LED indicator','Sa box','Sa warranty card'],a:1},
+      {q:'Ano ang dapat gawin kung hindi nagma-match ang fingerprint?',o:['Palitan ang user','I-re-enroll ang user','I-delete ang user','Wala, normal lang'],a:1},
+      {q:'Ano ang pwedeng problema kapag hindi nagla-lock ang door?',o:['Sirang camera','Walang power sa magnetic lock','Mabagal na internet','Maling resolution'],a:1},
+      {q:'Saan maaaring problema ang maling time settings?',o:['Sa camera resolution','Sa access schedule','Sa video quality','Sa frame rate'],a:1}
+    ]
+  },
+  {
+    id:'m6',title:'Audit at Reporting',
+    content:`<div class="learn-section"><h3>Audit Logs at Reports</h3>
+<p>Ang audit logs ay mahalaga para sa security investigations, compliance requirements, at operational monitoring. Lahat ng events — access attempts, system changes, alarms — ay naka-log.</p>
+<h3 style="margin-top:12px;color:#40c4ff;">Mga Uri ng Events</h3>
+<ul class="learn-steps">
+<li><strong>Access Events</strong> — sino, saan, at kailan pumasok o nag-try pumasok</li>
+<li><strong>Alarms</strong> — door forced open, door open too long, tampering</li>
+<li><strong>System Events</strong> — camera offline, storage full, firmware updates</li>
+<li><strong>User Management</strong> — new user enrolled, permissions changed</li>
+</ul>
+<h3 style="margin-top:12px;color:#40c4ff;">Video Playback at Export</h3>
+<p>Pwedeng mag-playback ng recorded video gamit ang timeline o event list. I-export ang footage sa AVI o MP4 format para sa evidence preservation. Tiyakin na accurate ang time settings para valid ang ebidensya.</p>
+<h3 style="margin-top:12px;color:#40c4ff;">Report Generation</h3>
+<p>Gumawa ng regular reports para sa management: access logs summary, alarm statistics, system health status, at incident reports.</p></div>`,
+    quiz:[
+      {q:'Bakit mahalaga ang audit logs?',o:['Para mag-edit ng video','Para sa security investigations at compliance','Para mag-delete ng records','Para mag-format ng HDD'],a:1},
+      {q:'Ano ang alarm na "Door Open Too Long"?',o:['Normal operation','Pinto na matagal nabuksan','Sirang sensor','Naka-schedule na pagbukas'],a:1},
+      {q:'Anong format ang dapat gamitin para i-export ang video evidence?',o:['BMP','AVI o MP4','PDF','TXT'],a:1},
+      {q:'Bakit dapat accurate ang time settings ng system?',o:['Para maganda ang video','Para valid ang ebidensya','Para mabilis ang internet','Para mag-sync sa email'],a:1},
+      {q:'Ano ang dapat isama sa management report?',o:['Camera brand','Access logs summary at alarms','Laki ng monitor','Warranty info'],a:1}
+    ]
+  }
+];
+
+// ============================================================
+// SCENARIOS
+// ============================================================
+const scenarios = [
+  {id:'cs1',title:'New Camera Installation',desc:'Kailangan mong mag-install ng bagong IP camera sa lobby area. I-configure ito sa NVR, i-set ang recording schedule, at i-enable ang motion detection.',steps:[
+    'Pumunta sa Cameras para i-view ang current camera list',
+    'Buksan ang NVR Settings at i-configure ang bagong camera',
+    'I-set ang recording mode sa Motion Detection',
+    'I-configure ang schedule: 24/7 motion recording',
+    'I-verify na online ang camera at nagre-record'
+  ],done:false,icon:'ti ti-camera-plus'},
+  {id:'cs2',title:'Access Control Breach Response',desc:'May natanggap kang alarm na "Door Forced Open" sa side entrance. Kailangan mong i-investigate, i-acknowledge ang alarm, at gumawa ng report.',steps:[
+    'Pumunta sa Audit Logs para tingnan ang alarm',
+    'I-acknowledge ang forced open alarm',
+    'I-check ang video playback ng side entrance camera',
+    'Gumawa ng incident report',
+    'I-paalala sa security personnel na i-check ang door'
+  ],done:false,icon:'ti ti-shield-alert'},
+  {id:'cs3',title:'User Enrollment at Access Setup',desc:'May bagong IT manager na si John Smith. Kailangan mo siyang i-enroll sa access control system na may access sa lahat ng areas.',steps:[
+    'Pumunta sa Access Control section',
+    'Gumawa ng bagong user account para kay John',
+    'I-enroll ang fingerprint at RFID card',
+    'I-set ang access level sa "All Areas"',
+    'I-verify na active ang user'
+  ],done:false,icon:'ti ti-user-plus'},
+  {id:'cs4',title:'System Health Check',desc:'May report na ang rooftop camera ay offline at ang isang door controller ay hindi nagre-respond. Kailangan mong i-troubleshoot ang issues.',steps:[
+    'I-check ang status ng lahat ng cameras sa system',
+    'I-troubleshoot ang offline camera sa rooftop',
+    'I-check ang door controller connection sa warehouse',
+    'Gumawa ng maintenance ticket para sa repairs',
+    'I-document ang actions sa activity log'
+  ],done:false,icon:'ti ti-tool'}
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentPage = 'dashboard';
+let prog = getProgress();
+let data = getData();
+
+function switchPage(page) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===page));
+  currentPage=page;
+  renderPage(page);
+}
+function renderPage(page) {
+  const mc = document.getElementById('mainContent');
+  const titles = {dashboard:'Dashboard',cameras:'Cameras',nvr:'NVR Settings',doors:'Access Control',maintenance:'Maintenance',audit:'Audit Logs',training:'Mga Aralin',scenarios:'Scenarios',activity:'Activity Log'};
+  document.getElementById('topbarTitle').textContent=titles[page]||'';
+  const r = {dashboard:renderDashboard,cameras:renderCameras,nvr:renderNVR,doors:renderDoors,maintenance:renderMaintenance,audit:renderAudit,training:renderTraining,scenarios:renderScenarios,activity:renderActivity};
+  if(r[page]){mc.innerHTML='<div class="panel active">'+r[page]()+'</div>';}
+  updateCounts();
+}
+function updateCounts() {
+  const d=getData();
+  document.getElementById('camCount').textContent=d.cameras.filter(c=>c.status==='Online').length;
+  const p=getProgress();const tot=modules.length*3+scenarios.length*3;let done=0;
+  modules.forEach(m=>{if(p.modules[m.id])done+=3;else if(p.quizzes[m.id])done+=2;else if(p.quizzes[m.id+'half'])done+=1});
+  scenarios.forEach(s=>{if(p.scenarios[s.id])done+=3});
+  const pc=tot?Math.round(done/tot*100):0;
+  document.getElementById('trainingBadge').textContent=pc+'%';
+}
+
+// ============================================================
+// RENDER: DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const p=getProgress();const d=getData();
+  const modDone=modules.filter(m=>p.modules[m.id]).length;
+  const quizDone=modules.filter(m=>p.quizzes[m.id]).length;
+  const scDone=scenarios.filter(s=>p.scenarios[s.id]).length;
+  const onlineCams=d.cameras.filter(c=>c.status==='Online').length;
+  const lockedDoors=d.doors.filter(dr=>dr.status==='Locked'&&dr.online).length;
+  const unackAlerts=d.alerts.filter(a=>!a.ack).length;
+  return `
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub">${SITE} — Security System Status Overview</p>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon ti ti-camera" style="position:absolute;top:14px;right:14px;font-size:20px;color:#1c2333"></div><div class="stat-label">Cameras Online</div><div class="stat-val">${onlineCams}/${d.cameras.length}</div><div class="stat-change">${d.cameras.length-onlineCams} offline</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-door" style="position:absolute;top:14px;right:14px;font-size:20px;color:#1c2333"></div><div class="stat-label">Doors Locked</div><div class="stat-val">${lockedDoors}/${d.doors.filter(dr=>dr.online).length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-bell" style="position:absolute;top:14px;right:14px;font-size:20px;color:#1c2333"></div><div class="stat-label">Unacknowledged Alerts</div><div class="stat-val">${unackAlerts}</div><div class="stat-change" style="color:${unackAlerts?'#ffd740':'#00e676'}">${unackAlerts?'Needs attention':'All clear'}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-book" style="position:absolute;top:14px;right:14px;font-size:20px;color:#1c2333"></div><div class="stat-label">Modules Done</div><div class="stat-val">${modDone}/${modules.length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-flask" style="position:absolute;top:14px;right:14px;font-size:20px;color:#1c2333"></div><div class="stat-label">Scenarios Done</div><div class="stat-val">${scDone}/${scenarios.length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-activity" style="position:absolute;top:14px;right:14px;font-size:20px;color:#1c2333"></div><div class="stat-label">Progress</div><div class="stat-val">${document.getElementById('trainingBadge').textContent}</div></div>
+    </div>
+    <div class="alert ${unackAlerts?'alert-warn':'alert-succ'}"><i class="ti ${unackAlerts?'ti-alert-triangle':'ti-check-circle'}"></i> <strong>System ${d.cameras.filter(c=>c.status==='Online').length===d.cameras.length&&d.alerts.every(a=>a.ack)?'All OK':'Has Issues'}</strong> ${d.cameras.length-onlineCams} camera(s) offline · ${unackAlerts} unacknowledged alert(s)</div>
+  `;
+}
+
+// ============================================================
+// RENDER: CAMERAS
+// ============================================================
+function renderCameras() {
+  const d=getData();
+  let h=`<h1 class="page-title">Cameras</h1><p class="page-sub">Live feed — ${d.cameras.filter(c=>c.status==='Online').length}/${d.cameras.length} cameras online</p><div class="camera-grid">`;
+  const cams = d.cameras;
+  cams.forEach(c=>{
+    h+=`<div class="camera-card">
+      <div class="camera-feed">
+        <div class="feed-animation" style="background:${c.status==='Online'?'linear-gradient(135deg,#0a0e14 0%,#151c28 100%)':'linear-gradient(135deg,#1a0a0a 0%,#151c28 100%)'}">
+          <i class="ti ${c.status==='Online'?'ti-camera':'ti-camera-off'}" style="font-size:36px;color:${c.status==='Online'?'#00e67644':'#ff525244'}"></i>
+          ${c.status==='Online'?'<div class="scan-line"></div>':''}
+        </div>
+        <div class="cam-label">${c.name}</div>
+        <div class="cam-status" style="background:${c.status==='Online'?'#00e676':'#ff5252'}"></div>
+      </div>
+      <div class="camera-info">
+        <div><div class="camera-name">${c.name}</div><div style="font-size:10px;color:#6b7a8d">${c.location} · ${c.type}</div></div>
+        <div style="display:flex;gap:4px">
+          <i class="ti ${c.rec?'ti-player-record':'ti-player-record-off'}" style="font-size:14px;color:${c.rec?'#ff5252':'#6b7a8d'}" title="${c.rec?'Recording':'Not Recording'}"></i>
+          <i class="ti ${c.motion?'ti-motion':'ti-motion-off'}" style="font-size:14px;color:${c.motion?'#ffd740':'#6b7a8d'}" title="${c.motion?'Motion Detection ON':'Motion Detection OFF'}"></i>
+        </div>
+      </div>
+    </div>`;
+  });
+  h+=`</div>`;
+  return h;
+}
+
+// ============================================================
+// RENDER: NVR SETTINGS
+// ============================================================
+function renderNVR() {
+  const d=getData();
+  const s = d.nvrSettings||{recMode:'motion',resolution:'4K',fps:15,retention:30,ipRange:'192.168.1.100-199'};
+  return `
+    <h1 class="page-title">NVR Settings</h1>
+    <p class="page-sub">Configure recording, storage, at network settings</p>
+    <div class="two-col">
+      <div class="card"><div class="card-header"><span class="card-title">Recording Settings</span></div><div style="padding:14px 16px">
+        <div class="form-group"><label>Default Recording Mode</label><select id="nvrRecMode" onchange="saveNvrSetting('recMode',this.value)">
+          <option value="continuous" ${s.recMode==='continuous'?'selected':''}>Continuous 24/7</option>
+          <option value="motion" ${s.recMode==='motion'?'selected':''}>Motion Detection</option>
+          <option value="scheduled" ${s.recMode==='scheduled'?'selected':''}>Scheduled</option>
+        </select></div>
+        <div class="form-group"><label>Resolution</label><select id="nvrRes" onchange="saveNvrSetting('resolution',this.value)">
+          <option value="4K" ${s.resolution==='4K'?'selected':''}>4K (3840x2160)</option>
+          <option value="2K" ${s.resolution==='2K'?'selected':''}>2K (2560x1440)</option>
+          <option value="1080p" ${s.resolution==='1080p'?'selected':''}>1080p (1920x1080)</option>
+        </select><div class="form-hint">Mas mataas na resolution = mas maraming storage</div></div>
+        <div class="form-group"><label>Frame Rate (FPS)</label><select id="nvrFps" onchange="saveNvrSetting('fps',parseInt(this.value))">
+          <option value="30" ${s.fps===30?'selected':''}>30 fps (smooth)</option>
+          <option value="15" ${s.fps===15?'selected':''}>15 fps (balanced)</option>
+          <option value="8" ${s.fps===8?'selected':''}>8 fps (storage saver)</option>
+        </select></div>
+      </div></div>
+      <div class="card"><div class="card-header"><span class="card-title">Storage & Network</span></div><div style="padding:14px 16px">
+        <div class="form-group"><label>Storage Installed</label><input value="4 TB (2x 2TB HDD)" disabled></div>
+        <div class="form-group"><label>Available Space</label><input value="1.8 TB (45% used)" disabled><div class="progress-bar" style="margin-top:4px"><div class="progress-fill" style="width:45%"></div></div></div>
+        <div class="form-group"><label>Retention Period</label><select id="nvrRet" onchange="saveNvrSetting('retention',parseInt(this.value))">
+          <option value="7" ${s.retention===7?'selected':''}>7 days</option>
+          <option value="14" ${s.retention===14?'selected':''}>14 days</option>
+          <option value="30" ${s.retention===30?'selected':''}>30 days</option>
+          <option value="60" ${s.retention===60?'selected':''}>60 days</option>
+        </select></div>
+        <div class="form-group"><label>IP Range</label><input value="${s.ipRange}" disabled></div>
+        <div style="margin-top:8px;display:flex;gap:6px">
+          <span class="badge badge-green">PoE Switch: Online</span>
+          <span class="badge badge-amber">HDD 1: OK (12,500 hrs)</span>
+          <span class="badge badge-green">HDD 2: OK (8,200 hrs)</span>
+        </div>
+      </div></div>
+    </div>
+    <div class="alert alert-info"><i class="ti ti-info-circle"></i> Mga setting ay na-save sa browser. I-explore ang iba't ibang configuration para makita ang epekto sa storage.</div>`;
+}
+function saveNvrSetting(k,v){
+  const d=getData();if(!d.nvrSettings)d.nvrSettings={};d.nvrSettings[k]=v;saveData(d);
+  addActivity('NVR setting changed: '+k+' = '+v);renderPage('nvr');
+}
+
+// ============================================================
+// RENDER: ACCESS CONTROL
+// ============================================================
+function renderDoors() {
+  const d=getData();
+  let h=`<h1 class="page-title">Access Control</h1><p class="page-sub">Manage doors, users, at access permissions</p>
+  <div class="action-bar" style="margin-bottom:8px">
+    <button class="btn btn-primary btn-sm" onclick="openEnrollUserModal()"><i class="ti ti-user-plus"></i> Enroll User</button>
+    <button class="btn btn-sm" onclick="switchPage('activity')"><i class="ti ti-report-search"></i> View Access Logs</button>
+  </div>
+  <div class="two-col">
+    <div class="card"><div class="card-header"><span class="card-title">Doors (${d.doors.length})</span></div><div style="padding:8px 12px"><table class="table"><thead><tr><th>Door</th><th>Location</th><th>Type</th><th>Status</th></tr></thead><tbody>`;
+  d.doors.forEach(dr=>{
+    const stCls=dr.online?(dr.status==='Locked'?'badge-green':'badge-amber'):'badge-red';
+    h+=`<tr><td>${dr.name}</td><td style="font-size:11px">${dr.location}</td><td style="font-size:11px">${dr.type}</td><td><span class="badge ${stCls}">${dr.online?dr.status:'Offline'}</span></td></tr>`;
+  });
+  h+=`</tbody></table></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">Users (${d.users.length})</span></div><div style="padding:8px 12px"><table class="table"><thead><tr><th>Name</th><th>Dept</th><th>Access Level</th><th>Status</th></tr></thead><tbody>`;
+  d.users.forEach(u=>{
+    h+=`<tr><td>${u.name}</td><td style="font-size:11px">${u.dept}</td><td style="font-size:11px">${u.access}</td><td><span class="badge ${u.active?'badge-green':'badge-red'}">${u.active?'Active':'Inactive'}</span></td></tr>`;
+  });
+  h+=`</tbody></table></div></div>
+  </div>`;
+  return h;
+}
+
+// ============================================================
+// RENDER: MAINTENANCE
+// ============================================================
+function renderMaintenance() {
+  return `
+    <h1 class="page-title">Maintenance</h1>
+    <p class="page-sub">Preventive maintenance at system health monitoring</p>
+    <div class="two-col">
+      <div class="card"><div class="card-header"><span class="card-title">Camera Maintenance Checklist</span></div><div style="padding:14px 16px">
+        <div class="toggle-row"><div><div class="toggle-label">Clean camera lenses</div><div class="toggle-desc">Microfiber cloth, check for smudges</div></div><label class="switch"><input type="checkbox" onchange="addActivity('Camera lenses cleaning '+(this.checked?'completed':'unchecked'),this.checked?'done':'warn')"><span class="slider"></span></label></div>
+        <div class="toggle-row"><div><div class="toggle-label">Check cable connections</div><div class="toggle-desc">Ethernet, power, weatherproofing</div></div><label class="switch"><input type="checkbox" onchange="addActivity('Cable check '+(this.checked?'completed':'unchecked'),this.checked?'done':'warn')"><span class="slider"></span></label></div>
+        <div class="toggle-row"><div><div class="toggle-label">Verify image clarity</div><div class="toggle-desc">Focus, angle, lighting check</div></div><label class="switch"><input type="checkbox" onchange="addActivity('Image clarity check '+(this.checked?'completed':'unchecked'),this.checked?'done':'warn')"><span class="slider"></span></label></div>
+        <div class="toggle-row"><div><div class="toggle-label">Firmware updates</div><div class="toggle-desc">Check for latest camera firmware</div></div><label class="switch"><input type="checkbox" onchange="addActivity('Firmware check '+(this.checked?'completed':'unchecked'),this.checked?'done':'warn')"><span class="slider"></span></label></div>
+      </div></div>
+      <div class="card"><div class="card-header"><span class="card-title">System Health Status</span></div><div style="padding:14px 16px">
+        <div class="toggle-row"><div><div class="toggle-label">HDD 1 (Seagate 2TB)</div><div class="toggle-desc">S.M.A.R.T: OK · 12,500 power-on hours</div></div><span class="badge badge-green">Healthy</span></div>
+        <div class="toggle-row"><div><div class="toggle-label">HDD 2 (WD Purple 2TB)</div><div class="toggle-desc">S.M.A.R.T: OK · 8,200 power-on hours</div></div><span class="badge badge-green">Healthy</span></div>
+        <div class="toggle-row"><div><div class="toggle-label">PoE Switch (48-port)</div><div class="toggle-desc">Uptime: 127 days · Temp: 42°C</div></div><span class="badge badge-green">Online</span></div>
+        <div class="toggle-row"><div><div class="toggle-label">Battery Backup (UPS)</div><div class="toggle-desc">Last test: ${new Date(Date.now()-86400000*15).toLocaleDateString('fil-PH')} · Health: 87%</div></div><span class="badge badge-amber">Test Due</span></div>
+        <div class="toggle-row" style="border-bottom:none"><div><div class="toggle-label">NVR Uptime</div><div class="toggle-desc">Last reboot: ${new Date(Date.now()-86400000*30).toLocaleDateString('fil-PH')}</div></div><span class="badge badge-green">127 days</span></div>
+      </div></div>
+    </div>
+    <div class="card"><div class="card-header"><span class="card-title">Quick Maintenance Actions</span></div><div style="padding:12px 16px;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="addActivity('NVR system reboot initiated','warn')"><i class="ti ti-refresh"></i> Reboot NVR</button>
+      <button class="btn btn-sm" onclick="addActivity('HDD health check completed','done')"><i class="ti ti-disk"></i> Check HDD Health</button>
+      <button class="btn btn-sm" onclick="addActivity('Battery backup test performed','done')"><i class="ti ti-battery"></i> Test UPS</button>
+      <button class="btn btn-sm" onclick="addActivity('Storage report generated','info')"><i class="ti ti-report"></i> Storage Report</button>
+    </div></div>`;
+}
+
+// ============================================================
+// RENDER: AUDIT
+// ============================================================
+function renderAudit() {
+  const d=getData();
+  let h=`<h1 class="page-title">Audit Logs</h1><p class="page-sub">System events, alarms, at access history</p>
+  <div class="card"><div class="card-header"><span class="card-title">Alarms & Events (${d.alerts.length})</span></div><div style="padding:8px 16px">`;
+  if(!d.alerts.length){h+=`<div style="font-size:12px;color:#6b7a8d;padding:8px 0">Wala pang alarms.</div>`;}
+  else{
+    d.alerts.slice().reverse().forEach(a=>{
+      const lvlCls=a.level==='critical'?'danger':a.level==='warning'?'warn':'info';
+      const icon=a.type==='Door Forced'?'ti-door':a.type==='Motion'?'ti-motion':a.type==='Camera Offline'?'ti-camera-off':'ti-bell';
+      h+=`<div class="activity-item"><i class="ti ${icon} activity-icon ${lvlCls}"></i><span>${a.msg}</span>
+        <span style="font-size:10px;color:#6b7a8d">${new Date(a.time).toLocaleString('fil-PH')}</span>
+        ${!a.ack?`<button class="btn btn-sm btn-outline" onclick="ackAlert('${a.id}')">Acknowledge</button>`:'<span class="badge badge-green">Acknowledged</span>'}
+      </div>`;
+    });
+  }
+  h+=`</div></div>
+  <div class="card"><div class="card-header"><span class="card-title">Recent Activity</span></div><div style="padding:8px 16px;max-height:300px;overflow-y:auto">${renderRecentActivity()}</div></div>`;
+  return h;
+}
+function renderRecentActivity(){
+  const ac=getActivity();
+  if(!ac.length)return '<div style="font-size:12px;color:#6b7a8d;padding:8px 0">Wala pang activity.</div>';
+  return ac.slice(0,10).map(a=>`<div class="activity-item"><i class="ti ${a.type==='done'?'ti-check-circle activity-icon done':a.type==='warn'?'ti-alert-triangle activity-icon warn':'a.type==='danger'?'ti-x-circle activity-icon danger':'ti-info-circle activity-icon info'}"></i><span>${a.msg}</span><span class="activity-time">${new Date(a.time).toLocaleString('fil-PH')}</span></div>`).join('');
+}
+function ackAlert(id){
+  const d=getData();const a=d.alerts.find(x=>x.id===id);if(a){a.ack=true;saveData(d);addActivity('Acknowledged alert: '+a.msg,'done');renderPage('audit');}
+}
+
+// ============================================================
+// RENDER: TRAINING
+// ============================================================
+function renderTraining() {
+  const p=getProgress();
+  let h=`<h1 class="page-title">Mga Aralin</h1><p class="page-sub">${modules.length} modules na may lessons, quizzes, at progress tracking</p>`;
+  modules.forEach((m,i)=>{
+    const done=p.modules[m.id];const quizDone=p.quizzes[m.id];const started=p.quizzes[m.id+'half'];
+    let stLabel='<span class="badge badge-amber">Not Started</span>';
+    if(done)stLabel='<span class="badge badge-green">Completed</span>';
+    else if(quizDone)stLabel='<span class="badge badge-blue">Quiz Passed</span>';
+    else if(started)stLabel='<span class="badge badge-amber">In Progress</span>';
+    h+=`<div class="card" style="opacity:${done||i===0||p.quizzes[modules[i-1]?.id]?1:0.5};cursor:${done||i===0||p.quizzes[modules[i-1]?.id]?'pointer':'not-allowed'}">
+      <div class="card-header"><span class="card-title">Module ${i+1}: ${m.title}</span> ${stLabel}</div>
+      <div style="padding:14px 16px">
+        <div class="learn-content" id="learn_${m.id}">${m.content}</div>
+        <div id="quizArea_${m.id}"></div>
+        ${!done?`<button class="btn btn-primary" onclick="startQuiz('${m.id}')" id="quizBtn_${m.id}" ${(i>0&&!p.quizzes[modules[i-1]?.id])?'disabled':''}><i class="ti ti-edit"></i> ${p.quizzes[m.id]?'Retake Quiz':'Take Quiz'}</button>`:''}
+        ${done?`<span style="color:#00e676;font-weight:500"><i class="ti ti-check-circle"></i> Module Completed!</span>`:''}
+      </div>
+    </div>`;
+  });
+  const tot=modules.length*3;let done=0;
+  modules.forEach(m=>{if(p.modules[m.id])done+=3;else if(p.quizzes[m.id])done+=2;else if(p.quizzes[m.id+'half'])done+=1});
+  const pc=tot?Math.round(done/tot*100):0;
+  h+=`<div class="card"><div class="card-header"><span class="card-title">Overall Progress</span><span>${pc}%</span></div><div style="padding:8px 16px"><div class="progress-bar"><div class="progress-fill" style="width:${pc}%"></div></div></div></div>`;
+  return h;
+}
+
+// ============================================================
+// QUIZ ENGINE
+// ============================================================
+function startQuiz(modId) {
+  const m=modules.find(x=>x.id===modId);if(!m)return;
+  const area=document.getElementById('quizArea_'+modId);
+  const btn=document.getElementById('quizBtn_'+modId);
+  if(btn)btn.style.display='none';
+  let h=`<div class="card"><div class="card-header"><span class="card-title">Quiz: ${m.title}</span></div><div style="padding:14px 16px" id="quizBody_${modId}"><p style="margin-bottom:10px;color:#6b7a8d;font-size:12px">Sagutan ang mga tanong. Kailangan ng ${Math.ceil(m.quiz.length*0.7)}/${m.quiz.length} para pumasa.</p>`;
+  m.quiz.forEach((q,qi)=>{
+    h+=`<div style="margin-bottom:14px" id="qq_${modId}_${qi}"><div class="quiz-question">${qi+1}. ${q.q}</div>`;
+    q.o.forEach((opt,oi)=>{
+      h+=`<button class="quiz-option" onclick="selectQuizOption('${modId}',${qi},${oi})" id="qo_${modId}_${qi}_${oi}">${opt}</button>`;
+    });
+    h+=`</div>`;
+  });
+  h+=`<button class="btn btn-primary" onclick="submitQuiz('${modId}')"><i class="ti ti-send"></i> I-submit ang Quiz</button><div id="quizResult_${modId}"></div></div></div>`;
+  area.innerHTML=h;
+  window._quizSelections=window._quizSelections||{};window._quizSelections[modId]=[];
+  const p=getProgress();if(!p.quizzes[modId+'half']){p.quizzes[modId+'half']=true;saveProgress(p);updateCounts();}
+}
+function selectQuizOption(modId,qi,oi) {
+  window._quizSelections=window._quizSelections||{};if(!window._quizSelections[modId])window._quizSelections[modId]=[];
+  window._quizSelections[modId][qi]=oi;
+  document.querySelectorAll('#qq_'+modId+'_'+qi+' .quiz-option').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('qo_'+modId+'_'+qi+'_'+oi).classList.add('selected');
+}
+function submitQuiz(modId) {
+  const m=modules.find(x=>x.id===modId);if(!m)return;
+  const sel=window._quizSelections?.[modId]||[];
+  let correct=0;
+  m.quiz.forEach((q,qi)=>{
+    const chosen=sel[qi];
+    document.querySelectorAll('#qq_'+modId+'_'+qi+' .quiz-option').forEach((el,oi)=>{
+      el.classList.remove('selected','correct','wrong');el.disabled=true;
+      if(oi===q.a)el.classList.add('correct');
+      else if(oi===chosen)el.classList.add('wrong');
+    });
+    if(chosen===q.a)correct++;
+  });
+  const pass=correct>=Math.ceil(m.quiz.length*0.7);const p=getProgress();
+  if(pass){p.quizzes[modId]=true;saveProgress(p);addActivity('Pumasa sa quiz: '+m.title,'done');}
+  else{addActivity('Bagsak sa quiz: '+m.title+'. '+correct+'/'+m.quiz.length,'warn');}
+  document.getElementById('quizResult_'+modId).innerHTML=`<div class="quiz-result ${pass?'pass':'fail'}">${pass?'Passed!':'Bagsak. Kailangan ng '+(Math.ceil(m.quiz.length*0.7))+'/'+m.quiz.length+'. I-retry ang quiz.'} ${correct}/${m.quiz.length} tamang sagot.</div>`;
+  if(pass){setTimeout(()=>{markModuleDone(modId);renderPage('training');},1500);}
+  updateCounts();
+}
+function markModuleDone(modId) {
+  const p=getProgress();p.modules[modId]=true;saveProgress(p);addActivity('Natapos ang module: '+modules.find(m=>m.id===modId)?.title,'done');
+}
+
+// ============================================================
+// RENDER: SCENARIOS
+// ============================================================
+function renderScenarios() {
+  const p=getProgress();
+  let h=`<h1 class="page-title">Scenarios</h1><p class="page-sub">Hands-on practice gamit ang realistic security scenarios</p>`;
+  scenarios.forEach(s=>{
+    const done=p.scenarios[s.id];
+    h+=`<div class="scenario-card" onclick="toggleScenario('${s.id}')">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <i class="${s.icon}" style="font-size:20px;color:#00e676;margin-top:2px"></i>
+        <div style="flex:1">
+          <h4>${s.title} ${done?'<span class="badge badge-green">Done</span>':''}</h4>
+          <p>${s.desc}</p>
+        </div>
+      </div>
+      <div class="scenario-detail" id="scDetail_${s.id}">
+        <hr class="cctv-hr">
+        <ol style="margin:0 0 10px 16px;font-size:12px;color:#c0c8d4;line-height:1.8">${s.steps.map(st=>`<li>${st}</li>`).join('')}</ol>
+        <button class="btn ${done?'btn-outline':'btn-success'}" onclick="event.stopPropagation();completeScenario('${s.id}')">${done?'<i class="ti ti-refresh"></i> Redo':'<i class="ti ti-check"></i> Mark Complete'}</button>
+      </div>
+    </div>`;
+  });
+  return h;
+}
+function toggleScenario(id) {
+  const el=document.getElementById('scDetail_'+id);
+  if(el){el.classList.toggle('open');if(!el.classList.contains('open'))el.style.display='none';else el.style.display='block';}
+}
+function completeScenario(id) {
+  const p=getProgress();const s=scenarios.find(x=>x.id===id);
+  if(p.scenarios[id]){delete p.scenarios[id];addActivity('Unmarked scenario: '+s.title);}
+  else{p.scenarios[id]=true;addActivity('Natapos ang scenario: '+s.title,'done');}
+  saveProgress(p);renderPage('scenarios');updateCounts();
+}
+
+// ============================================================
+// RENDER: ACTIVITY
+// ============================================================
+function renderActivity() {
+  const ac=getActivity();
+  let h=`<h1 class="page-title">Activity Log</h1><p class="page-sub">Record ng lahat ng actions na ginawa mo sa simulation</p><div class="card"><div style="padding:8px 16px;max-height:500px;overflow-y:auto">`;
+  if(!ac.length){h+=`<div class="alert alert-info">Wala pang activity. Magsimulang mag-practice ng security system tasks!</div>`;}
+  else{ac.forEach(a=>{h+=`<div class="activity-item"><i class="ti ${a.type==='done'?'ti-check-circle activity-icon done':a.type==='warn'?'ti-alert-triangle activity-icon warn':a.type==='danger'?'ti-x-circle activity-icon danger':'ti-info-circle activity-icon info'}"></i><span>${a.msg}</span><span class="activity-time">${new Date(a.time).toLocaleString('fil-PH')}</span></div>`});}
+  h+=`</div></div><button class="btn btn-outline" onclick="if(confirm('I-clear ang activity log?')){saveActivity([]);renderPage('activity');}"><i class="ti ti-trash"></i> Clear Log</button>`;
+  return h;
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+function openModal(html) {
+  document.getElementById('modalBox').innerHTML=html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() {document.getElementById('modalOverlay').classList.remove('open');}
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// ---- Enroll User Modal ----
+function openEnrollUserModal() {
+  openModal(`
+    <div class="modal-title"><i class="ti ti-user-plus" style="color:#00e676"></i> Enroll New User</div>
+    <div class="form-group"><label>Full Name</label><input id="euName" placeholder="e.g. John Smith"></div>
+    <div class="form-group"><label>Department</label><select id="euDept"><option value="IT">IT</option><option value="HR">HR</option><option value="Finance">Finance</option><option value="Marketing">Marketing</option><option value="Operations">Operations</option></select></div>
+    <div class="form-group"><label>Access Level</label><select id="euAccess"><option value="All Areas">All Areas</option><option value="IT, Lobby">IT, Lobby</option><option value="HR, Lobby">HR, Lobby</option><option value="Finance, Lobby">Finance, Lobby</option><option value="Lobby Only">Lobby Only</option></select></div>
+    <div class="form-group"><label>Authentication Methods</label><div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#c0c8d4;cursor:pointer"><input type="checkbox" checked id="euFp"> Enroll Fingerprint</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#c0c8d4;cursor:pointer"><input type="checkbox" checked id="euRfid"> Assign RFID Card</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#c0c8d4;cursor:pointer"><input type="checkbox" id="euPin"> Set PIN Code</label>
+    </div></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="enrollUser()"><i class="ti ti-device-floppy"></i> Enroll</button>
+    </div>
+  `);
+}
+function enrollUser() {
+  const name=document.getElementById('euName').value.trim();const dept=document.getElementById('euDept').value;
+  const access=document.getElementById('euAccess').value;
+  if(!name){alert('Please enter a name.');return;}
+  const d=getData();
+  d.users.push({
+    id:'USR-'+randomId(),name,dept,access,active:true,
+    fingerprint:document.getElementById('euFp').checked,
+    rfid:'RF-'+randomId().toUpperCase(),
+    pin:'****'
+  });
+  saveData(d);
+  addActivity('Enrolled new user: '+name+' ('+dept+', '+access+')','done');
+  closeModal();renderPage('doors');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.querySelectorAll('.nav-item').forEach(el=>{
+  el.addEventListener('click',function(){switchPage(this.dataset.page);});
+});
+renderPage('dashboard');
+</script>
+<div style="text-align:center;padding:10px 20px;font-size:10px;color:#6b7a8d;border-top:1px solid #1c2333;background:#0d1117;">Disclaimer: Independent training simulation for educational purposes. All camera feeds and access events are simulated.</div>
+<script>
+(function(){function p(e){e.preventDefault()}document.addEventListener('contextmenu',p);document.addEventListener('keydown',function(e){if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(e.key.toLowerCase()))||(e.ctrlKey&&['u','c','x'].includes(e.key.toLowerCase()))){e.preventDefault();return false}});document.addEventListener('copy',p);document.addEventListener('cut',p)})();
+</script>
+</body>
+</html>
