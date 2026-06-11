@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Database Basics Training Simulator</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Consolas','Courier New',system-ui,sans-serif;background:#1e1e1e;min-height:100vh;font-size:14px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;color:#d4d4d4}
+.app{display:flex;height:100vh}
+.sidebar{width:220px;background:#252526;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;border-right:1px solid #3c3c3c}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:#2d2d2d;border-bottom:1px solid #3c3c3c;padding:0 20px;height:44px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.content{flex:1;overflow-y:auto;padding:20px 24px}
+.sidebar-header{padding:14px 14px;border-bottom:1px solid #3c3c3c}
+.sidebar-logo{display:flex;align-items:center;gap:10px}
+.sidebar-logo i{font-size:22px;color:#0078d4}
+.sidebar-logo-text{font-size:13px;font-weight:600;color:#e0e0e0}
+.sidebar-logo-sub{font-size:10px;color:#808080;margin-top:1px}
+.sidebar-section-title{padding:12px 14px 4px;font-size:10px;color:#808080;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 14px;color:#969696;font-size:12px;cursor:pointer;transition:all 0.12s}
+.nav-item:hover{background:#2a2d2e;color:#e0e0e0}
+.nav-item.active{background:#37373d;color:#fff;font-weight:500}
+.nav-item i{font-size:16px;color:#808080}
+.nav-item.active i{color:#0078d4}
+.nav-item .nav-badge{margin-left:auto;background:#0078d4;color:#fff;font-size:9px;padding:1px 7px;border-radius:8px;font-weight:600}
+.topbar-title{font-size:13px;font-weight:500;color:#e0e0e0}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.topbar-right i{font-size:16px;color:#808080;cursor:pointer;padding:6px;border-radius:4px}
+.topbar-right i:hover{background:#3c3c3c;color:#e0e0e0}
+.avatar{width:28px;height:28px;border-radius:4px;background:#0078d4;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;cursor:pointer}
+.panel{display:none}
+.panel.active{display:block}
+.page-title{font-size:22px;font-weight:600;color:#e0e0e0;margin-bottom:2px}
+.page-sub{font-size:12px;color:#808080;margin-bottom:20px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:#2d2d2d;border:1px solid #3c3c3c;border-radius:6px;padding:14px 16px;position:relative}
+.stat-card .stat-icon{position:absolute;top:14px;right:14px;font-size:20px;color:#3c3c3c}
+.stat-label{font-size:11px;color:#808080;margin-bottom:2px}
+.stat-val{font-size:24px;font-weight:600;color:#e0e0e0}
+.stat-change{font-size:11px;color:#4ec9b0;margin-top:2px}
+.card{background:#2d2d2d;border:1px solid #3c3c3c;border-radius:6px;margin-bottom:12px;overflow:hidden}
+.card-header{padding:10px 16px;border-bottom:1px solid #3c3c3c;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:12px;font-weight:600;color:#e0e0e0}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.table{width:100%;border-collapse:collapse;font-size:12px}
+.table th{padding:8px 14px;text-align:left;color:#808080;font-weight:600;font-size:11px;border-bottom:1px solid #3c3c3c;background:#252526}
+.table td{padding:8px 14px;border-bottom:1px solid #2a2a2a;color:#d4d4d4}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:#2a2d2e}
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:500}
+.badge-green{background:#1a3a2a;color:#4ec9b0}
+.badge-red{background:#3a1a1a;color:#f44747}
+.badge-amber{background:#3a2e1a;color:#dcdcaa}
+.badge-blue{background:#1a2a3a;color:#569cd6}
+.badge-purple{background:#2a1a3a;color:#c586c0}
+.action-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.btn{padding:6px 14px;font-size:12px;border:1px solid #3c3c3c;border-radius:4px;background:#2d2d2d;color:#d4d4d4;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-weight:500}
+.btn:hover{background:#3c3c3c}
+.btn-primary{background:#0078d4;color:#fff;border-color:#0078d4}
+.btn-primary:hover{background:#1a8ae8}
+.btn-success{background:#1a6e4a;color:#fff;border-color:#1a6e4a}
+.btn-success:hover{background:#1e8a5e}
+.btn-outline{background:transparent;border:1px solid #0078d4;color:#0078d4}
+.btn-outline:hover{background:#1a2a3a}
+.btn-sm{padding:3px 8px;font-size:11px}
+.alert{padding:8px 12px;border-radius:4px;font-size:12px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.alert-warn{background:#3a2e1a;color:#dcdcaa;border-left:3px solid #dcdcaa}
+.alert-info{background:#1a2a3a;color:#569cd6;border-left:3px solid #569cd6}
+.alert-succ{background:#1a3a2a;color:#4ec9b0;border-left:3px solid #4ec9b0}
+.progress-bar{height:6px;background:#3c3c3c;border-radius:3px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;background:#0078d4;border-radius:3px;transition:width 0.4s}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:#2d2d2d;border:1px solid #3c3c3c;border-radius:6px;padding:20px 24px;width:500px;max-width:92vw;box-shadow:0 4px 32px rgba(0,0,0,0.4)}
+.modal-title{font-size:14px;font-weight:600;color:#e0e0e0;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.modal-actions{margin-top:14px;display:flex;gap:8px;justify-content:flex-end}
+.info-box{background:#252526;border-radius:4px;padding:12px 14px;font-size:12px;color:#d4d4d4;margin-top:10px;line-height:1.6;border:1px solid #3c3c3c}
+.info-box strong{color:#569cd6}
+.learn-section{background:#1a2a3a;border-radius:6px;padding:18px;margin-bottom:12px}
+.learn-section h3{font-size:14px;font-weight:600;color:#569cd6;margin-bottom:6px}
+.learn-section p{font-size:12px;color:#d4d4d4;line-height:1.6}
+.learn-steps{margin:8px 0 0;padding-left:18px;font-size:12px;color:#d4d4d4;line-height:1.8}
+.tab-bar{display:flex;gap:0;margin-bottom:12px;background:#2d2d2d;border-bottom:1px solid #3c3c3c}
+.tab-btn{padding:8px 16px;font-size:12px;border:none;background:transparent;cursor:pointer;color:#808080;font-weight:500;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab-btn.active{color:#569cd6;border-bottom-color:#0078d4}
+.tab-btn:hover:not(.active){color:#e0e0e0;background:#2a2d2e}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.quiz-question{font-size:14px;font-weight:500;color:#e0e0e0;margin-bottom:14px;line-height:1.5}
+.quiz-option{display:block;width:100%;text-align:left;padding:10px 14px;margin-bottom:6px;border:1px solid #3c3c3c;border-radius:4px;background:#252526;cursor:pointer;font-size:12px;font-family:'Consolas','Courier New',monospace;transition:all 0.12s}
+.quiz-option:hover{border-color:#0078d4;background:#2a2d2e}
+.quiz-option.selected{border-color:#0078d4;background:#1a2a3a;font-weight:500}
+.quiz-option.correct{border-color:#4ec9b0;background:#1a3a2a}
+.quiz-option.wrong{border-color:#f44747;background:#3a1a1a}
+.quiz-result{padding:12px;border-radius:4px;margin-top:14px;font-size:13px;font-weight:500}
+.quiz-result.pass{background:#1a3a2a;color:#4ec9b0}
+.quiz-result.fail{background:#3a1a1a;color:#f44747}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:11px;font-weight:600;color:#808080;margin-bottom:3px}
+.form-group input,.form-group select{width:100%;padding:6px 10px;font-size:12px;border:1px solid #3c3c3c;border-radius:4px;font-family:inherit;background:#252526;color:#d4d4d4}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:#0078d4}
+.form-group input:disabled{background:#1e1e1e;color:#808080}
+.form-hint{font-size:10px;color:#808080;margin-top:2px}
+.sql-editor{background:#1e1e1e;border:1px solid #3c3c3c;border-radius:4px;font-family:'Consolas','Courier New',monospace;font-size:13px;padding:12px;min-height:120px;width:100%;color:#d4d4d4;resize:vertical;outline:none;white-space:pre;tab-size:4}
+.sql-editor:focus{border-color:#0078d4}
+.sql-output{background:#1e1e1e;border:1px solid #3c3c3c;border-radius:4px;padding:10px 12px;font-family:'Consolas','Courier New',monospace;font-size:12px;min-height:60px;max-height:200px;overflow:auto;margin-top:8px;white-space:pre-wrap;color:#d4d4d4}
+.sql-toolbar{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.scenario-card{background:#2d2d2d;border:1px solid #3c3c3c;border-radius:6px;padding:16px;margin-bottom:12px;cursor:pointer;transition:all 0.15s}
+.scenario-card:hover{border-color:#0078d4}
+.scenario-card h4{font-size:13px;font-weight:600;color:#e0e0e0;margin-bottom:3px}
+.scenario-card p{font-size:12px;color:#808080;line-height:1.5}
+.scenario-card .badge{margin-top:6px}
+.scenario-detail{display:none}
+.scenario-detail.open{display:block}
+.activity-item{padding:8px 0;border-bottom:1px solid #2a2a2a;font-size:12px;color:#d4d4d4;display:flex;align-items:center;gap:8px}
+.activity-item:last-child{border-bottom:none}
+.activity-icon{font-size:14px;flex-shrink:0}
+.activity-icon.done{color:#4ec9b0}
+.activity-icon.warn{color:#dcdcaa}
+.activity-icon.info{color:#569cd6}
+.activity-time{color:#808080;font-size:10px;margin-left:auto;flex-shrink:0}
+.sql-hr{border:none;border-top:1px solid #3c3c3c;margin:16px 0}
+@media(max-width:768px){.sidebar{width:50px}.sidebar-logo-text,.sidebar-logo-sub,.sidebar-section-title,.nav-item span,.nav-item .nav-badge{display:none}.nav-item{justify-content:center;padding:10px;margin:2px auto;border-radius:4px;width:36px;height:36px}.content{padding:14px}.two-col{grid-template-columns:1fr}.stat-grid{grid-template-columns:1fr 1fr}}
+.keyword{color:#569cd6}.string{color:#ce9178}.number{color:#b5cea8}.comment{color:#6a9955}.func{color:#dcdcaa}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <i class="ti ti-database"></i>
+        <div>
+          <div class="sidebar-logo-text">SQL Database</div>
+          <div class="sidebar-logo-sub">SSMS Training</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-section-title">Object Explorer</div>
+    <div class="nav-item active" data-page="dashboard"><i class="ti ti-dashboard"></i><span>Dashboard</span></div>
+    <div class="nav-item" data-page="query"><i class="ti ti-code"></i><span>Query Editor</span></div>
+    <div class="nav-item" data-page="tables"><i class="ti ti-table"></i><span>Tables</span><span class="nav-badge" id="tableCount">0</span></div>
+    <div class="nav-item" data-page="users"><i class="ti ti-users"></i><span>Users</span></div>
+    <div class="nav-item" data-page="backup"><i class="ti ti-device-floppy"></i><span>Backup</span></div>
+    <div class="nav-item" data-page="monitor"><i class="ti ti-activity"></i><span>Monitor</span></div>
+    <div class="sidebar-section-title">Training</div>
+    <div class="nav-item" data-page="training"><i class="ti ti-book"></i><span>Mga Aralin</span><span class="nav-badge" id="trainingBadge">0%</span></div>
+    <div class="nav-item" data-page="scenarios"><i class="ti ti-flask"></i><span>Scenarios</span></div>
+    <div class="nav-item" data-page="activity"><i class="ti ti-activity"></i><span>Activity Log</span></div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-right">
+        <i class="ti ti-refresh" onclick="location.reload()" title="Refresh"></i>
+        <div class="avatar" title="DBA">DB</div>
+      </div>
+    </div>
+    <div class="content" id="mainContent"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal-box" id="modalBox"></div></div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const APP_NAME = 'SQL Database Basics Trainer';
+const DB_NAME = 'KalyxDB';
+
+function getProgress(){try{return JSON.parse(localStorage.getItem('sql_trainer'))||{modules:{},quizzes:{},scenarios:{}} }catch{return{modules:{},quizzes:{},scenarios:{}}}}
+function saveProgress(p){localStorage.setItem('sql_trainer',JSON.stringify(p))}
+function getData(){try{return JSON.parse(localStorage.getItem('sql_trainer_data'))||{tables:[],users:[],backups:[],queryHistory:[]}}catch{return{tables:[],users:[],backups:[],queryHistory:[]}}}
+function saveData(d){localStorage.setItem('sql_trainer_data',JSON.stringify(d))}
+function getActivity(){try{return JSON.parse(localStorage.getItem('sql_trainer_activity'))||[]}catch{return[]}}
+function saveActivity(a){localStorage.setItem('sql_trainer_activity',JSON.stringify(a))}
+function addActivity(msg,type='info'){const a=getActivity();a.unshift({msg,type,time:new Date().toISOString()});if(a.length>200)a.length=200;saveActivity(a)}
+const APP_TS = Date.now();
+function ts(){return new Date().toISOString()}
+
+// Seed tables
+function seedTables() {
+  let d=getData();
+  if(!d.tables.length){
+    d.tables=[
+      {name:'Employees',schema:'dbo',cols:[{name:'EmployeeID',type:'INT',pk:true,nullable:false},{name:'FirstName',type:'NVARCHAR(50)',pk:false,nullable:false},{name:'LastName',type:'NVARCHAR(50)',pk:false,nullable:false},{name:'Email',type:'NVARCHAR(100)',pk:false,nullable:true},{name:'Department',type:'NVARCHAR(50)',pk:false,nullable:true},{name:'Salary',type:'DECIMAL(10,2)',pk:false,nullable:true},{name:'HireDate',type:'DATE',pk:false,nullable:true}],rows:[
+          {cols:[1,'Juan','Dela Cruz','juan@kalyx.com','IT',65000,'2020-06-15']},
+          {cols:[2,'Maria','Santos','maria@kalyx.com','HR',55000,'2021-03-01']},
+          {cols:[3,'Pedro','Reyes','pedro@kalyx.com','IT',72000,'2019-11-20']},
+          {cols:[4,'Ana','Gonzales','ana@kalyx.com','Finance',58000,'2022-01-10']},
+          {cols:[5,'Jose','Villanueva','jose@kalyx.com','Marketing',51000,'2023-07-05']},
+          {cols:[6,'Luisa','Cruz','luisa@kalyx.com','IT',68000,'2020-09-12']},
+          {cols:[7,'Carlos','Mendoza','carlos@kalyx.com','HR',48000,'2022-11-28']},
+          {cols:[8,'Sofia','Lopez','sofia@kalyx.com','Finance',62000,'2021-05-19']}
+      ]},
+      {name:'Departments',schema:'dbo',cols:[{name:'DeptID',type:'INT',pk:true,nullable:false},{name:'DeptName',type:'NVARCHAR(50)',pk:false,nullable:false},{name:'Manager',type:'NVARCHAR(100)',pk:false,nullable:true},{name:'Budget',type:'DECIMAL(12,2)',pk:false,nullable:true}],rows:[
+          {cols:[1,'IT','Juan Dela Cruz',1500000]},
+          {cols:[2,'HR','Maria Santos',800000]},
+          {cols:[3,'Finance','Ana Gonzales',1200000]},
+          {cols:[4,'Marketing','Jose Villanueva',600000]}
+      ]},
+      {name:'Orders',schema:'dbo',cols:[{name:'OrderID',type:'INT',pk:true,nullable:false},{name:'Customer',type:'NVARCHAR(100)',pk:false,nullable:false},{name:'Product',type:'NVARCHAR(100)',pk:false,nullable:false},{name:'Quantity',type:'INT',pk:false,nullable:false},{name:'TotalAmount',type:'DECIMAL(10,2)',pk:false,nullable:false},{name:'OrderDate',type:'DATE',pk:false,nullable:true}],rows:[
+          {cols:[101,'ABC Corp','Laptop',5,450000,'2026-01-15']},
+          {cols:[102,'XYZ Inc','Monitor',10,120000,'2026-01-20']},
+          {cols:[103,'ABC Corp','Keyboard',20,40000,'2026-02-01']},
+          {cols:[104,'LMN Co','Server',2,350000,'2026-02-10']},
+          {cols:[105,'XYZ Inc','Mouse',30,15000,'2026-02-15']},
+          {cols:[106,'ABC Corp','Network Switch',3,45000,'2026-03-01']}
+      ]}
+    ];
+    saveData(d);
+  }
+}
+seedTables();
+
+// ============================================================
+// MODULES
+// ============================================================
+const modules = [
+  {
+    id:'m1',title:'Database Concepts',
+    content:`<div class="learn-section"><h3>Ano ang Database?</h3>
+<p>Ang database ay isang organisadong koleksyon ng data na naka-store at naa-access nang electronic. Ang SQL Server ay isang relational database management system (RDBMS) na gumagamit ng Structured Query Language (SQL).</p>
+<h3 style="margin-top:12px;color:#569cd6;">Mga Pangunahing Konsepto</h3>
+<ul class="learn-steps">
+<li><strong>Table</strong> — naglalaman ng data sa rows at columns, parang spreadsheet</li>
+<li><strong>Row (Record)</strong> — isang kumpletong set ng data sa table</li>
+<li><strong>Column (Field)</strong> — isang attribute ng data (e.g., Name, Email)</li>
+<li><strong>Primary Key</strong> — unique identifier ng bawat row</li>
+<li><strong>Foreign Key</strong> — nagli-link ng dalawang tables</li>
+<li><strong>Index</strong> — nagpapabilis ng data retrieval</li>
+<li><strong>View</strong> — virtual table based sa SQL query</li>
+</ul></div>`,
+    quiz:[
+      {q:'Ano ang tawag sa organisadong koleksyon ng data?',o:['Spreadsheet','Database','File','Document'],a:1},
+      {q:'Ano ang gamit ng Primary Key?',o:['Mag-imbak ng malaking data','Unique identifier ng bawat row','Mag-link ng tables','Mag-filter ng data'],a:1},
+      {q:'Ano ang RDBMS?',o:['Relational Database Management System','Random Data Backup System','Remote Database Maintenance Service','Rapid Data Binary Storage'],a:0},
+      {q:'Ano ang tawag sa isang kumpletong set ng data sa table?',o:['Column','Row','Index','View'],a:1},
+      {q:'Ano ang pinakamaliit na unit ng data storage sa table?',o:['Table','Row','Column (Field)','Database'],a:2}
+    ]
+  },
+  {
+    id:'m2',title:'SQL Query Basics',
+    content:`<div class="learn-section"><h3>SELECT Statement</h3>
+<p>Ang SELECT ay ginagamit para kumuha ng data mula sa database. Ito ang pinaka-common na SQL command.</p>
+<pre style="background:#1e1e1e;padding:10px;border-radius:4px;margin:8px 0;font-size:12px;color:#d4d4d4;font-family:Consolas,Courier New,monospace"><span class="keyword">SELECT</span> FirstName, LastName <span class="keyword">FROM</span> Employees <span class="keyword">WHERE</span> Department = <span class="string">'IT'</span></pre>
+<h3 style="margin-top:12px;color:#569cd6;">INSERT, UPDATE, DELETE</h3>
+<ul class="learn-steps">
+<li><strong>INSERT</strong> — magdagdag ng bagong row: <code style="color:#ce9178">INSERT INTO table (col1, col2) VALUES (val1, val2)</code></li>
+<li><strong>UPDATE</strong> — magbago ng existing data: <code style="color:#ce9178">UPDATE table SET col=val WHERE condition</code></li>
+<li><strong>DELETE</strong> — magtanggal ng row: <code style="color:#ce9178">DELETE FROM table WHERE condition</code></li>
+<li><strong>WHERE</strong> — mag-filter ng results gamit conditions</li>
+<li><strong>ORDER BY</strong> — i-sort ang results (ASC/DESC)</li>
+<li><strong>JOIN</strong> — pagsamahin ang dalawang tables</li>
+<li><strong>GROUP BY</strong> — i-group ang rows para sa aggregation</li>
+</ul></div>`,
+    quiz:[
+      {q:'Anong SQL command ang ginagamit para kumuha ng data?',o:['INSERT','SELECT','UPDATE','DELETE'],a:1},
+      {q:'Anong clause ang ginagamit para mag-filter ng results?',o:['ORDER BY','GROUP BY','WHERE','HAVING'],a:2},
+      {q:'Ano ang ginagawa ng INSERT statement?',o:['Nagde-delete ng data','Nag-a-update ng data','Nagdaragdag ng bagong row','Nagse-select ng data'],a:2},
+      {q:'Anong keyword ang ginagamit para i-sort ang results?',o:['SORT BY','ORDER BY','GROUP BY','FILTER BY'],a:1},
+      {q:'Ano ang ginagamit para pagsamahin ang dalawang tables?',o:['MERGE','COMBINE','JOIN','UNION'],a:2}
+    ]
+  },
+  {
+    id:'m3',title:'SQL Server Management Studio (SSMS)',
+    content:`<div class="learn-section"><h3>Ano ang SSMS?</h3>
+<p>Ang SQL Server Management Studio (SSMS) ay ang primary graphical tool para i-manage ang SQL Server. Dito mo ginagawa ang database administration tasks — mag-query, mag-manage ng objects, at mag-configure ng server.</p>
+<h3 style="margin-top:12px;color:#569cd6;">Mga Pangunahing Bahagi</h3>
+<ul class="learn-steps">
+<li><strong>Object Explorer</strong> — puno ng database objects (tables, views, stored procedures)</li>
+<li><strong>Query Editor</strong> — dito ka nagsusulat at nag-e-execute ng SQL queries</li>
+<li><strong>Results Pane</strong> — nagpapakita ng query results (grid o text)</li>
+<li><strong>Template Explorer</strong> — mga pre-made SQL templates</li>
+<li><strong>Activity Monitor</strong> — real-time view ng server activity</li>
+</ul>
+<h3 style="margin-top:12px;color:#569cd6;">Pag-connect sa Server</h3>
+<p>Kailangan mong malaman ang: Server name, Authentication mode (Windows o SQL Server), at credentials. Sa simulation na ito, naka-connect ka na sa ${DB_NAME}.</p></div>`,
+    quiz:[
+      {q:'Ano ang SSMS?',o:['SQL Server Management Studio','SQL System Monitoring Service','Server Security Management System','Stored Sequence Management Solution'],a:0},
+      {q:'Saan sa SSMS makikita ang database objects?',o:['Query Editor','Object Explorer','Results Pane','Template Explorer'],a:1},
+      {q:'Ano ang tawag sa bahagi ng SSMS kung saan nagsusulat ng SQL?',o:['Object Explorer','Query Editor','Activity Monitor','Results Pane'],a:1},
+      {q:'Saan makikita ang real-time server activity?',o:['Query Editor','Object Explorer','Activity Monitor','Template Explorer'],a:2},
+      {q:'Ano ang kailangan para ma-connect sa SQL Server?',o:['Server name lang','Server name at credentials','Password lang','Database name lang'],a:1}
+    ]
+  },
+  {
+    id:'m4',title:'Database Maintenance',
+    content:`<div class="learn-section"><h3>Backup at Restore</h3>
+<p>Ang backup ay mahalaga para maprotektahan ang data laban sa pagkawala. May tatlong uri: Full (kumpletong database), Differential (pagbabago mula sa huling full backup), at Transaction Log (real-time changes).</p>
+<h3 style="margin-top:12px;color:#569cd6;">Index Maintenance</h3>
+<ul class="learn-steps">
+<li><strong>Rebuild Index</strong> — itinatayo ulit ang index para maalis ang fragmentation</li>
+<li><strong>Reorganize Index</strong> — inaayos ang fragmentation nang hindi itinatayong muli</li>
+<li><strong>Update Statistics</strong> — tinitiyak na updated ang query optimizer statistics</li>
+</ul>
+<h3 style="margin-top:12px;color:#569cd6;">Shrink Database</h3>
+<p>Binabawasan ang laki ng database file sa pamamagitan ng pag-alis ng unused space. Gamitin nang may pag-iingat dahil nagdudulot ito ng fragmentation.</p></div>`,
+    quiz:[
+      {q:'Anong backup type ang kumukuha ng kumpletong database?',o:['Differential','Full','Transaction Log','Partial'],a:1},
+      {q:'Ano ang ginagawa ng Rebuild Index?',o:['Binabawasan ang laki ng DB','Itinatayo ulit ang index','Nagde-delete ng index','Nag-a-add ng index'],a:1},
+      {q:'Bakit mahalaga ang backup?',o:['Para mapabilis ang query','Para protektahan ang data','Para makatipid ng space','Para mag-connect sa server'],a:1},
+      {q:'Ano ang pinagkaiba ng differential sa full backup?',o:['Mas malaki ang differential','Pagbabago lang mula sa huling full backup','Mas mabilis ang full','Walang pinagkaiba'],a:1},
+      {q:'Kailan dapat i-shrink ang database?',o:['Araw-araw','Kapag sobrang laki na at may unused space','Hindi na dapat i-shrink','Tuwing magba-backup'],a:2}
+    ]
+  },
+  {
+    id:'m5',title:'User Management at Security',
+    content:`<div class="learn-section"><h3>SQL Server Security</h3>
+<p>Ang security sa SQL Server ay multi-layered: Server level (logins) at Database level (users). Ang login ay nagbibigay ng access sa server, samantalang ang user ay nagbibigay ng access sa specific database.</p>
+<h3 style="margin-top:12px;color:#569cd6;">Mga Security Principal</h3>
+<ul class="learn-steps">
+<li><strong>Login</strong> — server-level identity (Windows auth o SQL auth)</li>
+<li><strong>User</strong> — database-level identity na naka-map sa login</li>
+<li><strong>Role</strong> — grupo ng permissions (fixed o user-defined)</li>
+<li><strong>Schema</strong> — lalagyan ng database objects (default: dbo)</li>
+</ul>
+<h3 style="margin-top:12px;color:#569cd6;">Fixed Database Roles</h3>
+<p>db_owner (full control), db_datareader (read only), db_datawriter (write only), db_ddladmin (create/alter objects), db_securityadmin (manage permissions).</p></div>`,
+    quiz:[
+      {q:'Ano ang pinagkaiba ng login sa user?',o:['Pareho lang','Login ay server-level, user ay database-level','User ay server-level, login ay database-level','Wala sa nabanggit'],a:1},
+      {q:'Anong role ang may full control sa database?',o:['db_datareader','db_datawriter','db_owner','db_ddladmin'],a:2},
+      {q:'Ano ang default schema?',o:['admin','public','dbo','sys'],a:2},
+      {q:'Anong role ang pwedeng magbasa ng data?',o:['db_datareader','db_datawriter','db_owner','db_ddladmin'],a:0},
+      {q:'Ano ang tawag sa lalagyan ng database objects?',o:['Database','Table','Schema','View'],a:2}
+    ]
+  },
+  {
+    id:'m6',title:'Monitoring at Performance',
+    content:`<div class="learn-section"><h3>Activity Monitor</h3>
+<p>Ang Activity Monitor ay nagpapakita ng real-time information tungkol sa SQL Server processes, kabilang ang mga running queries, blockings, at waits.</p>
+<h3 style="margin-top:12px;color:#569cd6;">Performance Tools</h3>
+<ul class="learn-steps">
+<li><strong>Execution Plan</strong> — graphical na pagpapakita kung paano na-execute ang query</li>
+<li><strong>Deadlock Detection</strong> — kapag dalawang processes ang naghihintay sa isa't isa</li>
+<li><strong>Query Store</strong> — nagre-record ng query performance history</li>
+<li><strong>DMVs</strong> (Dynamic Management Views) — system views para sa server state</li>
+</ul>
+<h3 style="margin-top:12px;color:#569cd6;">Performance Best Practices</h3>
+<ul class="learn-steps">
+<li>Gumamit ng indexes sa madalas na ginagamit na columns</li>
+<li>Iwasan ang SELECT * — piliin lang ang kailangan na columns</li>
+<li>Gamitin ang WHERE para i-filter agad ang data</li>
+<li>Regular na i-update ang statistics</li>
+<li>I-monitor ang long-running queries</li>
+</ul></div>`,
+    quiz:[
+      {q:'Ano ang nagpapakita kung paano na-execute ang query?',o:['Activity Monitor','Execution Plan','Query Store','Deadlock Graph'],a:1},
+      {q:'Kailan nangyayari ang deadlock?',o:['Kapag nag-crash ang server','Kapag dalawang processes naghihintay sa isa\'t isa','Kapag may error sa query','Kapag nag-expire ang password'],a:1},
+      {q:'Ano ang DMV?',o:['Database Management View','Dynamic Management View','Data Migration Value','Distributed Memory Volume'],a:1},
+      {q:'Anong best practice para sa performance?',o:['Gamitin ang SELECT *','Iwasan ang indexes','Gamitin ang WHERE para mag-filter','I-disable ang statistics'],a:2},
+      {q:'Ano ang gamit ng Query Store?',o:['Mag-imbak ng queries','Mag-record ng query performance history','Mag-delete ng queries','Mag-edit ng queries'],a:1}
+    ]
+  }
+];
+
+// ============================================================
+// SCENARIOS
+// ============================================================
+const scenarios = [
+  {id:'ss1',title:'Employee Database Query',desc:'Kailangan mong kunin ang listahan ng lahat ng IT department employees na may salary na higit sa 60,000. Gamitin ang Query Editor para isulat ang tamang SQL.',steps:[
+    'Buksan ang Query Editor',
+    'Isulat ang SELECT query para makuha ang IT employees',
+    'I-filter ang salary > 60000',
+    'I-sort ang results ng pababa ng salary',
+    'I-execute ang query at i-verify ang results'
+  ],done:false,icon:'ti ti-code'},
+  {id:'ss2',title:'New Employee Onboarding',desc:'May bagong empleyado si John Smith sa IT department na may salary na 55,000. Kailangan mo siyang i-INSERT sa Employees table.',steps:[
+    'Buksan ang Query Editor',
+    'Isulat ang INSERT statement para kay John',
+    'Itakda ang EmployeeID sa 9, FirstName = John, LastName = Smith',
+    'Department = IT, Salary = 55000, HireDate = today',
+    'I-execute at i-verify ang bagong record'
+  ],done:false,icon:'ti ti-user-plus'},
+  {id:'ss3',title:'Department Budget Report',desc:'Kailangan ng management ng report ng total budget ng bawat department at kung ilang employees ang nasa bawat isa. Gamitin ang JOIN at GROUP BY.',steps:[
+    'Isulat ang query na nagJOIN ng Employees at Departments tables',
+    'Gamitin ang GROUP BY para i-group per department',
+    'I-compute ang COUNT ng employees at SUM ng budget',
+    'I-sort ng pababa ng budget',
+    'I-execute at i-verify ang report'
+  ],done:false,icon:'ti ti-report-analytics'},
+  {id:'ss4',title:'Database Backup at Restore',desc:'May schedule na full backup ng ${DB_NAME}. Kailangan mong i-configure ang backup at mag-simulate ng restore procedure.',steps:[
+    'Pumunta sa Backup section',
+    'Gumawa ng bagong full backup job',
+    'I-set ang backup type sa FULL at destination folder',
+    'Gumawa ng restore point',
+    'I-verify ang backup status at mag-log ng activity'
+  ],done:false,icon:'ti ti-device-floppy'}
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentPage = 'dashboard';
+let prog = getProgress();
+let data = getData();
+
+function switchPage(page) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===page));
+  currentPage=page;
+  renderPage(page);
+}
+function renderPage(page) {
+  const mc = document.getElementById('mainContent');
+  const titles = {dashboard:'Dashboard',query:'Query Editor',tables:'Tables',users:'Users',backup:'Backup & Restore',monitor:'Monitor',training:'Mga Aralin',scenarios:'Scenarios',activity:'Activity Log'};
+  document.getElementById('topbarTitle').textContent=titles[page]||'';
+  const r = {dashboard:renderDashboard,query:renderQuery,tables:renderTables,users:renderUsers,backup:renderBackup,monitor:renderMonitor,training:renderTraining,scenarios:renderScenarios,activity:renderActivity};
+  if(r[page]){mc.innerHTML='<div class="panel active">'+r[page]()+'</div>';}
+  updateCounts();
+}
+function updateCounts() {
+  const d=getData();
+  document.getElementById('tableCount').textContent=d.tables.length;
+  const p=getProgress();const tot=modules.length*3+scenarios.length*3;let done=0;
+  modules.forEach(m=>{if(p.modules[m.id])done+=3;else if(p.quizzes[m.id])done+=2;else if(p.quizzes[m.id+'half'])done+=1});
+  scenarios.forEach(s=>{if(p.scenarios[s.id])done+=3});
+  const pc=tot?Math.round(done/tot*100):0;
+  document.getElementById('trainingBadge').textContent=pc+'%';
+}
+
+// ============================================================
+// RENDER: DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const p=getProgress();const d=getData();
+  const modDone=modules.filter(m=>p.modules[m.id]).length;
+  const quizDone=modules.filter(m=>p.quizzes[m.id]).length;
+  const scDone=scenarios.filter(s=>p.scenarios[s.id]).length;
+  return `
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub">SQL Database Basics — ${DB_NAME} on SQL Server 2022</p>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon ti ti-table" style="position:absolute;top:14px;right:14px;font-size:20px;color:#3c3c3c"></div><div class="stat-label">Tables</div><div class="stat-val">${d.tables.length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-users" style="position:absolute;top:14px;right:14px;font-size:20px;color:#3c3c3c"></div><div class="stat-label">Users</div><div class="stat-val">${d.users.length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-book" style="position:absolute;top:14px;right:14px;font-size:20px;color:#3c3c3c"></div><div class="stat-label">Modules Done</div><div class="stat-val">${modDone}/${modules.length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-certificate" style="position:absolute;top:14px;right:14px;font-size:20px;color:#3c3c3c"></div><div class="stat-label">Quizzes Passed</div><div class="stat-val">${quizDone}/${modules.length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-flask" style="position:absolute;top:14px;right:14px;font-size:20px;color:#3c3c3c"></div><div class="stat-label">Scenarios Done</div><div class="stat-val">${scDone}/${scenarios.length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-activity" style="position:absolute;top:14px;right:14px;font-size:20px;color:#3c3c3c"></div><div class="stat-label">Progress</div><div class="stat-val">${document.getElementById('trainingBadge').textContent}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Quick Actions</span></div>
+      <div style="padding:12px 16px;display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="switchPage('query')"><i class="ti ti-code"></i> Open Query Editor</button>
+        <button class="btn" onclick="switchPage('tables')"><i class="ti ti-table"></i> Browse Tables</button>
+        <button class="btn" onclick="switchPage('training')"><i class="ti ti-book"></i> Magsimulang Mag-aral</button>
+        <button class="btn" onclick="switchPage('scenarios')"><i class="ti ti-flask"></i> Scenarios</button>
+      </div>
+    </div>
+    <div class="alert alert-info"><i class="ti ti-info-circle"></i> <strong>Connected to ${DB_NAME}</strong> Server: KALYX-SQL-01 | Authentication: Windows Auth | Default database: ${DB_NAME}</div>
+  `;
+}
+
+// ============================================================
+// RENDER: QUERY EDITOR
+// ============================================================
+function renderQuery() {
+  return `
+    <h1 class="page-title">Query Editor</h1>
+    <p class="page-sub">${DB_NAME} (SQL Server 2022) — Write and execute SQL queries</p>
+    <div class="card">
+      <div class="card-header"><span class="card-title">SQL Query</span></div>
+      <div style="padding:12px 16px">
+        <div class="sql-toolbar">
+          <button class="btn btn-success btn-sm" onclick="executeQuery()"><i class="ti ti-player-play"></i> Execute</button>
+          <button class="btn btn-sm" onclick="document.getElementById('sqlEditor').value='';document.getElementById('sqlOutput').innerHTML=''"><i class="ti ti-trash"></i> Clear</button>
+          <span style="font-size:11px;color:#808080;margin-left:8px">Database: ${DB_NAME}</span>
+        </div>
+        <textarea class="sql-editor" id="sqlEditor" spellcheck="false" placeholder="Write your SQL query here...&#10;&#10;Example:&#10;SELECT * FROM Employees&#10;WHERE Department = 'IT'&#10;ORDER BY Salary DESC">SELECT e.FirstName, e.LastName, e.Department, d.Budget
+FROM Employees e
+JOIN Departments d ON e.Department = d.DeptName
+ORDER BY d.Budget DESC</textarea>
+        <div style="display:flex;justify-content:space-between;margin-top:6px">
+          <span style="font-size:10px;color:#808080">Ctrl+Enter to execute | Sample tables: Employees, Departments, Orders</span>
+          <span style="font-size:10px;color:#808080" id="rowCount"></span>
+        </div>
+        <div class="sql-output" id="sqlOutput">Click <strong>Execute</strong> to run the query. Results will appear here.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Query History <span style="font-size:10px;color:#808080;font-weight:400">(last 5 queries)</span></span></div>
+      <div style="padding:8px 16px" id="queryHistory">${renderQueryHistory()}</div>
+    </div>
+  `;
+}
+function renderQueryHistory() {
+  const d=getData();
+  if(!d.queryHistory||!d.queryHistory.length)return '<div style="font-size:12px;color:#808080">Wala pang query history.</div>';
+  return d.queryHistory.slice(-5).reverse().map(q=>{
+    const icon=q.startsWith('SELECT')?'ti ti-eye':q.startsWith('INSERT')?'ti ti-plus':q.startsWith('UPDATE')?'ti ti-edit':q.startsWith('DELETE')?'ti ti-trash':'ti ti-code';
+    return `<div class="activity-item"><i class="${icon} activity-icon info"></i><code style="font-size:11px;color:#ce9178;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(q)}</code></div>`;
+  }).join('');
+}
+function executeQuery() {
+  const sql = document.getElementById('sqlEditor').value.trim();
+  if(!sql){document.getElementById('sqlOutput').innerHTML='<span style="color:#f44747">ERROR: Walang laman ang query.</span>';return;}
+  const d=getData();if(!d.queryHistory)d.queryHistory=[];d.queryHistory.push(sql);if(d.queryHistory.length>50)d.queryHistory.splice(0,d.queryHistory.length-50);saveData(d);
+
+  const upper = sql.toUpperCase().replace(/\s+/g,' ').trim();
+  let output = '';
+  const fTables = {employees:d.tables.find(t=>t.name==='Employees'),departments:d.tables.find(t=>t.name==='Departments'),orders:d.tables.find(t=>t.name==='Orders')};
+
+  try {
+    if(upper.startsWith('SELECT')||upper.startsWith('SELECT ')){
+      // Parse FROM clause
+      const fromMatch = sql.match(/FROM\s+(\w+)/i);
+      if(!fromMatch)throw new Error('Missing FROM clause');
+      const tblName = fromMatch[1];
+      const tbl = Object.values(fTables).find(t=>t&&t.name.toLowerCase()===tblName.toLowerCase());
+      if(!tbl)throw new Error('Table not found: '+tblName+'. Available tables: Employees, Departments, Orders');
+
+      let rows = [...tbl.rows];
+      const colNames = tbl.cols.map(c=>c.name);
+
+      // WHERE
+      const whereMatch = sql.match(/WHERE\s+(.+?)(?:ORDER\s+BY|GROUP\s+BY|HAVING|$)/i);
+      if(whereMatch){
+        const cond = whereMatch[1].trim();
+        rows = rows.filter(r=>evaluateCondition(r,cond,colNames));
+      }
+
+      // GROUP BY
+      const groupMatch = sql.match(/GROUP\s+BY\s+(.+?)(?:HAVING|ORDER\s+BY|$)/i);
+      let groupCols = [];
+      if(groupMatch) groupCols = groupMatch[1].split(',').map(s=>s.trim().replace(/^\[?([^\]]+)\]?$/,'$1'));
+
+      // ORDER BY
+      const orderMatch = sql.match(/ORDER\s+BY\s+(.+?)$/i);
+      let orderCol = '', orderDir = 'ASC';
+      if(orderMatch){
+        const parts = orderMatch[1].trim().split(/\s+/);
+        orderCol = parts[0].replace(/^\[?([^\]]+)\]?$/,'$1');
+        if(parts.length>1) orderDir = parts[1].toUpperCase();
+      }
+
+      // SELECT columns
+      const selectMatch = sql.match(/SELECT\s+(.+?)\s+FROM/i);
+      let selectCols = [];
+      if(selectMatch){
+        selectCols = selectMatch[1].split(',').map(s=>{
+          s=s.trim();
+          const asMatch = s.match(/(.+?)\s+AS\s+(.+)/i);
+          if(asMatch) return {expr:asMatch[1].trim(),alias:asMatch[2].trim(),raw:s};
+          const aggMatch = s.match(/(COUNT|SUM|AVG|MIN|MAX)\s*\(\s*(.+?)\s*\)/i);
+          if(aggMatch) return {agg:aggMatch[1],col:aggMatch[2],alias:s,raw:s};
+          return {expr:s,alias:s,raw:s};
+        });
+      }
+
+      if(groupCols.length>0){
+        // Simple group by implementation
+        const groups = {};
+        rows.forEach(r=>{
+          const key = groupCols.map(g=>getColVal(r,g,colNames)).join('|');
+          if(!groups[key])groups[key]={rows:[],key:key};
+          groups[key].rows.push(r);
+        });
+        const keys = Object.keys(groups).sort();
+        let resultRows = keys.map(k=>{
+          const grp = groups[k];
+          const vals = groupCols.map(g=>getColVal(grp.rows[0],g,colNames));
+          const aggCols = selectCols.filter(c=>c.agg);
+          aggCols.forEach(ac=>{
+            const colIdx = colNames.indexOf(ac.col);
+            const valsArr = grp.rows.map(r=>parseFloat(r.cols[colIdx])||0);
+            if(ac.agg==='COUNT')vals.push(grp.rows.length);
+            else if(ac.agg==='SUM')vals.push(valsArr.reduce((a,b)=>a+b,0));
+            else if(ac.agg==='AVG')vals.push(Math.round(valsArr.reduce((a,b)=>a+b,0)/valsArr.length*100)/100);
+            else if(ac.agg==='MIN')vals.push(Math.min(...valsArr));
+            else if(ac.agg==='MAX')vals.push(Math.max(...valsArr));
+          });
+          return {cols:vals};
+        });
+
+        if(orderCol){
+          const oi = selectCols.findIndex(c=>c.alias===orderCol||c.expr===orderCol);
+          if(oi>=0) resultRows.sort((a,b)=>(orderDir==='DESC'?-1:1)*(parseFloat(a.cols[oi])||0>(parseFloat(b.cols[oi])||0)?1:-1));
+        }
+
+        const headers = [...groupCols, ...aggCols.map(ac=>ac.raw)];
+        output = formatResults(headers,resultRows);
+        document.getElementById('rowCount').textContent = resultRows.length+' row(s)';
+      } else {
+        if(orderCol){
+          const oi = colNames.indexOf(orderCol);
+          if(oi>=0){
+            rows.sort((a,b)=>{
+              const va = a.cols[oi], vb = b.cols[oi];
+              if(typeof va==='string') return orderDir==='DESC'?vb.localeCompare(va):va.localeCompare(vb);
+              return orderDir==='DESC'?vb-va:va-vb;
+            });
+          }
+        }
+
+        let headers=[], resultRows=rows;
+        if(selectCols.length&&selectCols[0].raw!=='*'){
+          headers = selectCols.map(c=>c.alias||c.expr);
+          resultRows = rows.map(r=>{
+            const vals = selectCols.map(c=>{
+              const ci = colNames.indexOf(c.expr||c.col);
+              return ci>=0?r.cols[ci]:null;
+            });
+            return {cols:vals};
+          });
+        } else {
+          headers = colNames;
+          resultRows = rows;
+        }
+        output = formatResults(headers,resultRows);
+        document.getElementById('rowCount').textContent = resultRows.length+' row(s)';
+      }
+
+      // JOIN support
+      if(upper.includes('JOIN')){
+        const joinMatch = sql.match(/JOIN\s+(\w+)\s+ON\s+(.+?)(?:WHERE|ORDER\s+BY|GROUP\s+BY|$)/i);
+        if(joinMatch){
+          const joinTbl = Object.values(fTables).find(t=>t&&t.name.toLowerCase()===joinMatch[1].toLowerCase());
+          if(!joinTbl)throw new Error('JOIN table not found: '+joinMatch[1]);
+          const onCond = joinMatch[2].trim();
+          const leftCol = colNames[0]; // simple heuristic
+          const rightCol = joinTbl.cols[0].name;
+          // Re-execute with join
+          const mainTbl = Object.values(fTables).find(t=>t&&sql.toLowerCase().includes(t.name.toLowerCase())&&t.name!==joinTbl.name);
+          if(mainTbl){
+            let joined = [];
+            mainTbl.rows.forEach(lr=>{
+              joinTbl.rows.forEach(rr=>{
+                joined.push({cols:[...lr.cols,...rr.cols]});
+              });
+            });
+            const allCols = [...mainTbl.cols,...joinTbl.cols];
+            const allNames = allCols.map(c=>c.name);
+            output = formatResults(allNames,joined);
+            document.getElementById('rowCount').textContent = joined.length+' row(s)';
+          }
+        }
+      }
+    }
+    else if(upper.startsWith('INSERT')){
+      const match = sql.match(/INSERT\s+INTO\s+(\w+)\s*(?:\(([^)]+)\))?\s*VALUES\s*\(([^)]+)\)/i);
+      if(!match)throw new Error('Invalid INSERT syntax. Format: INSERT INTO Table (col1, col2) VALUES (val1, val2)');
+      const tblName = match[1];
+      const tbl = Object.values(fTables).find(t=>t&&t.name.toLowerCase()===tblName.toLowerCase());
+      if(!tbl)throw new Error('Table not found: ' + tblName);
+      const cols = match[2]?match[2].split(',').map(s=>s.trim().replace(/^\[?([^\]]+)\]?$/,'$1')):tbl.cols.map(c=>c.name);
+      const vals = match[3].split(',').map(s=>s.trim().replace(/^['"]?(.*?)['"]?$/,'$1'));
+      if(cols.length!==vals.length)throw new Error('Column count ('+cols.length+') does not match value count ('+vals.length+')');
+      const newRow = {cols:tbl.cols.map(c=>{const ci=cols.indexOf(c.name);return ci>=0?vals[ci]:null})};
+      tbl.rows.push(newRow);
+      saveData(d);
+      document.getElementById('rowCount').textContent = '1 row(s) affected';
+      output = '<span style="color:#4ec9b0">&#10003; INSERT successful — 1 row added to ' + tblName + '</span>';
+      addActivity('INSERT: '+vals[0]+' into '+tblName,'done');
+    }
+    else if(upper.startsWith('UPDATE')){
+      const match = sql.match(/UPDATE\s+(\w+)\s+SET\s+(.+?)(?:WHERE\s+(.+))?$/i);
+      if(!match)throw new Error('Invalid UPDATE syntax');
+      const tblName = match[1];
+      const tbl = Object.values(fTables).find(t=>t&&t.name.toLowerCase()===tblName.toLowerCase());
+      if(!tbl)throw new Error('Table not found: ' + tblName);
+      const setClause = match[2].trim();
+      const whereClause = match[3]?match[3].trim():null;
+      const setMatch = setClause.match(/(\w+)\s*=\s*(.+)/i);
+      if(!setMatch)throw new Error('Invalid SET clause');
+      const setCol = setMatch[1];
+      const setVal = setMatch[2].replace(/^['"]?(.*?)['"]?$/,'$1');
+      const colNames = tbl.cols.map(c=>c.name);
+      const targets = whereClause?tbl.rows.filter(r=>evaluateCondition(r,whereClause,colNames)):tbl.rows;
+      const ci = colNames.indexOf(setCol);
+      if(ci<0)throw new Error('Column not found: '+setCol);
+      targets.forEach(r=>r.cols[ci]=isNaN(setVal)?setVal:parseFloat(setVal));
+      saveData(d);
+      document.getElementById('rowCount').textContent = targets.length+' row(s) affected';
+      output = '<span style="color:#4ec9b0">&#10003; UPDATE successful — ' + targets.length + ' row(s) updated in ' + tblName + '</span>';
+      addActivity('UPDATE: '+tblName+' set '+setCol+'='+setVal,'done');
+    }
+    else if(upper.startsWith('DELETE')){
+      const match = sql.match(/DELETE\s+FROM\s+(\w+)(?:\s+WHERE\s+(.+))?$/i);
+      if(!match)throw new Error('Invalid DELETE syntax');
+      const tblName = match[1];
+      const tbl = Object.values(fTables).find(t=>t&&t.name.toLowerCase()===tblName.toLowerCase());
+      if(!tbl)throw new Error('Table not found: ' + tblName);
+      const colNames = tbl.cols.map(c=>c.name);
+      const whereClause = match[2]?match[2].trim():null;
+      const before = tbl.rows.length;
+      tbl.rows = whereClause?tbl.rows.filter(r=>!evaluateCondition(r,whereClause,colNames)):[];
+      const deleted = before - tbl.rows.length;
+      saveData(d);
+      document.getElementById('rowCount').textContent = deleted+' row(s) affected';
+      output = '<span style="color:#4ec9b0">&#10003; DELETE successful — ' + deleted + ' row(s) deleted from ' + tblName + '</span>';
+      addActivity('DELETE: '+deleted+' rows from '+tblName,'warn');
+    }
+    else {
+      throw new Error('Unsupported command. Use SELECT, INSERT, UPDATE, or DELETE.');
+    }
+  } catch(e) {
+    output = '<span style="color:#f44747">ERROR: ' + escapeHtml(e.message||e) + '</span>';
+  }
+
+  document.getElementById('sqlOutput').innerHTML = output;
+  renderPage('query');
+}
+
+function getColVal(row,colName,colNames){
+  const ci = colNames.indexOf(colName);
+  return ci>=0?row.cols[ci]:null;
+}
+function evaluateCondition(row,condition,colNames){
+  const cond = condition.replace(/AND/gi,'&&').replace(/OR/gi,'||');
+  const colRegex = /([a-zA-Z_]\w*)\s*(=|!=|>|<|>=|<=|LIKE|IN)\s*(['"]?)([^'"]+?)\3/gi;
+  let jsCond = cond;
+  let m;
+  while((m=colRegex.exec(condition))!==null){
+    const col = m[1], op = m[2], val = m[4].replace(/^['"]?|['"]?$/g,'');
+    const ci = colNames.indexOf(col);
+    const rv = ci>=0?row.cols[ci]:null;
+    let evalStr = 'false';
+    if(op==='=') evalStr = `rv==${isNaN(val)?`'${val}'`:val}`;
+    else if(op==='!=') evalStr = `rv!=${isNaN(val)?`'${val}'`:val}`;
+    else if(op==='>') evalStr = `parseFloat(rv)>${val}`;
+    else if(op==='<') evalStr = `parseFloat(rv)<${val}`;
+    else if(op==='>=') evalStr = `parseFloat(rv)>=${val}`;
+    else if(op==='<=') evalStr = `parseFloat(rv)<=${val}`;
+    else if(op==='LIKE') evalStr = `String(rv).toLowerCase().includes('${val.toLowerCase()}')`;
+    jsCond = jsCond.replace(m[0],evalStr);
+  }
+  try{return eval(jsCond);}catch{return true;}
+}
+function formatResults(headers,rows){
+  let h = '<table class="table"><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>';
+  rows.forEach(r=>{
+    if(!r||!r.cols)return;
+    h += '<tr>'+r.cols.map((v,i)=>{
+      const display = v===null||v===undefined?'<span style="color:#808080">NULL</span>':escapeHtml(String(v));
+      const isNum = !isNaN(parseFloat(v))&&v!==null;
+      return '<td style="'+(isNum?'text-align:right;color:#b5cea8':'color:#ce9178')+'">'+display+'</td>';
+    }).join('')+'</tr>';
+  });
+  h += '</tbody></table>';
+  return h;
+}
+function escapeHtml(s){if(typeof s!=='string')return s;return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ============================================================
+// RENDER: TABLES
+// ============================================================
+function renderTables() {
+  const d=getData();
+  if(!d.tables.length)return `<h1 class="page-title">Tables</h1><p class="page-sub">Database tables sa ${DB_NAME}</p><div class="alert alert-info">Wala pang tables.</div>`;
+  let h=`<h1 class="page-title">Tables</h1><p class="page-sub">${d.tables.length} tables sa ${DB_NAME}</p>`;
+  d.tables.forEach(t=>{
+    h+=`<div class="card"><div class="card-header"><span class="card-title">[${t.schema}].[${t.name}]</span><span style="font-size:11px;color:#808080">${t.rows.length} rows</span></div><div style="padding:8px 16px">
+      <table class="table"><thead><tr>${t.cols.map(c=>'<th>'+c.name+' ('+c.type+')'+(c.pk?' <span style="color:#dcdcaa">PK</span>':'')+(c.nullable?'':' <span style="color:#f44747">NOT NULL</span>')+'</th>').join('')}</tr></thead><tbody>`;
+    t.rows.slice(0,15).forEach(r=>{
+      h+=`<tr>${r.cols.map((v,i)=>{
+        const display=v===null?'<span style="color:#808080">NULL</span>':escapeHtml(String(v));
+        const isNum=t.cols[i].type.startsWith('INT')||t.cols[i].type.startsWith('DECIMAL');
+        return '<td style="'+(isNum?'text-align:right;color:#b5cea8':'color:#ce9178')+'">'+display+'</td>';
+      }).join('')}</tr>`;
+    });
+    if(t.rows.length>15)h+=`<tr><td colspan="${t.cols.length}" style="color:#808080;text-align:center;font-size:11px">... at ${t.rows.length-15} pang rows</td></tr>`;
+    h+=`</tbody></table></div></div>`;
+  });
+  return h;
+}
+
+// ============================================================
+// RENDER: USERS
+// ============================================================
+function renderUsers() {
+  const d=getData();
+  let h=`<h1 class="page-title">Users</h1><p class="page-sub">Database users at permissions para sa ${DB_NAME}</p>
+  <div class="action-bar"><button class="btn btn-primary btn-sm" onclick="openCreateUserModal()"><i class="ti ti-user-plus"></i> Create User</button></div>`;
+  if(!d.users.length){h+=`<div class="alert alert-info">Wala pang database users. Gumawa ng user para mag-assign ng permissions.</div>`;return h;}
+  h+=`<div class="card"><div class="card-header"><span class="card-title">Database Users</span></div><div style="padding:8px 16px"><table class="table"><thead><tr><th>User Name</th><th>Login</th><th>Default Schema</th><th>Roles</th><th>Actions</th></tr></thead><tbody>`;
+  d.users.forEach((u,i)=>{
+    h+=`<tr><td>${u.name}</td><td>${u.login}</td><td>${u.schema||'dbo'}</td><td>${(u.roles||[]).map(r=>'<span class="badge badge-blue">'+r+'</span>').join(' ')}</td><td><button class="btn btn-sm btn-outline" style="color:#f44747;border-color:#f44747" onclick="deleteUser(${i})"><i class="ti ti-trash"></i></button></td></tr>`;
+  });
+  h+=`</tbody></table></div></div>`;
+  return h;
+}
+function deleteUser(idx) {
+  if(!confirm('Delete user?'))return;
+  const d=getData();addActivity('Na-delete ang user: '+d.users[idx].name,'warn');d.users.splice(idx,1);saveData(d);renderPage('users');
+}
+
+// ============================================================
+// RENDER: BACKUP
+// ============================================================
+function renderBackup() {
+  const d=getData();
+  let h=`<h1 class="page-title">Backup & Restore</h1><p class="page-sub">Database backup management para sa ${DB_NAME}</p>
+  <div class="two-col">
+    <div class="card"><div class="card-header"><span class="card-title">Create Backup</span></div><div style="padding:14px 16px">
+      <div class="form-group"><label>Backup Type</label><select id="bkType"><option value="FULL">Full</option><option value="DIFFERENTIAL">Differential</option><option value="LOG">Transaction Log</option></select></div>
+      <div class="form-group"><label>Destination</label><input id="bkDest" value="D:\\Backups\\${DB_NAME}" disabled><div class="form-hint">Path: D:\\Backups\\${DB_NAME}\\</div></div>
+      <div class="form-group"><label>Description</label><input id="bkDesc" placeholder="e.g. Weekly full backup"></div>
+      <button class="btn btn-primary" onclick="createBackup()"><i class="ti ti-device-floppy"></i> Start Backup</button>
+    </div></div>
+    <div class="card"><div class="card-header"><span class="card-title">Backup History</span></div><div style="padding:8px 16px;max-height:240px;overflow-y:auto">`;
+  if(!d.backups||!d.backups.length){h+=`<div style="font-size:12px;color:#808080;padding:10px 0">Wala pang backups.</div>`;}
+  else{
+    d.backups.slice().reverse().forEach(b=>{
+      const stCls=b.status==='Completed'?'badge-green':'badge-red';
+      h+=`<div class="activity-item"><i class="ti ${b.type==='FULL'?'ti-device-floppy':'ti-file'} activity-icon ${b.status==='Completed'?'done':'warn'}"></i><span><strong>${b.type}</strong> ${new Date(b.createdAt).toLocaleString('fil-PH')}</span><span class="badge ${stCls}" style="margin-left:auto">${b.status}</span></div>`;
+    });
+  }
+  h+=`</div></div>
+  </div>
+  <div class="card"><div class="card-header"><span class="card-title">Restore Database</span></div><div style="padding:14px 16px">
+    <div class="form-group"><label>Restore from Backup</label><select id="rsSelect">${(d.backups||[]).length?d.backups.map((b,i)=>'<option value="'+i+'">'+b.type+' - '+new Date(b.createdAt).toLocaleString('fil-PH')+'</option>').join(''):'<option value="">No backups available</option>'}</select></div>
+    <div class="form-group"><label>Restore Type</label><select id="rsType"><option value="FULL">Full Restore</option><option value="WITH RECOVERY">With Recovery</option><option value="WITH NORECOVERY">With NoRecovery</option></select></div>
+    <div class="alert alert-warn"><i class="ti ti-alert-triangle"></i> Warning: Restore will overwrite the current database. I-verify muna ang backup.</div>
+    <button class="btn btn-success" onclick="simulateRestore()" ${(!d.backups||!d.backups.length)?'disabled':''}><i class="ti ti-refresh"></i> Simulate Restore</button>
+  </div></div>`;
+  return h;
+}
+function createBackup() {
+  const type=document.getElementById('bkType').value;const desc=document.getElementById('bkDesc').value.trim();
+  const d=getData();if(!d.backups)d.backups=[];
+  d.backups.push({type,desc,status:'Completed',size:(Math.random()*500+100).toFixed(2)+' MB',createdAt:ts()});saveData(d);
+  addActivity('Backup completed: '+type+' backup ng '+DB_NAME,'done');renderPage('backup');
+}
+function simulateRestore() {
+  const idx=parseInt(document.getElementById('rsSelect').value);const type=document.getElementById('rsType').value;
+  if(isNaN(idx)){alert('Pumili ng backup na i-re-restore.');return;}
+  const d=getData();const b=d.backups[idx];
+  addActivity('Restored '+DB_NAME+' from '+b.type+' backup ['+type+']','warn');
+  alert('Restore simulation completed!\n\nRestored from: '+b.type+' backup ('+new Date(b.createdAt).toLocaleString('fil-PH')+')\nRestore type: '+type+'\nDatabase: '+DB_NAME+'\n\n(Simulation only — no actual data was modified.)');
+  renderPage('backup');
+}
+
+// ============================================================
+// RENDER: MONITOR
+// ============================================================
+function renderMonitor() {
+  const d=getData();
+  const queries=d.queryHistory||[];
+  const recent=queries.slice(-3).reverse();
+  return `
+    <h1 class="page-title">Monitor</h1>
+    <p class="page-sub">SQL Server performance monitoring — ${DB_NAME}</p>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon ti ti-database" style="position:absolute;top:14px;right:14px;font-size:20px;color:#3c3c3c"></div><div class="stat-label">Database Size</div><div class="stat-val">${(Math.random()*2+1).toFixed(1)} GB</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-activity" style="position:absolute;top:14px;right:14px;font-size:20px;color:#3c3c3c"></div><div class="stat-label">Active Sessions</div><div class="stat-val">${Math.floor(Math.random()*10+2)}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-clock" style="position:absolute;top:14px;right:14px;font-size:20px;color:#3c3c3c"></div><div class="stat-label">Avg Response Time</div><div class="stat-val">${(Math.random()*50+5).toFixed(0)} ms</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-chart-bar" style="position:absolute;top:14px;right:14px;font-size:20px;color:#3c3c3c"></div><div class="stat-label">CPU Usage</div><div class="stat-val">${(Math.random()*30+10).toFixed(0)}%</div></div>
+    </div>
+    <div class="two-col">
+      <div class="card"><div class="card-header"><span class="card-title">Recent Queries</span></div><div style="padding:8px 16px">${recent.length?recent.map((q,i)=>'<div class="activity-item"><i class="ti ti-code activity-icon info"></i><code style="font-size:11px;color:#ce9178">'+escapeHtml(q)+'</code></div>').join(''):'<div style="font-size:12px;color:#808080;padding:8px 0">Wala pang recent queries.</div>'}</div></div>
+      <div class="card"><div class="card-header"><span class="card-title">Performance Metrics</span></div><div style="padding:14px 16px;font-size:12px">
+        <div class="toggle-row" style="padding:8px 0;border-bottom:1px solid #2a2a2a"><span>Buffer Cache Hit Ratio</span><span style="color:#4ec9b0;font-weight:600">${(Math.random()*10+89).toFixed(1)}%</span></div>
+        <div class="toggle-row" style="padding:8px 0;border-bottom:1px solid #2a2a2a"><span>Page Life Expectancy</span><span style="color:#569cd6;font-weight:600">${Math.floor(Math.random()*500+300)} sec</span></div>
+        <div class="toggle-row" style="padding:8px 0;border-bottom:1px solid #2a2a2a"><span>Deadlocks (last hour)</span><span style="color:${Math.random()>0.7?'#f44747':'#4ec9b0'};font-weight:600">${Math.floor(Math.random()*3)}</span></div>
+        <div class="toggle-row" style="padding:8px 0"><span>Index Fragmentation (avg)</span><span style="color:${Math.random()>0.5?'#dcdcaa':'#4ec9b0'};font-weight:600">${(Math.random()*20+1).toFixed(1)}%</span></div>
+      </div></div>
+    </div>
+    <div class="card"><div class="card-header"><span class="card-title">Server Info</span></div><div style="padding:10px 16px;font-size:12px">
+      <div class="toggle-row" style="padding:6px 0;border-bottom:1px solid #2a2a2a"><span>Server</span><span style="color:#569cd6">KALYX-SQL-01</span></div>
+      <div class="toggle-row" style="padding:6px 0;border-bottom:1px solid #2a2a2a"><span>Version</span><span style="color:#569cd6">SQL Server 2022 (16.0.1000.6)</span></div>
+      <div class="toggle-row" style="padding:6px 0;border-bottom:1px solid #2a2a2a"><span>Collation</span><span style="color:#569cd6">SQL_Latin1_General_CP1_CI_AS</span></div>
+      <div class="toggle-row" style="padding:6px 0"><span>Last Restart</span><span style="color:#808080">${new Date(Date.now()-86400000*Math.floor(Math.random()*30+1)).toLocaleString('fil-PH')}</span></div>
+    </div></div>`;
+}
+
+// ============================================================
+// RENDER: TRAINING
+// ============================================================
+function renderTraining() {
+  const p=getProgress();
+  let h=`<h1 class="page-title">Mga Aralin</h1><p class="page-sub">${modules.length} modules na may lessons, quizzes, at progress tracking</p>`;
+  modules.forEach((m,i)=>{
+    const done=p.modules[m.id];const quizDone=p.quizzes[m.id];const started=p.quizzes[m.id+'half'];
+    let stLabel='<span class="badge badge-amber">Not Started</span>';
+    if(done)stLabel='<span class="badge badge-green">Completed</span>';
+    else if(quizDone)stLabel='<span class="badge badge-blue">Quiz Passed</span>';
+    else if(started)stLabel='<span class="badge badge-amber">In Progress</span>';
+    h+=`<div class="card" style="opacity:${done||i===0||p.quizzes[modules[i-1]?.id]?1:0.5};cursor:${done||i===0||p.quizzes[modules[i-1]?.id]?'pointer':'not-allowed'}">
+      <div class="card-header"><span class="card-title">Module ${i+1}: ${m.title}</span> ${stLabel}</div>
+      <div style="padding:14px 16px">
+        <div class="learn-content" id="learn_${m.id}">${m.content}</div>
+        <div id="quizArea_${m.id}"></div>
+        ${!done?`<button class="btn btn-primary" onclick="startQuiz('${m.id}')" id="quizBtn_${m.id}" ${(i>0&&!p.quizzes[modules[i-1]?.id])?'disabled':''}><i class="ti ti-edit"></i> ${p.quizzes[m.id]?'Retake Quiz':'Take Quiz'}</button>`:''}
+        ${done?`<span style="color:#4ec9b0;font-weight:500"><i class="ti ti-check-circle"></i> Module Completed!</span>`:''}
+      </div>
+    </div>`;
+  });
+  const tot=modules.length*3;let done=0;
+  modules.forEach(m=>{if(p.modules[m.id])done+=3;else if(p.quizzes[m.id])done+=2;else if(p.quizzes[m.id+'half'])done+=1});
+  const pc=tot?Math.round(done/tot*100):0;
+  h+=`<div class="card"><div class="card-header"><span class="card-title">Overall Progress</span><span>${pc}%</span></div><div style="padding:8px 16px"><div class="progress-bar"><div class="progress-fill" style="width:${pc}%"></div></div></div></div>`;
+  return h;
+}
+
+// ============================================================
+// QUIZ ENGINE
+// ============================================================
+function startQuiz(modId) {
+  const m=modules.find(x=>x.id===modId);if(!m)return;
+  const area=document.getElementById('quizArea_'+modId);
+  const btn=document.getElementById('quizBtn_'+modId);
+  if(btn)btn.style.display='none';
+  let h=`<div class="card"><div class="card-header"><span class="card-title">Quiz: ${m.title}</span></div><div style="padding:14px 16px" id="quizBody_${modId}"><p style="margin-bottom:10px;color:#808080;font-size:12px">Sagutan ang mga tanong. Kailangan ng ${Math.ceil(m.quiz.length*0.7)}/${m.quiz.length} para pumasa.</p>`;
+  m.quiz.forEach((q,qi)=>{
+    h+=`<div style="margin-bottom:14px" id="qq_${modId}_${qi}"><div class="quiz-question">${qi+1}. ${q.q}</div>`;
+    q.o.forEach((opt,oi)=>{
+      h+=`<button class="quiz-option" onclick="selectQuizOption('${modId}',${qi},${oi})" id="qo_${modId}_${qi}_${oi}">${opt}</button>`;
+    });
+    h+=`</div>`;
+  });
+  h+=`<button class="btn btn-primary" onclick="submitQuiz('${modId}')"><i class="ti ti-send"></i> I-submit ang Quiz</button><div id="quizResult_${modId}"></div></div></div>`;
+  area.innerHTML=h;
+  window._quizSelections=window._quizSelections||{};window._quizSelections[modId]=[];
+  const p=getProgress();if(!p.quizzes[modId+'half']){p.quizzes[modId+'half']=true;saveProgress(p);updateCounts();}
+}
+function selectQuizOption(modId,qi,oi) {
+  window._quizSelections=window._quizSelections||{};if(!window._quizSelections[modId])window._quizSelections[modId]=[];
+  window._quizSelections[modId][qi]=oi;
+  document.querySelectorAll('#qq_'+modId+'_'+qi+' .quiz-option').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('qo_'+modId+'_'+qi+'_'+oi).classList.add('selected');
+}
+function submitQuiz(modId) {
+  const m=modules.find(x=>x.id===modId);if(!m)return;
+  const sel=window._quizSelections?.[modId]||[];
+  let correct=0;
+  m.quiz.forEach((q,qi)=>{
+    const chosen=sel[qi];
+    document.querySelectorAll('#qq_'+modId+'_'+qi+' .quiz-option').forEach((el,oi)=>{
+      el.classList.remove('selected','correct','wrong');el.disabled=true;
+      if(oi===q.a)el.classList.add('correct');
+      else if(oi===chosen)el.classList.add('wrong');
+    });
+    if(chosen===q.a)correct++;
+  });
+  const pass=correct>=Math.ceil(m.quiz.length*0.7);const p=getProgress();
+  if(pass){p.quizzes[modId]=true;saveProgress(p);addActivity('Pumasa sa quiz: '+m.title,'done');}
+  else{addActivity('Bagsak sa quiz: '+m.title+'. '+correct+'/'+m.quiz.length,'warn');}
+  document.getElementById('quizResult_'+modId).innerHTML=`<div class="quiz-result ${pass?'pass':'fail'}">${pass?'Passed!':'Bagsak. Kailangan ng '+(Math.ceil(m.quiz.length*0.7))+'/'+m.quiz.length+'. I-retry ang quiz.'} ${correct}/${m.quiz.length} tamang sagot.</div>`;
+  if(pass){setTimeout(()=>{markModuleDone(modId);renderPage('training');},1500);}
+  updateCounts();
+}
+function markModuleDone(modId) {
+  const p=getProgress();p.modules[modId]=true;saveProgress(p);addActivity('Natapos ang module: '+modules.find(m=>m.id===modId)?.title,'done');
+}
+
+// ============================================================
+// RENDER: SCENARIOS
+// ============================================================
+function renderScenarios() {
+  const p=getProgress();
+  let h=`<h1 class="page-title">Scenarios</h1><p class="page-sub">Hands-on practice gamit ang realistic SQL database scenarios</p>`;
+  scenarios.forEach(s=>{
+    const done=p.scenarios[s.id];
+    h+=`<div class="scenario-card" onclick="toggleScenario('${s.id}')">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <i class="${s.icon}" style="font-size:20px;color:#569cd6;margin-top:2px"></i>
+        <div style="flex:1">
+          <h4>${s.title} ${done?'<span class="badge badge-green">Done</span>':''}</h4>
+          <p>${s.desc}</p>
+        </div>
+      </div>
+      <div class="scenario-detail" id="scDetail_${s.id}">
+        <hr class="sql-hr">
+        <ol style="margin:0 0 10px 16px;font-size:12px;color:#d4d4d4;line-height:1.8">${s.steps.map(st=>`<li>${st}</li>`).join('')}</ol>
+        <button class="btn ${done?'btn-outline':'btn-success'}" onclick="event.stopPropagation();completeScenario('${s.id}')">${done?'<i class="ti ti-refresh"></i> Redo':'<i class="ti ti-check"></i> Mark Complete'}</button>
+      </div>
+    </div>`;
+  });
+  return h;
+}
+function toggleScenario(id) {
+  const el=document.getElementById('scDetail_'+id);
+  if(el){el.classList.toggle('open');if(!el.classList.contains('open'))el.style.display='none';else el.style.display='block';}
+}
+function completeScenario(id) {
+  const p=getProgress();const s=scenarios.find(x=>x.id===id);
+  if(p.scenarios[id]){delete p.scenarios[id];addActivity('Unmarked scenario: '+s.title);}
+  else{p.scenarios[id]=true;addActivity('Natapos ang scenario: '+s.title,'done');}
+  saveProgress(p);renderPage('scenarios');updateCounts();
+}
+
+// ============================================================
+// RENDER: ACTIVITY
+// ============================================================
+function renderActivity() {
+  const ac=getActivity();
+  let h=`<h1 class="page-title">Activity Log</h1><p class="page-sub">Record ng lahat ng actions na ginawa mo sa simulation</p><div class="card"><div style="padding:8px 16px;max-height:500px;overflow-y:auto">`;
+  if(!ac.length){h+=`<div class="alert alert-info">Wala pang activity. Magsimulang mag-practice ng SQL queries!</div>`;}
+  else{ac.forEach(a=>{h+=`<div class="activity-item"><i class="ti ${a.type==='done'?'ti-check-circle activity-icon done':a.type==='warn'?'ti-alert-triangle activity-icon warn':'ti-info-circle activity-icon info'}"></i><span>${a.msg}</span><span class="activity-time">${new Date(a.time).toLocaleString('fil-PH')}</span></div>`});}
+  h+=`</div></div><button class="btn btn-outline" onclick="if(confirm('I-clear ang activity log?')){saveActivity([]);renderPage('activity');}"><i class="ti ti-trash"></i> Clear Log</button>`;
+  return h;
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+function openModal(html) {
+  document.getElementById('modalBox').innerHTML=html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() {document.getElementById('modalOverlay').classList.remove('open');}
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// ---- Create User Modal ----
+function openCreateUserModal() {
+  const n=Math.floor(Math.random()*900+100);
+  openModal(`
+    <div class="modal-title"><i class="ti ti-user-plus" style="color:#569cd6"></i> Create Database User</div>
+    <div class="form-group"><label>User Name</label><input id="dbuName" placeholder="e.g. juan.delacruz"></div>
+    <div class="form-group"><label>Login Name</label><input id="dbuLogin" value="KALYX\\\\juan${n}" disabled><div class="form-hint">Windows Authentication login</div></div>
+    <div class="form-group"><label>Default Schema</label><select id="dbuSchema"><option value="dbo">dbo</option><option value="sales">sales</option><option value="hr">hr</option></select></div>
+    <div class="form-group"><label>Database Roles</label><div style="display:flex;flex-direction:column;gap:6px">
+      <label class="switch" style="display:flex;align-items:center;gap:8px;width:auto;height:auto;cursor:pointer;font-size:12px;color:#d4d4d4"><input type="checkbox" id="roleReader"><span> db_datareader (Read)</span></label>
+      <label class="switch" style="display:flex;align-items:center;gap:8px;width:auto;height:auto;cursor:pointer;font-size:12px;color:#d4d4d4"><input type="checkbox" id="roleWriter"><span> db_datawriter (Write)</span></label>
+      <label class="switch" style="display:flex;align-items:center;gap:8px;width:auto;height:auto;cursor:pointer;font-size:12px;color:#d4d4d4"><input type="checkbox" id="roleDdl"><span> db_ddladmin (DDL)</span></label>
+      <label class="switch" style="display:flex;align-items:center;gap:8px;width:auto;height:auto;cursor:pointer;font-size:12px;color:#d4d4d4"><input type="checkbox" id="roleOwner"><span> db_owner (Full Control)</span></label>
+    </div></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="createDbUser()"><i class="ti ti-device-floppy"></i> Create</button>
+    </div>
+  `);
+}
+function createDbUser() {
+  const name=document.getElementById('dbuName').value.trim();const schema=document.getElementById('dbuSchema').value;
+  if(!name){alert('Please enter a user name.');return;}
+  const roles=[];
+  if(document.getElementById('roleReader').checked)roles.push('db_datareader');
+  if(document.getElementById('roleWriter').checked)roles.push('db_datawriter');
+  if(document.getElementById('roleDdl').checked)roles.push('db_ddladmin');
+  if(document.getElementById('roleOwner').checked)roles.push('db_owner');
+  const d=getData();d.users.push({name,login:'KALYX\\'+name,schema,roles});saveData(d);
+  addActivity('Gumawa ng database user: '+name+' ('+(roles.join(', ')||'No roles')+')','done');closeModal();renderPage('users');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.querySelectorAll('.nav-item').forEach(el=>{
+  el.addEventListener('click',function(){switchPage(this.dataset.page);});
+});
+renderPage('dashboard');
+</script>
+<div style="text-align:center;padding:10px 20px;font-size:10px;color:#808080;border-top:1px solid #3c3c3c;background:#252526;">Disclaimer: Independent training simulation for educational purposes. Not affiliated with, endorsed by, or associated with Microsoft Corporation. SQL Server and SSMS are trademarks of Microsoft Corporation.</div>
+<script>
+(function(){function p(e){e.preventDefault()}document.addEventListener('contextmenu',p);document.addEventListener('keydown',function(e){if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(e.key.toLowerCase()))||(e.ctrlKey&&['u','c','x'].includes(e.key.toLowerCase()))){e.preventDefault();return false}});document.addEventListener('copy',p);document.addEventListener('cut',p)})();
+</script>
+</body>
+</html>
