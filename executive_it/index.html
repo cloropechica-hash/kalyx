@@ -1570,6 +1570,12 @@ function getData(type) {
   }
   // Fallback to localStorage while Firestore is loading
   var key = getDataKey(type);
+
+  // Use in-memory cache to avoid re-merging (which regenerates IDs) within the same page load
+  if (window.__fbCache && window.__fbCache[fbKey]) {
+    return window.__fbCache[fbKey];
+  }
+
   if (type === 'planner') {
     if (!localStorage.getItem(key)) {
       localStorage.setItem(key, JSON.stringify(getInitialRoadmaps()));
@@ -1626,6 +1632,8 @@ function saveData(type, data) {
   // localStorage is cache/fallback
   var key = getDataKey(type);
   localStorage.setItem(key, JSON.stringify(data));
+  // Invalidate in-memory cache so next read gets fresh data
+  delete window.__fbCache['it_' + type];
 }
 
 // ==================== VIEW SWITCHING ====================
