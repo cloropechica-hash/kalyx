@@ -724,7 +724,7 @@ button, input, select, textarea { min-width: 0; }
 
 <!-- ============ ADD/EDIT MODAL ============ -->
 <div id="modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center">
-  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal()"></div>
   <div class="relative bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
       <h3 id="modalTitle" class="font-title-lg font-semibold text-primary">Add Item</h3>
@@ -1498,7 +1498,7 @@ function getInitialKnowledge() {
       createdAt: baseId - 86400000 * 8,
       title: 'Fortinet Firewall Administration Training',
       category: 'training',
-      trainingFile: 'training/meraki-simulation.html',
+      trainingFile: 'training/fortinet-simulation.html',
       content: 'Interactive training module for Fortinet FortiGate firewall administration.\n\nModules Covered:\n1. FortiGate Dashboard Overview\n   - Understanding the GUI\n   - System dashboard widgets\n   - FortiView traffic monitoring\n\n2. Policy Management\n   - Creating firewall policies\n   - NAT policies\n   - Policy ordering and optimization\n\n3. VPN Configuration\n   - IPsec site-to-site VPN\n   - SSL VPN for remote access\n   - VPN user management\n\n4. Security Profiles\n   - Antivirus profiles\n   - Web filtering\n   - Intrusion Prevention (IPS)\n   - Application Control\n\n5. User Authentication\n   - Local user database\n   - LDAP/AD integration\n   - FSSO (Fortinet Single Sign-On)\n\n6. High Availability & Monitoring\n   - Active-passive HA setup\n   - Logging and reporting\n   - Alert configuration\n\nClick "Launch Training" to start the interactive simulation.'
     },
     {
@@ -1506,7 +1506,7 @@ function getInitialKnowledge() {
       createdAt: baseId - 86400000 * 9,
       title: 'Windows Server Administration Training',
       category: 'training',
-      trainingFile: 'training/microsoft365_simulation.html',
+      trainingFile: 'training/windows-server-simulation.html',
       content: 'Training module for Microsoft Windows Server administration.\n\nModules Covered:\n1. Active Directory Domain Services (AD DS)\n   - Domain controllers management\n   - OU structure and Group Policy\n   - User and computer management\n   - Trust relationships\n\n2. DHCP and DNS\n   - DHCP scope configuration\n   - DNS zones and records\n   - Name resolution troubleshooting\n\n3. File Services\n   - File share permissions (NTFS vs Share)\n   - DFS (Distributed File System)\n   - Quota management\n\n4. Group Policy Management\n   - Creating and linking GPOs\n   - Security settings and restrictions\n   - Software deployment via GPO\n   - Group Policy troubleshooting\n\n5. Windows Server Update Services (WSUS)\n   - Update approval workflow\n   - Computer groups\n   - Reporting and compliance\n\n6. Backup and Recovery\n   - Windows Server Backup\n   - System State backup and restore\n   - Bare metal recovery\n\nClick "Launch Training" to start the interactive simulation.'
     },
     {
@@ -1588,6 +1588,17 @@ function getData(type) {
   if (type === 'knowledge') {
     if (!localStorage.getItem(key)) {
       localStorage.setItem(key, JSON.stringify(getInitialKnowledge()));
+    } else {
+      // Merge initial articles into cached data (keeps user-created ones, refreshes initial ones)
+      var initial = getInitialKnowledge();
+      var cached = JSON.parse(localStorage.getItem(key) || '[]');
+      var initialKeys = {};
+      initial.forEach(function(a) { initialKeys[a.category + '|' + a.title] = true; });
+      var merged = initial.slice();
+      cached.forEach(function(a) {
+        if (!initialKeys[a.category + '|' + a.title]) merged.push(a);
+      });
+      localStorage.setItem(key, JSON.stringify(merged));
     }
   }
   var data = JSON.parse(localStorage.getItem(key) || '[]');
@@ -4755,7 +4766,7 @@ function getFormHtml(type, item) {
     return '<div class="space-y-4">' +
       '<div><label class="font-label-md text-on-surface-variant block mb-1">Title *</label><input id="fTitle" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" value="' + escapeHtml(item.title || '') + '"/></div>' +
       '<div><label class="font-label-md text-on-surface-variant block mb-1">Category</label><select id="fCategory" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20" onchange="document.getElementById(\'trainingFileGroup\').style.display=this.value===\'training\'?\'\':\'none\'"><option value="sop"' + (item.category === 'sop' ? ' selected' : '') + '>SOP</option><option value="troubleshooting"' + (item.category === 'troubleshooting' ? ' selected' : '') + '>Troubleshooting</option><option value="guide"' + ((item.category === 'guide' || !item.category) ? ' selected' : '') + '>Guide</option><option value="reference"' + (item.category === 'reference' ? ' selected' : '') + '>Reference</option><option value="training"' + (item.category === 'training' ? ' selected' : '') + '>Training</option></select></div>' +
-      '<div id="trainingFileGroup"' + showTrainingField + '><label class="font-label-md text-on-surface-variant block mb-1">Training File</label><select id="fTrainingFile" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20"><option value="training/microsoft365_simulation.html"' + (item.trainingFile === 'training/microsoft365_simulation.html' ? ' selected' : '') + '>Microsoft 365 Admin</option><option value="training/meraki-simulation.html"' + (item.trainingFile === 'training/meraki-simulation.html' ? ' selected' : '') + '>Cisco Meraki Networking</option><option value="training/google-workspace-simulation.html"' + (item.trainingFile === 'training/google-workspace-simulation.html' ? ' selected' : '') + '>Google Workspace Admin</option></select></div>' +
+      '<div id="trainingFileGroup"' + showTrainingField + '><label class="font-label-md text-on-surface-variant block mb-1">Training File</label><select id="fTrainingFile" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20"><option value="training/microsoft365_simulation.html"' + (item.trainingFile === 'training/microsoft365_simulation.html' ? ' selected' : '') + '>Microsoft 365 Admin</option><option value="training/meraki-simulation.html"' + (item.trainingFile === 'training/meraki-simulation.html' ? ' selected' : '') + '>Cisco Meraki Networking</option><option value="training/google-workspace-simulation.html"' + (item.trainingFile === 'training/google-workspace-simulation.html' ? ' selected' : '') + '>Google Workspace Admin</option><option value="training/fortinet-simulation.html"' + (item.trainingFile === 'training/fortinet-simulation.html' ? ' selected' : '') + '>Fortinet FortiGate Admin</option><option value="training/windows-server-simulation.html"' + (item.trainingFile === 'training/windows-server-simulation.html' ? ' selected' : '') + '>Windows Server Admin</option></select></div>' +
       '<div><label class="font-label-md text-on-surface-variant block mb-1">Content *</label><textarea id="fContent" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 h-64 resize-none font-mono" placeholder="Write article content here (supports plain text)...">' + escapeHtml(item.content || '') + '</textarea></div>' +
       '<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all mt-2" onclick="saveItem()">Save Article</button></div>';
   }

@@ -16,8 +16,11 @@ h1{font-size:28px;font-weight:700;color:#1a2332;text-align:center;margin-bottom:
 .card-header{height:120px;display:flex;align-items:center;justify-content:center;position:relative;}
 .card-header.m365{background:linear-gradient(135deg,#0078d4,#106ebe);}
 .card-header.meraki{background:linear-gradient(135deg,#1a2332,#2a3d5a,#00bceb33);}
+.card-header.ws{background:linear-gradient(135deg,#003d6b,#0078d4,#50e6ff33);}
+.card-header.fortinet{background:linear-gradient(135deg,#0d1520,#1a2332,#ee312433);}
 .card-header.gws{background:linear-gradient(135deg,#1a73e8,#0d5bbd,#34a853);}
 .card-header.gws i{color:#fff;}
+.card-header.fortinet i{color:#ee3124;}
 .card-header i{font-size:48px;color:#fff;opacity:0.9;}
 .card-body{padding:20px 24px;}
 .card-title{font-size:18px;font-weight:600;color:#1a2332;margin-bottom:4px;}
@@ -28,6 +31,8 @@ h1{font-size:28px;font-weight:700;color:#1a2332;text-align:center;margin-bottom:
 .card-badge.m365{background:#dce5f5;color:#0078d4;}
 .card-badge.meraki{background:#e8f4f8;color:#00bceb;}
 .card-badge.gws{background:#e8f0fe;color:#1a73e8;}
+.card-badge.ws{background:#dce5f5;color:#003d6b;}
+.card-badge.fortinet{background:#1e1a1a;color:#ee3124;}
 @media(max-width:600px){.grid{grid-template-columns:1fr;}}
 </style>
 </head>
@@ -69,6 +74,30 @@ h1{font-size:28px;font-weight:700;color:#1a2332;text-align:center;margin-bottom:
           <span class="card-badge gws">5 Modules</span>
           <span class="card-badge gws">5 Quizzes</span>
           <span class="card-badge gws">4 Scenarios</span>
+        </div>
+      </div>
+    </a>
+    <a class="card" href="windows-server-simulation.html">
+      <div class="card-header ws"><i class="ti ti-server"></i></div>
+      <div class="card-body">
+        <div class="card-title">Windows Server Admin</div>
+        <div class="card-desc">AD DS, DHCP, DNS, File Services, Group Policy, WSUS, Backup at Recovery. May quizzes at interactive scenarios.</div>
+        <div class="card-stats">
+          <span class="card-badge ws">6 Modules</span>
+          <span class="card-badge ws">6 Quizzes</span>
+          <span class="card-badge ws">4 Scenarios</span>
+        </div>
+      </div>
+    </a>
+    <a class="card" href="fortinet-simulation.html">
+      <div class="card-header fortinet"><i class="ti ti-shield-lock"></i></div>
+      <div class="card-body">
+        <div class="card-title">Fortinet FortiGate Admin</div>
+        <div class="card-desc">FortiGate Dashboard, Policies, NAT, VPN, IPS, Antivirus, Web Filter, App Control. May interactive training at scenarios.</div>
+        <div class="card-stats">
+          <span class="card-badge fortinet">6 Modules</span>
+          <span class="card-badge fortinet">6 Quizzes</span>
+          <span class="card-badge fortinet">4 Scenarios</span>
         </div>
       </div>
     </a>
