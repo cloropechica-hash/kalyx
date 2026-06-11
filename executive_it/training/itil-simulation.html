@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITIL 4 Fundamentals Training Simulator</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f5;min-height:100vh;font-size:14px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+.app{display:flex;height:100vh}
+.sidebar{width:240px;background:#1a2332;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:#fff;border-bottom:1px solid #e0e4e8;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.content{flex:1;overflow-y:auto;padding:24px 32px}
+.sidebar-header{padding:18px 16px;border-bottom:1px solid #2a3446}
+.sidebar-logo{display:flex;align-items:center;gap:10px}
+.sidebar-logo i{font-size:26px;color:#00bceb}
+.sidebar-logo-text{font-size:15px;font-weight:600;color:#fff}
+.sidebar-logo-sub{font-size:10px;color:#8896a6;margin-top:1px}
+.sidebar-section-title{padding:14px 16px 6px;font-size:10px;color:#8896a6;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 16px;color:#b0b9c5;font-size:13px;cursor:pointer;transition:all 0.12s;border-left:3px solid transparent}
+.nav-item:hover{background:#232d3f;color:#e0e4e8}
+.nav-item.active{background:#232d3f;color:#00bceb;border-left-color:#00bceb;font-weight:500}
+.nav-item i{font-size:18px;color:#8896a6}
+.nav-item.active i{color:#00bceb}
+.nav-item .nav-badge{margin-left:auto;background:#00bceb;color:#1a2332;font-size:9px;padding:1px 7px;border-radius:8px;font-weight:600}
+.topbar-title{font-size:16px;font-weight:600;color:#1a2332}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-right i{font-size:20px;color:#5f6b7a;cursor:pointer;padding:8px;border-radius:50%}
+.topbar-right i:hover{background:#f0f2f5}
+.avatar{width:32px;height:32px;border-radius:50%;background:#00bceb;display:flex;align-items:center;justify-content:center;color:#1a2332;font-size:12px;font-weight:700;flex-shrink:0;cursor:pointer}
+.panel{display:none}
+.panel.active{display:block}
+.page-title{font-size:24px;font-weight:700;color:#1a2332;margin-bottom:4px}
+.page-sub{font-size:13px;color:#5f6b7a;margin-bottom:24px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid #e0e4e8;border-radius:10px;padding:16px 20px;position:relative}
+.stat-card .stat-icon{position:absolute;top:16px;right:16px;font-size:24px;color:#e0e4e8}
+.stat-label{font-size:12px;color:#5f6b7a;margin-bottom:4px}
+.stat-val{font-size:28px;font-weight:600;color:#1a2332}
+.stat-change{font-size:12px;color:#188038;margin-top:2px}
+.card{background:#fff;border:1px solid #e0e4e8;border-radius:10px;margin-bottom:16px;overflow:hidden}
+.card-header{padding:14px 20px;border-bottom:1px solid #e0e4e8;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:600;color:#1a2332}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.table{width:100%;border-collapse:collapse;font-size:13px}
+.table th{padding:10px 20px;text-align:left;color:#5f6b7a;font-weight:600;font-size:12px;border-bottom:1px solid #e0e4e8;background:#f8f9fa}
+.table td{padding:10px 20px;border-bottom:1px solid #e8eaed;color:#1a2332}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:#f0f2f5}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500}
+.badge-green{background:#e6f4ea;color:#137333}
+.badge-red{background:#fce8e6;color:#c5221f}
+.badge-amber{background:#fef7e0;color:#ea8600}
+.badge-blue{background:#e0f2fe;color:#0369a1}
+.badge-purple{background:#f3e8fd;color:#9334e6}
+.badge-cyan{background:#e0f8ff;color:#0e7490}
+.action-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.btn{padding:7px 16px;font-size:13px;border:1px solid #e0e4e8;border-radius:6px;background:#fff;color:#1a2332;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-weight:500}
+.btn:hover{background:#f0f2f5}
+.btn-primary{background:#00bceb;color:#1a2332;border-color:#00bceb}
+.btn-primary:hover{background:#00a8d4}
+.btn-success{background:#188038;color:#fff;border-color:#188038}
+.btn-success:hover{background:#19692e}
+.btn-outline{background:transparent;border:1px solid #00bceb;color:#00bceb}
+.btn-outline:hover{background:#e0f8ff}
+.btn-sm{padding:4px 10px;font-size:12px}
+.alert{padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.alert-warn{background:#fef7e0;color:#ea8600;border-left:3px solid #ea8600}
+.alert-info{background:#e0f2fe;color:#0369a1;border-left:3px solid #0369a1}
+.alert-succ{background:#e6f4ea;color:#137333;border-left:3px solid #188038}
+.progress-bar{height:8px;background:#e8eaed;border-radius:4px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;background:#00bceb;border-radius:4px;transition:width 0.4s}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:#fff;border-radius:10px;padding:24px 28px;width:480px;max-width:92vw;box-shadow:0 4px 32px rgba(0,0,0,0.18)}
+.modal-title{font-size:16px;font-weight:600;color:#1a2332;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal-actions{margin-top:16px;display:flex;gap:8px;justify-content:flex-end}
+.info-box{background:#f8f9fa;border-radius:8px;padding:14px 16px;font-size:13px;color:#1a2332;margin-top:12px;line-height:1.6;border:1px solid #e0e4e8}
+.info-box strong{color:#00bceb}
+.learn-section{background:#e0f8ff;border-radius:8px;padding:20px;margin-bottom:16px}
+.learn-section h3{font-size:15px;font-weight:600;color:#0369a1;margin-bottom:8px}
+.learn-section p{font-size:13px;color:#1a2332;line-height:1.6}
+.learn-steps{margin:10px 0 0;padding-left:20px;font-size:13px;color:#1a2332;line-height:1.9}
+.tab-bar{display:flex;gap:0;margin-bottom:16px;background:#fff;border-bottom:1px solid #e0e4e8}
+.tab-btn{padding:10px 20px;font-size:13px;border:none;background:transparent;cursor:pointer;color:#5f6b7a;font-weight:500;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab-btn.active{color:#0369a1;border-bottom-color:#00bceb}
+.tab-btn:hover:not(.active){color:#1a2332;background:#f0f2f5}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.quiz-question{font-size:15px;font-weight:600;color:#1a2332;margin-bottom:16px;line-height:1.5}
+.quiz-option{display:block;width:100%;text-align:left;padding:12px 16px;margin-bottom:8px;border:1px solid #e0e4e8;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;font-family:inherit;transition:all 0.12s}
+.quiz-option:hover{border-color:#00bceb;background:#f0f2f5}
+.quiz-option.selected{border-color:#00bceb;background:#e0f8ff;font-weight:500}
+.quiz-option.correct{border-color:#188038;background:#e6f4ea}
+.quiz-option.wrong{border-color:#c5221f;background:#fce8e6}
+.quiz-result{padding:14px;border-radius:8px;margin-top:16px;font-size:14px;font-weight:500}
+.quiz-result.pass{background:#e6f4ea;color:#137333}
+.quiz-result.fail{background:#fce8e6;color:#c5221f}
+.learn-check{list-style:none;margin:10px 0 0;font-size:13px;color:#1a2332;line-height:2}
+.learn-check li::before{content:"\2713";color:#188038;font-weight:700;margin-right:8px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:#5f6b7a;margin-bottom:4px}
+.form-group input,.form-group select{width:100%;padding:8px 12px;font-size:13px;border:1px solid #e0e4e8;border-radius:6px;font-family:inherit;background:#fff;color:#1a2332}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:#00bceb;box-shadow:0 0 0 2px #e0f8ff}
+.form-group input:disabled{background:#f0f2f5;color:#5f6b7a}
+.form-hint{font-size:11px;color:#5f6b7a;margin-top:3px}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #e8eaed}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:13px;color:#1a2332;font-weight:500}
+.toggle-desc{font-size:11px;color:#5f6b7a;margin-top:2px}
+.switch{position:relative;width:36px;height:20px;flex-shrink:0;cursor:pointer}
+.switch input{opacity:0;width:0;height:0}
+.switch .slider{position:absolute;inset:0;background:#dadce0;border-radius:10px;transition:0.2s}
+.switch .slider::before{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;left:2px;transition:0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.switch input:checked+.slider{background:#00bceb}
+.switch input:checked+.slider::before{transform:translateX(16px)}
+.scenario-card{background:#fff;border:1px solid #e0e4e8;border-radius:10px;padding:20px;margin-bottom:16px;cursor:pointer;transition:all 0.15s}
+.scenario-card:hover{border-color:#00bceb;box-shadow:0 1px 6px rgba(0,188,235,0.12)}
+.scenario-card h4{font-size:14px;font-weight:600;color:#1a2332;margin-bottom:4px}
+.scenario-card p{font-size:13px;color:#5f6b7a;line-height:1.5}
+.scenario-card .badge{margin-top:8px}
+.scenario-detail{display:none}
+.scenario-detail.open{display:block}
+.activity-item{padding:10px 0;border-bottom:1px solid #e8eaed;font-size:13px;color:#1a2332;display:flex;align-items:center;gap:10px}
+.activity-item:last-child{border-bottom:none}
+.activity-icon{font-size:16px;flex-shrink:0}
+.activity-icon.done{color:#188038}
+.activity-icon.warn{color:#ea8600}
+.activity-icon.info{color:#0369a1}
+.activity-time{color:#5f6b7a;font-size:11px;margin-left:auto;flex-shrink:0}
+.itil-hr{border:none;border-top:1px solid #e0e4e8;margin:20px 0}
+@media(max-width:768px){.sidebar{width:60px}.sidebar-logo-text,.sidebar-logo-sub,.sidebar-section-title,.nav-item span,.nav-item .nav-badge{display:none}.nav-item{justify-content:center;padding:14px;margin:2px auto;border-radius:50%;width:44px;height:44px;border-left:none}.content{padding:16px}.two-col{grid-template-columns:1fr}.stat-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <i class="ti ti-certificate"></i>
+        <div>
+          <div class="sidebar-logo-text">ITIL 4 Fundamentals</div>
+          <div class="sidebar-logo-sub">IT Service Management</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-section-title">ITIL Framework</div>
+    <div class="nav-item active" data-page="dashboard"><i class="ti ti-dashboard"></i><span>Dashboard</span></div>
+    <div class="nav-item" data-page="incidents"><i class="ti ti-alert-triangle"></i><span>Incidents</span><span class="nav-badge" id="incidentCount">0</span></div>
+    <div class="nav-item" data-page="changes"><i class="ti ti-settings-cog"></i><span>Changes</span></div>
+    <div class="nav-item" data-page="problems"><i class="ti ti-search"></i><span>Problems</span></div>
+    <div class="nav-item" data-page="services"><i class="ti ti-box"></i><span>Services</span></div>
+    <div class="nav-item" data-page="reports"><i class="ti ti-report-analytics"></i><span>Reports</span></div>
+    <div class="sidebar-section-title">Training</div>
+    <div class="nav-item" data-page="training"><i class="ti ti-book"></i><span>Mga Aralin</span><span class="nav-badge" id="trainingBadge">0%</span></div>
+    <div class="nav-item" data-page="scenarios"><i class="ti ti-flask"></i><span>Scenarios</span></div>
+    <div class="nav-item" data-page="activity"><i class="ti ti-activity"></i><span>Activity Log</span></div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-right">
+        <i class="ti ti-refresh" onclick="location.reload()" title="Refresh"></i>
+        <div class="avatar" title="ITIL Practitioner">IP</div>
+      </div>
+    </div>
+    <div class="content" id="mainContent"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal-box" id="modalBox"></div></div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const APP_NAME = 'ITIL 4 Fundamentals Trainer';
+const ORG = 'Kalyx IT Services';
+
+function getProgress(){try{return JSON.parse(localStorage.getItem('itil_trainer'))||{modules:{},quizzes:{},scenarios:{}} }catch{return{modules:{},quizzes:{},scenarios:{}}}}
+function saveProgress(p){localStorage.setItem('itil_trainer',JSON.stringify(p))}
+function getData(){try{return JSON.parse(localStorage.getItem('itil_trainer_data'))||{incidents:[],changes:[],problems:[],services:[],settings:{sla_warning:4,sla_critical:8,auto_assign:true,escalation:true}}}catch{return{incidents:[],changes:[],problems:[],services:[],settings:{sla_warning:4,sla_critical:8,auto_assign:true,escalation:true}}}}
+function saveData(d){localStorage.setItem('itil_trainer_data',JSON.stringify(d))}
+function getActivity(){try{return JSON.parse(localStorage.getItem('itil_trainer_activity'))||[]}catch{return[]}}
+function saveActivity(a){localStorage.setItem('itil_trainer_activity',JSON.stringify(a))}
+function addActivity(msg,type='info'){const a=getActivity();a.unshift({msg,type,time:new Date().toISOString()});if(a.length>200)a.length=200;saveActivity(a)}
+const APP_TS = Date.now();
+function ts(){return new Date().toISOString()}
+
+// ============================================================
+// MODULES
+// ============================================================
+const modules = [
+  {
+    id:'m1',title:'Introduction to ITIL & Service Management',
+    content:`<div class="learn-section"><h3>Ano ang ITIL?</h3>
+<p>Ang ITIL (Information Technology Infrastructure Library) ay ang pinakamalawakang ginagamit na framework para sa IT Service Management (ITSM). Ito ay nagbibigay ng practical at structured na approach para i-deliver ang IT services na aligned sa business needs.</p>
+<h3 style="margin-top:14px;color:#0369a1;">Bakit Mahalaga ang ITIL?</h3>
+<p>Tinutulungan ng ITIL ang mga organisasyon na i-standardize ang kanilang IT processes, bawasan ang downtime, pahusayin ang customer satisfaction, at i-align ang IT sa business goals. Ang ITIL 4 ay ang pinakabagong bersyon na inilabas noong 2019.</p>
+<h3 style="margin-top:14px;color:#0369a1;">Key Concepts</h3>
+<ul class="learn-steps">
+<li><strong>Service</strong> — isang paraan para magbigay ng value sa customers sa pamamagitan ng pagtulong sa kanila na makamit ang kanilang goals</li>
+<li><strong>Value</strong> — ang perceived benefits, usefulness, at importance ng isang service</li>
+<li><strong>ITSM</strong> — ang set ng activities na ginagawa ng organization para mag-design, mag-deliver, at mag-manage ng IT services</li>
+<li><strong>Stakeholder</strong> — sinumang may interes sa organization at sa outcomes nito</li>
+</ul></div>`,
+    quiz:[
+      {q:'Ano ang ibig sabihin ng ITIL?',o:['Information Technology Integration Layer','Information Technology Infrastructure Library','Integrated Technology Information Library','Information Technology Investment Lifecycle'],a:1},
+      {q:'Kailan inilabas ang ITIL 4?',o:['2015','2017','2019','2021'],a:2},
+      {q:'Ano ang pangunahing layunin ng ITIL?',o:['Magbenta ng software','I-standardize ang IT service management','Mag-setup ng network','Mag-develop ng applications'],a:1},
+      {q:'Ano ang tawag sa paraan ng pagbibigay ng value sa customers?',o:['Product','Service','Tool','System'],a:1},
+      {q:'Ano ang ITSM?',o:['IT Security Management','IT Service Management','IT Systems Monitoring','IT Solutions Marketing'],a:1}
+    ]
+  },
+  {
+    id:'m2',title:'The Four Dimensions of Service Management',
+    content:`<div class="learn-section"><h3>Ano ang Four Dimensions?</h3>
+<p>Ang ITIL 4 ay naglalarawan ng apat na dimensyon na dapat isaalang-alang upang matiyak ang balanced at holistic approach sa service management.</p>
+<h3 style="margin-top:14px;color:#0369a1;">1. Organizations & People</h3>
+<p>Tumutukoy sa roles, responsibilities, culture, at skills ng mga tao sa organization. Ang tamang pag-aassign ng roles at pag-develop ng kompetensya ay mahalaga para sa effective service management.</p>
+<h3 style="margin-top:14px;color:#0369a1;">2. Information & Technology</h3>
+<p>Sakop nito ang technology infrastructure, applications, data management, at information security na kinakailangan para i-support ang services.</p>
+<h3 style="margin-top:14px;color:#0369a1;">3. Partners & Suppliers</h3>
+<p>Kinikilala na ang organizations ay madalas umaasa sa external partners at suppliers para magbigay ng ilang aspeto ng services.</p>
+<h3 style="margin-top:14px;color:#0369a1;">4. Value Streams & Processes</p>
+<p>Tumutukoy sa mga workflow, activities, at procedures na ginagawa ng organization para i-deliver ang services.</p></div>`,
+    quiz:[
+      {q:'Ilan ang dimensyon ng service management sa ITIL 4?',o:['Tatlo','Apat','Lima','Anim'],a:1},
+      {q:'Anong dimensyon ang tumutukoy sa roles at kultura?',o:['Information & Technology','Partners & Suppliers','Organizations & People','Value Streams & Processes'],a:2},
+      {q:'Anong dimensyon ang may kinalaman sa external vendors?',o:['Organizations & People','Information & Technology','Partners & Suppliers','Value Streams & Processes'],a:2},
+      {q:'Bakit mahalaga ang Four Dimensions?',o:['Para magkaisa ang IT at business','Para balanced ang approach sa service management','Para makatipid','Para sumunod sa batas'],a:1},
+      {q:'Anong dimensyon ang sumasaklaw sa workflows at procedures?',o:['Organizations & People','Information & Technology','Partners & Suppliers','Value Streams & Processes'],a:3}
+    ]
+  },
+  {
+    id:'m3',title:'ITIL Guiding Principles',
+    content:`<div class="learn-section"><h3>Ano ang Guiding Principles?</h3>
+<p>Ang pitong guiding principles ng ITIL 4 ay nagbibigay ng universal at enduring na gabay para sa organization sa kahit anong sitwasyon.</p>
+<h3 style="margin-top:14px;color:#0369a1;">Ang Pitong Prinsipyo</h3>
+<ul class="learn-steps">
+<li><strong>Focus on Value</strong> — lahat ng ginagawa ay dapat maghatid ng value sa stakeholders</li>
+<li><strong>Start Where You Are</strong> — huwag magsimula sa wala; suriin ang current state bago gumawa ng bago</li>
+<li><strong>Progress Iteratively</strong> — gumawa ng paunti-unti gamit ang feedback loops</li>
+<li><strong>Collaborate & Promote Visibility</strong> — isama ang mga tao at gawing transparent ang proseso</li>
+<li><strong>Think & Work Holistically</strong> — tingnan ang buong larawan, hindi lang iisang bahagi</li>
+<li><strong>Keep It Simple & Practical</strong> — gawing minimal at practical ang processes</li>
+<li><strong>Optimize & Automate</strong> — gamitin ang automation para maging efficient</li>
+</ul></div>`,
+    quiz:[
+      {q:'Ilan ang guiding principles ng ITIL 4?',o:['Lima','Anim','Pito','Walo'],a:2},
+      {q:'Anong prinsipyo ang nagsasabing suriin ang current state?',o:['Focus on Value','Start Where You Are','Progress Iteratively','Optimize & Automate'],a:1},
+      {q:'Anong prinsipyo ang nagbibigay-diin sa feedback loops?',o:['Focus on Value','Collaborate & Promote Visibility','Progress Iteratively','Keep It Simple'],a:2},
+      {q:'Anong prinsipyo ang nagsasabing gawing transparent ang proseso?',o:['Think & Work Holistically','Collaborate & Promote Visibility','Optimize & Automate','Start Where You Are'],a:1},
+      {q:'Anong prinsipyo ang pinaka-kaugnay sa efficiency?',o:['Focus on Value','Keep It Simple & Practical','Optimize & Automate','Progress Iteratively'],a:2}
+    ]
+  },
+  {
+    id:'m4',title:'Service Value System & Value Chain',
+    content:`<div class="learn-section"><h3>Service Value System (SVS)</h3>
+<p>Ang SVS ay ang model na nagpapakita kung paano nagtutulungan ang lahat ng components ng organization para mag-create ng value sa pamamagitan ng IT services.</p>
+<h3 style="margin-top:14px;color:#0369a1;">Service Value Chain</h3>
+<p>Ang value chain ay may anim na activities na nagko-convert ng demand sa value:</p>
+<ul class="learn-steps">
+<li><strong>Plan</strong> — mag-set ng direction at strategy</li>
+<li><strong>Improve</strong> — patuloy na pagpapabuti ng services</li>
+<li><strong>Engage</strong> — makipag-ugnayan sa stakeholders</li>
+<li><strong>Design & Transition</strong> — mag-design at mag-deploy ng bagong services</li>
+<li><strong>Obtain/Build</strong> — kumuha o gumawa ng mga kinakailangang components</li>
+<li><strong>Deliver & Support</strong> — i-deliver at i-support ang services</li>
+</ul>
+<p style="margin-top:10px;">Ang value chain ay flexible — pwedeng mag-iba ang activities depende sa sitwasyon.</p></div>`,
+    quiz:[
+      {q:'Ano ang SVS?',o:['Service Verification System','Service Value System','Standard Vendor Solution','Strategic Vision Statement'],a:1},
+      {q:'Ilan ang activities sa Service Value Chain?',o:['Apat','Lima','Anim','Pito'],a:2},
+      {q:'Anong activity ang nagse-set ng direction at strategy?',o:['Plan','Improve','Engage','Design & Transition'],a:0},
+      {q:'Anong activity ang may kinalaman sa pag-deploy ng bagong services?',o:['Plan','Obtain/Build','Design & Transition','Deliver & Support'],a:2},
+      {q:'Ano ang ginagawa ng Improve activity?',o:['Mag-set ng strategy','Patuloy na pagpapabuti','Mag-deploy ng services','Makipag-ugnayan sa stakeholders'],a:1}
+    ]
+  },
+  {
+    id:'m5',title:'Key Practices: Incident, Problem & Change Management',
+    content:`<div class="learn-section"><h3>Incident Management</h3>
+<p>Layunin nitong ibalik ang normal service operation sa lalong madaling panahon at mabawasan ang business impact. Ang incident ay anumang hindi planadong pag-istorbo sa IT service.</p>
+<h3 style="margin-top:14px;color:#0369a1;">Problem Management</h3>
+<p>Tinutukoy nito ang root cause ng mga incidents para maiwasan ang pag-ulit ng mga ito. Ang problem ay ang underlying cause ng isa o higit pang incidents.</p>
+<h3 style="margin-top:14px;color:#0369a1;">Change Management</h3>
+<p>Kinokontrol nito ang lifecycle ng lahat ng changes para magawa ang beneficial changes na may minimal na disruption. May iba't ibang uri: Standard, Normal, at Emergency changes.</p>
+<h3 style="margin-top:14px;color:#0369a1;">Service Request Management</h3>
+<p>Humahawak ng standardized requests mula sa users tulad ng password reset, access requests, at information requests.</p></div>`,
+    quiz:[
+      {q:'Ano ang layunin ng Incident Management?',o:['Maghanap ng root cause','Ibalik ang normal service nang mabilis','Mag-approve ng changes','Mag-set ng budget'],a:1},
+      {q:'Ano ang pagkakaiba ng problem sa incident?',o:['Pareho lang','Ang problem ay root cause ng incident','Mas malala ang incident','Ang problem ay request ng user'],a:1},
+      {q:'Anong uri ng change ang may pre-approved process?',o:['Standard Change','Normal Change','Emergency Change','Urgent Change'],a:0},
+      {q:'Ano ang halimbawa ng service request?',o:['System downtime','Password reset','Network outage','Server crash'],a:1},
+      {q:'Ano ang tawag sa change na kailangan ng urgent approval?',o:['Standard Change','Normal Change','Emergency Change','Fast Change'],a:2}
+    ]
+  },
+  {
+    id:'m6',title:'Continual Improvement',
+    content:`<div class="learn-section"><h3>Ano ang Continual Improvement?</h3>
+<p>Ang continual improvement ay ang paulit-ulit na pagsisikap na pahusayin ang quality ng services at processes. Ito ay hindi isang beses na proyekto kundi isang patuloy na practice.</p>
+<h3 style="margin-top:14px;color:#0369a1;">Continual Improvement Model</h3>
+<ul class="learn-steps">
+<li><strong>Ano ang vision?</strong> — i-align sa business goals</li>
+<li><strong>Nasaan tayo ngayon?</strong> — i-assess ang current state</li>
+<li><strong>Saan natin gusto pumunta?</strong> — i-define ang target</li>
+<li><strong>Paano tayo makakarating?</strong> — mag-plano ng improvements</li>
+<li><strong>Gawin ito</strong> — i-execute ang plano</li>
+<li><strong>Nakarating ba tayo?</strong> — i-verify ang results</li>
+<li><strong>Paano natin ito pananatilihin?</strong> — i-sustain ang improvements</li>
+</ul>
+<h3 style="margin-top:14px;color:#0369a1;">CSI (Continual Service Improvement)</h3>
+<p>Ang CSI ay ang practice na nakatutok sa regular na pagsusuri at pagpapabuti ng IT services at processes. Gumagamit ito ng metrics at KPIs para sukatin ang tagumpay.</p></div>`,
+    quiz:[
+      {q:'Ilan ang hakbang sa Continual Improvement Model?',o:['Lima','Anim','Pito','Walo'],a:2},
+      {q:'Ano ang unang hakbang sa improvement model?',o:['Gawin ito','Ano ang vision?','Nasaan tayo ngayon?','Saan natin gusto pumunta?'],a:1},
+      {q:'Ano ang tawag sa practice ng regular na pagpapabuti?',o:['ITIL','CSI','SVS','KPI'],a:1},
+      {q:'Ano ang gamit ng metrics at KPIs sa continual improvement?',o:['Mag-send ng reports','Sukatin ang tagumpay','Mag-approve ng budget','Mag-hire ng staff'],a:1},
+      {q:'Ang continual improvement ay isang ___?',o:['Proyekto','Patuloy na practice','Department','Tool'],a:1}
+    ]
+  }
+];
+
+// ============================================================
+// SCENARIOS
+// ============================================================
+const scenarios = [
+  {id:'is1',title:'Major Incident Response',desc:'Isang kritikal na system (Email Server) ang down. Kailangan mong i-manage ang incident mula detection hanggang resolution at i-document ang workaround.',steps:[
+    'Buksan ang Incidents section at gumawa ng bagong incident ticket',
+    'I-set ang priority sa Critical at category sa Server',
+    'I-assign ang incident sa tamang support group',
+    'I-document ang initial diagnosis at workaround',
+    'I-resolve ang incident at i-update ang ticket status'
+  ],done:false,icon:'ti ti-alert-triangle'},
+  {id:'is2',title:'Emergency Change Implementation',desc:'May critical security vulnerability na kailangan i-patch agad. Ito ay isang emergency change na dapat dumaan sa tamang process.',steps:[
+    'Pumunta sa Changes section at gumawa ng change request',
+    'I-set ang type sa Emergency at magbigay ng justification',
+    'I-identify ang risk assessment at rollback plan',
+    'I-approve ang emergency change',
+    'Magsagawa ng post-implementation review'
+  ],done:false,icon:'ti ti-settings-cog'},
+  {id:'is3',title:'Root Cause Analysis',desc:'Paulit-ulit na nagre-report ng network connectivity issues ang users. Kailangan mong magsagawa ng problem management at alamin ang root cause.',steps:[
+    'Gumawa ng problem record sa Problems section',
+    'I-link ang related incidents sa problem record',
+    'Magsagawa ng initial diagnosis at mag-hypothesis',
+    'I-identify ang root cause at documented solution',
+    'I-close ang problem at i-update ang known error database'
+  ],done:false,icon:'ti ti-search'},
+  {id:'is4',title:'Service Catalog & SLA Review',desc:'Kailangan mong i-review at i-update ang service catalog at mag-set ng bagong SLA targets para sa susunod na quarter.',steps:[
+    'Pumunta sa Services section at i-review ang current services',
+    'Magdagdag ng bagong service sa catalog',
+    'I-update ang SLA targets para sa response at resolution times',
+    'I-configure ang auto-assign rules para sa bagong service',
+    'Gumawa ng report ng updated service catalog'
+  ],done:false,icon:'ti ti-box'}
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentPage = 'dashboard';
+let prog = getProgress();
+let data = getData();
+
+function switchPage(page) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===page));
+  currentPage=page;
+  renderPage(page);
+}
+function renderPage(page) {
+  const mc = document.getElementById('mainContent');
+  const titles = {dashboard:'Dashboard',incidents:'Incidents',changes:'Changes',problems:'Problems',services:'Services',reports:'Reports',training:'Mga Aralin',scenarios:'Scenarios',activity:'Activity Log'};
+  document.getElementById('topbarTitle').textContent=titles[page]||'';
+  const r = {dashboard:renderDashboard,incidents:renderIncidents,changes:renderChanges,problems:renderProblems,services:renderServices,reports:renderReports,training:renderTraining,scenarios:renderScenarios,activity:renderActivity};
+  if(r[page]){mc.innerHTML='<div class="panel active">'+r[page]()+'</div>';}
+  updateCounts();
+}
+function updateCounts() {
+  document.getElementById('incidentCount').textContent=data.incidents.length;
+  const p=getProgress();const tot=modules.length*3+scenarios.length*3;let done=0;
+  modules.forEach(m=>{if(p.modules[m.id])done+=3;else if(p.quizzes[m.id])done+=2;else if(p.quizzes[m.id+'half'])done+=1});
+  scenarios.forEach(s=>{if(p.scenarios[s.id])done+=3});
+  const pc=tot?Math.round(done/tot*100):0;
+  document.getElementById('trainingBadge').textContent=pc+'%';
+}
+
+// ============================================================
+// RENDER: DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const p=getProgress();const d=getData();
+  const modDone=modules.filter(m=>p.modules[m.id]).length;
+  const quizDone=modules.filter(m=>p.quizzes[m.id]).length;
+  const scDone=scenarios.filter(s=>p.scenarios[s.id]).length;
+  const openInc=d.incidents.filter(i=>i.status!=='Resolved'&&i.status!=='Closed').length;
+  return `
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub">ITIL 4 Fundamentals Training — ${ORG}</p>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon ti ti-alert-triangle" style="position:absolute;top:16px;right:16px;font-size:24px;color:#e0e4e8"></div><div class="stat-label">Open Incidents</div><div class="stat-val">${openInc}</div><div class="stat-change">${d.incidents.length} total</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-settings-cog" style="position:absolute;top:16px;right:16px;font-size:24px;color:#e0e4e8"></div><div class="stat-label">Changes</div><div class="stat-val">${d.changes.length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-book" style="position:absolute;top:16px;right:16px;font-size:24px;color:#e0e4e8"></div><div class="stat-label">Modules Done</div><div class="stat-val">${modDone}/${modules.length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-certificate" style="position:absolute;top:16px;right:16px;font-size:24px;color:#e0e4e8"></div><div class="stat-label">Quizzes Passed</div><div class="stat-val">${quizDone}/${modules.length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-flask" style="position:absolute;top:16px;right:16px;font-size:24px;color:#e0e4e8"></div><div class="stat-label">Scenarios Done</div><div class="stat-val">${scDone}/${scenarios.length}</div></div>
+      <div class="stat-card"><div class="stat-icon ti ti-activity" style="position:absolute;top:16px;right:16px;font-size:24px;color:#e0e4e8"></div><div class="stat-label">Progress</div><div class="stat-val">${document.getElementById('trainingBadge').textContent}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Quick Actions</span></div>
+      <div style="padding:16px 20px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="openCreateIncidentModal()"><i class="ti ti-alert-triangle"></i> Log Incident</button>
+        <button class="btn" onclick="openCreateChangeModal()"><i class="ti ti-settings-cog"></i> New Change</button>
+        <button class="btn" onclick="switchPage('training')"><i class="ti ti-book"></i> Magsimulang Mag-aral</button>
+        <button class="btn" onclick="switchPage('scenarios')"><i class="ti ti-flask"></i> Scenarios</button>
+      </div>
+    </div>
+    <div class="alert alert-info"><i class="ti ti-info-circle"></i> <strong>Maligayang pagdating sa ITIL 4 Fundamentals!</strong> Alamin ang ITIL framework sa pamamagitan ng modules, quizzes, at realistic scenarios.</div>
+  `;
+}
+
+// ============================================================
+// RENDER: INCIDENTS
+// ============================================================
+function renderIncidents() {
+  const d=getData();
+  if(!d.incidents.length)return `<h1 class="page-title">Incidents</h1><p class="page-sub">Manage at mag-troubleshoot ng IT incidents</p><div class="action-bar"><button class="btn btn-primary btn-sm" onclick="openCreateIncidentModal()"><i class="ti ti-plus"></i> Log Incident</button></div><div class="alert alert-info">Wala pang incidents. Mag-log ng unang incident para magsimula.</div>`;
+  let h=`<h1 class="page-title">Incidents</h1><p class="page-sub">Manage at mag-troubleshoot ng IT incidents</p><div class="action-bar"><button class="btn btn-primary btn-sm" onclick="openCreateIncidentModal()"><i class="ti ti-plus"></i> Log Incident</button></div><table class="table"><thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th><th>Category</th><th>Actions</th></tr></thead><tbody>`;
+  d.incidents.forEach((inc,i)=>{
+    const prCls=inc.priority==='Critical'?'badge-red':inc.priority==='High'?'badge-amber':'badge-blue';
+    const stCls=inc.status==='Resolved'||inc.status==='Closed'?'badge-green':inc.status==='In Progress'?'badge-amber':'badge-blue';
+    h+=`<tr><td>#${1000+i}</td><td>${inc.title}</td><td><span class="badge ${prCls}">${inc.priority}</span></td><td><span class="badge ${stCls}">${inc.status}</span></td><td>${inc.category||'—'}</td><td>
+      <button class="btn btn-sm btn-success" onclick="resolveIncident(${i})" ${inc.status==='Resolved'||inc.status==='Closed'?'disabled':''}><i class="ti ti-check"></i> Resolve</button>
+      <button class="btn btn-sm btn-outline" style="color:#c5221f;border-color:#c5221f" onclick="deleteIncident(${i})"><i class="ti ti-trash"></i></button>
+    </td></tr>`;
+  });
+  h+=`</tbody></table>`;
+  return h;
+}
+function resolveIncident(idx) {
+  const d=getData();d.incidents[idx].status='Resolved';d.incidents[idx].resolvedAt=ts();saveData(d);
+  addActivity('Na-resolve ang incident: '+d.incidents[idx].title,'done');renderPage('incidents');
+}
+function deleteIncident(idx) {
+  if(!confirm('Delete incident ticket?'))return;
+  const d=getData();addActivity('Na-delete ang incident: '+d.incidents[idx].title,'warn');d.incidents.splice(idx,1);saveData(d);renderPage('incidents');
+}
+
+// ============================================================
+// RENDER: CHANGES
+// ============================================================
+function renderChanges() {
+  const d=getData();
+  if(!d.changes.length)return `<h1 class="page-title">Changes</h1><p class="page-sub">Manage change requests at deployments</p><div class="action-bar"><button class="btn btn-primary btn-sm" onclick="openCreateChangeModal()"><i class="ti ti-plus"></i> New Change</button></div><div class="alert alert-info">Wala pang change requests. Gumawa ng unang change request.</div>`;
+  let h=`<h1 class="page-title">Changes</h1><p class="page-sub">Manage change requests at deployments</p><div class="action-bar"><button class="btn btn-primary btn-sm" onclick="openCreateChangeModal()"><i class="ti ti-plus"></i> New Change</button></div><table class="table"><thead><tr><th>ID</th><th>Title</th><th>Type</th><th>Status</th><th>Risk</th><th>Actions</th></tr></thead><tbody>`;
+  d.changes.forEach((ch,i)=>{
+    const tpCls=ch.type==='Emergency'?'badge-red':ch.type==='Normal'?'badge-amber':'badge-green';
+    const stCls=ch.status==='Approved'||ch.status==='Implemented'?'badge-green':ch.status==='Pending'?'badge-amber':'badge-blue';
+    h+=`<tr><td>#${2000+i}</td><td>${ch.title}</td><td><span class="badge ${tpCls}">${ch.type}</span></td><td><span class="badge ${stCls}">${ch.status}</span></td><td>${ch.risk||'—'}</td><td>
+      <button class="btn btn-sm btn-success" onclick="approveChange(${i})" ${ch.status!=='Pending'?'disabled':''}><i class="ti ti-thumb-up"></i> Approve</button>
+      <button class="btn btn-sm btn-outline" onclick="implementChange(${i})" ${ch.status!=='Approved'?'disabled':''}><i class="ti ti-check"></i> Implement</button>
+      <button class="btn btn-sm btn-outline" style="color:#c5221f;border-color:#c5221f" onclick="deleteChange(${i})"><i class="ti ti-trash"></i></button>
+    </td></tr>`;
+  });
+  h+=`</tbody></table>`;
+  return h;
+}
+function approveChange(idx) {
+  const d=getData();d.changes[idx].status='Approved';d.changes[idx].approvedAt=ts();saveData(d);
+  addActivity('Inaprubahan ang change: '+d.changes[idx].title,'done');renderPage('changes');
+}
+function implementChange(idx) {
+  const d=getData();d.changes[idx].status='Implemented';d.changes[idx].implementedAt=ts();saveData(d);
+  addActivity('Na-implement ang change: '+d.changes[idx].title,'done');renderPage('changes');
+}
+function deleteChange(idx) {
+  if(!confirm('Delete change request?'))return;
+  const d=getData();addActivity('Na-delete ang change: '+d.changes[idx].title,'warn');d.changes.splice(idx,1);saveData(d);renderPage('changes');
+}
+
+// ============================================================
+// RENDER: PROBLEMS
+// ============================================================
+function renderProblems() {
+  const d=getData();
+  if(!d.problems.length)return `<h1 class="page-title">Problems</h1><p class="page-sub">Root cause analysis at known error management</p><div class="action-bar"><button class="btn btn-primary btn-sm" onclick="openCreateProblemModal()"><i class="ti ti-plus"></i> New Problem</button></div><div class="alert alert-info">Wala pang problem records. Gumawa ng problem para mag-root cause analysis.</div>`;
+  let h=`<h1 class="page-title">Problems</h1><p class="page-sub">Root cause analysis at known error management</p><div class="action-bar"><button class="btn btn-primary btn-sm" onclick="openCreateProblemModal()"><i class="ti ti-plus"></i> New Problem</button></div><table class="table"><thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Root Cause</th><th>Actions</th></tr></thead><tbody>`;
+  d.problems.forEach((pr,i)=>{
+    const stCls=pr.status==='Closed'?'badge-green':pr.status==='Known Error'?'badge-amber':'badge-blue';
+    h+=`<tr><td>#${3000+i}</td><td>${pr.title}</td><td><span class="badge ${stCls}">${pr.status}</span></td><td>${pr.rootCause||'Under investigation'}</td><td>
+      <button class="btn btn-sm btn-success" onclick="closeProblem(${i})" ${pr.status==='Closed'?'disabled':''}><i class="ti ti-check"></i> Close</button>
+      <button class="btn btn-sm btn-outline" style="color:#c5221f;border-color:#c5221f" onclick="deleteProblem(${i})"><i class="ti ti-trash"></i></button>
+    </td></tr>`;
+  });
+  h+=`</tbody></table>`;
+  return h;
+}
+function closeProblem(idx) {
+  const d=getData();d.problems[idx].status='Closed';d.problems[idx].closedAt=ts();saveData(d);
+  addActivity('Na-close ang problem: '+d.problems[idx].title,'done');renderPage('problems');
+}
+function deleteProblem(idx) {
+  if(!confirm('Delete problem record?'))return;
+  const d=getData();addActivity('Na-delete ang problem: '+d.problems[idx].title,'warn');d.problems.splice(idx,1);saveData(d);renderPage('problems');
+}
+
+// ============================================================
+// RENDER: SERVICES
+// ============================================================
+function renderServices() {
+  const d=getData();const s=d.settings||{};
+  const svcs=d.services.length?d.services:[
+    {name:'Email Service',desc:'Corporate email at calendaring',sla:'4h response / 8h resolution',status:'Operational'},
+    {name:'File Storage',desc:'Network drives at file sharing',sla:'2h response / 6h resolution',status:'Operational'},
+    {name:'VPN Access',desc:'Remote access service',sla:'1h response / 4h resolution',status:'Operational'}
+  ];
+  if(!d.services.length){d.services=svcs;saveData(d);}
+  let h=`<h1 class="page-title">Services</h1><p class="page-sub">Service catalog at SLA management para sa ${ORG}</p>
+  <div class="card"><div class="card-header"><span class="card-title">Service Catalog</span></div>
+  <div style="padding:8px 20px"><table class="table"><thead><tr><th>Service</th><th>Description</th><th>SLA Target</th><th>Status</th></tr></thead><tbody>`;
+  (d.services||[]).forEach(sv=>{
+    const stCls=sv.status==='Operational'?'badge-green':sv.status==='Degraded'?'badge-amber':'badge-red';
+    h+=`<tr><td><strong>${sv.name}</strong></td><td>${sv.desc}</td><td>${sv.sla}</td><td><span class="badge ${stCls}">${sv.status}</span></td></tr>`;
+  });
+  h+=`</tbody></table></div></div>
+  <div class="card"><div class="card-header"><span class="card-title">SLA Settings</span></div>
+  <div style="padding:16px 20px">
+    <div class="form-group"><label>SLA Warning Threshold (hours)</label><input type="number" id="slaWarn" value="${s.sla_warning||4}" min="1" max="72"></div>
+    <div class="form-group"><label>SLA Critical Threshold (hours)</label><input type="number" id="slaCrit" value="${s.sla_critical||8}" min="1" max="72"></div>
+    <div class="toggle-row"><div><div class="toggle-label">Auto-Assign Incidents</div><div class="toggle-desc">Awtomatikong mag-assign ng incidents sa available team member</div></div><label class="switch"><input type="checkbox" ${s.auto_assign?'checked':''} onchange="toggleSetting('auto_assign',this.checked)"><span class="slider"></span></label></div>
+    <div class="toggle-row"><div><div class="toggle-label">Auto-Escalation</div><div class="toggle-desc">I-escalate ang incidents kapag lumampas sa SLA</div></div><label class="switch"><input type="checkbox" ${s.escalation?'checked':''} onchange="toggleSetting('escalation',this.checked)"><span class="slider"></span></label></div>
+    <button class="btn btn-primary" style="margin-top:12px" onclick="saveSlaSettings()"><i class="ti ti-device-floppy"></i> I-save ang SLA Settings</button>
+  </div></div>`;
+  return h;
+}
+function toggleSetting(k,v){const d=getData();d.settings[k]=v;saveData(d);addActivity((v?'Enabled ':'Disabled ')+k,'warn')}
+function saveSlaSettings(){
+  const d=getData();const s=d.settings;
+  s.sla_warning=parseInt(document.getElementById('slaWarn').value)||4;
+  s.sla_critical=parseInt(document.getElementById('slaCrit').value)||8;
+  saveData(d);addActivity('SLA settings updated: warning='+s.sla_warning+'h, critical='+s.sla_critical+'h');alert('Na-save ang SLA settings!');
+}
+
+// ============================================================
+// RENDER: REPORTS
+// ============================================================
+function renderReports() {
+  const d=getData();const ac=getActivity();
+  let h=`<h1 class="page-title">Reports</h1><p class="page-sub">ITIL reports at performance monitoring para sa ${ORG}</p>
+  <div class="two-col">
+    <div class="card"><div class="card-header"><span class="card-title">Incident Summary</span></div><div style="padding:16px 20px">
+      <div class="stat-label">Total Incidents</div><div class="stat-val" style="font-size:22px">${d.incidents.length}</div>
+      <div style="margin-top:10px"><span class="badge badge-green">${d.incidents.filter(i=>i.status==='Resolved'||i.status==='Closed').length} Resolved</span> <span class="badge badge-amber">${d.incidents.filter(i=>i.status==='In Progress').length} In Progress</span> <span class="badge badge-blue">${d.incidents.filter(i=>i.status==='Open').length} Open</span></div>
+    </div></div>
+    <div class="card"><div class="card-header"><span class="card-title">Change Summary</span></div><div style="padding:16px 20px">
+      <div class="stat-label">Total Changes</div><div class="stat-val" style="font-size:22px">${d.changes.length}</div>
+      <div style="margin-top:10px"><span class="badge badge-green">${d.changes.filter(c=>c.status==='Implemented').length} Implemented</span> <span class="badge badge-amber">${d.changes.filter(c=>c.status==='Approved').length} Approved</span> <span class="badge badge-blue">${d.changes.filter(c=>c.status==='Pending').length} Pending</span></div>
+    </div></div>
+  </div>
+  <div class="card"><div class="card-header"><span class="card-title">Activity Log (${ac.length} entries)</span></div><div style="padding:8px 20px;max-height:400px;overflow-y:auto">`;
+  if(!ac.length){h+=`<div class="alert alert-info">Wala pang activity na na-log.</div>`;}
+  else{ac.forEach(a=>{h+=`<div class="activity-item"><i class="ti ${a.type==='done'?'ti-check-circle activity-icon done':a.type==='warn'?'ti-alert-triangle activity-icon warn':'ti-info-circle activity-icon info'}"></i><span>${a.msg}</span><span class="activity-time">${new Date(a.time).toLocaleString('fil-PH')}</span></div>`});}
+  h+=`</div></div>`;
+  return h;
+}
+
+// ============================================================
+// RENDER: TRAINING
+// ============================================================
+function renderTraining() {
+  const p=getProgress();
+  let h=`<h1 class="page-title">Mga Aralin</h1><p class="page-sub">${modules.length} modules na may lessons, quizzes, at progress tracking</p>`;
+  modules.forEach((m,i)=>{
+    const done=p.modules[m.id];const quizDone=p.quizzes[m.id];const started=p.quizzes[m.id+'half'];
+    const status=done?'completed':quizDone?'quiz-done':started?'started':'pending';
+    let stLabel='<span class="badge badge-amber">Not Started</span>';
+    if(done)stLabel='<span class="badge badge-green">Completed</span>';
+    else if(quizDone)stLabel='<span class="badge badge-cyan">Quiz Passed</span>';
+    else if(started)stLabel='<span class="badge badge-amber">In Progress</span>';
+    h+=`<div class="card" style="opacity:${done||i===0||p.quizzes[modules[i-1]?.id]?1:0.5};cursor:${done||i===0||p.quizzes[modules[i-1]?.id]?'pointer':'not-allowed'}">
+      <div class="card-header"><span class="card-title">Module ${i+1}: ${m.title}</span> ${stLabel}</div>
+      <div style="padding:16px 20px">
+        <div class="learn-content" id="learn_${m.id}">${m.content}</div>
+        <div id="quizArea_${m.id}"></div>
+        ${!done?`<button class="btn btn-primary" onclick="startQuiz('${m.id}')" id="quizBtn_${m.id}" ${(i>0&&!p.quizzes[modules[i-1]?.id])?'disabled':''}><i class="ti ti-edit"></i> ${p.quizzes[m.id]?'Retake Quiz':'Take Quiz'}</button>`:''}
+        ${done?`<span style="color:#188038;font-weight:500"><i class="ti ti-check-circle"></i> Module Completed!</span>`:''}
+      </div>
+    </div>`;
+  });
+  const tot=modules.length*3;let done=0;
+  modules.forEach(m=>{if(p.modules[m.id])done+=3;else if(p.quizzes[m.id])done+=2;else if(p.quizzes[m.id+'half'])done+=1});
+  const pc=tot?Math.round(done/tot*100):0;
+  h+=`<div class="card"><div class="card-header"><span class="card-title">Overall Progress</span><span>${pc}%</span></div><div style="padding:10px 20px"><div class="progress-bar"><div class="progress-fill" style="width:${pc}%"></div></div></div></div>`;
+  return h;
+}
+
+// ============================================================
+// QUIZ ENGINE
+// ============================================================
+function startQuiz(modId) {
+  const m=modules.find(x=>x.id===modId);if(!m)return;
+  const area=document.getElementById('quizArea_'+modId);
+  const btn=document.getElementById('quizBtn_'+modId);
+  if(btn)btn.style.display='none';
+  let h=`<div class="card"><div class="card-header"><span class="card-title">Quiz: ${m.title}</span></div><div style="padding:16px 20px" id="quizBody_${modId}"><p style="margin-bottom:12px;color:#5f6b7a">Sagutan ang mga tanong. Kailangan ng ${Math.ceil(m.quiz.length*0.7)}/${m.quiz.length} para pumasa.</p>`;
+  m.quiz.forEach((q,qi)=>{
+    h+=`<div style="margin-bottom:16px" id="qq_${modId}_${qi}"><div class="quiz-question">${qi+1}. ${q.q}</div>`;
+    q.o.forEach((opt,oi)=>{
+      h+=`<button class="quiz-option" onclick="selectQuizOption('${modId}',${qi},${oi})" id="qo_${modId}_${qi}_${oi}">${opt}</button>`;
+    });
+    h+=`</div>`;
+  });
+  h+=`<button class="btn btn-primary" onclick="submitQuiz('${modId}')"><i class="ti ti-send"></i> I-submit ang Quiz</button><div id="quizResult_${modId}"></div></div></div>`;
+  area.innerHTML=h;
+  window._quizSelections=window._quizSelections||{};window._quizSelections[modId]=[];
+  const p=getProgress();if(!p.quizzes[modId+'half']){p.quizzes[modId+'half']=true;saveProgress(p);updateCounts();}
+}
+function selectQuizOption(modId,qi,oi) {
+  window._quizSelections=window._quizSelections||{};if(!window._quizSelections[modId])window._quizSelections[modId]=[];
+  window._quizSelections[modId][qi]=oi;
+  document.querySelectorAll('#qq_'+modId+'_'+qi+' .quiz-option').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('qo_'+modId+'_'+qi+'_'+oi).classList.add('selected');
+}
+function submitQuiz(modId) {
+  const m=modules.find(x=>x.id===modId);if(!m)return;
+  const sel=window._quizSelections?.[modId]||[];
+  let correct=0;
+  m.quiz.forEach((q,qi)=>{
+    const chosen=sel[qi];
+    document.querySelectorAll('#qq_'+modId+'_'+qi+' .quiz-option').forEach((el,oi)=>{
+      el.classList.remove('selected','correct','wrong');el.disabled=true;
+      if(oi===q.a)el.classList.add('correct');
+      else if(oi===chosen)el.classList.add('wrong');
+    });
+    if(chosen===q.a)correct++;
+  });
+  const pass=correct>=Math.ceil(m.quiz.length*0.7);const p=getProgress();
+  if(pass){p.quizzes[modId]=true;saveProgress(p);addActivity('Pumasa sa quiz: '+m.title,'done');}
+  else{addActivity('Bagsak sa quiz: '+m.title+'. '+correct+'/'+m.quiz.length,'warn');}
+  document.getElementById('quizResult_'+modId).innerHTML=`<div class="quiz-result ${pass?'pass':'fail'}">${pass?'Passed!':'Bagsak. Kailangan ng '+(Math.ceil(m.quiz.length*0.7))+'/'+m.quiz.length+'. I-retry ang quiz.'} ${correct}/${m.quiz.length} tamang sagot.</div>`;
+  if(pass){setTimeout(()=>{markModuleDone(modId);renderPage('training');},1500);}
+  updateCounts();
+}
+function markModuleDone(modId) {
+  const p=getProgress();p.modules[modId]=true;saveProgress(p);addActivity('Natapos ang module: '+modules.find(m=>m.id===modId)?.title,'done');
+}
+
+// ============================================================
+// RENDER: SCENARIOS
+// ============================================================
+function renderScenarios() {
+  const p=getProgress();
+  let h=`<h1 class="page-title">Scenarios</h1><p class="page-sub">Hands-on practice gamit ang realistic ITIL scenarios</p>`;
+  scenarios.forEach(s=>{
+    const done=p.scenarios[s.id];
+    h+=`<div class="scenario-card" onclick="toggleScenario('${s.id}')">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <i class="${s.icon}" style="font-size:24px;color:#00bceb;margin-top:2px"></i>
+        <div style="flex:1">
+          <h4>${s.title} ${done?'<span class="badge badge-green">Done</span>':''}</h4>
+          <p>${s.desc}</p>
+        </div>
+      </div>
+      <div class="scenario-detail" id="scDetail_${s.id}">
+        <hr class="itil-hr">
+        <ol style="margin:0 0 12px 16px;font-size:13px;color:#1a2332;line-height:2">${s.steps.map(st=>`<li>${st}</li>`).join('')}</ol>
+        <button class="btn ${done?'btn-outline':'btn-success'}" onclick="event.stopPropagation();completeScenario('${s.id}')">${done?'<i class="ti ti-refresh"></i> Redo':'<i class="ti ti-check"></i> Mark Complete'}</button>
+      </div>
+    </div>`;
+  });
+  return h;
+}
+function toggleScenario(id) {
+  const el=document.getElementById('scDetail_'+id);
+  if(el){el.classList.toggle('open');if(!el.classList.contains('open'))el.style.display='none';else el.style.display='block';}
+}
+function completeScenario(id) {
+  const p=getProgress();const s=scenarios.find(x=>x.id===id);
+  if(p.scenarios[id]){delete p.scenarios[id];addActivity('Unmarked scenario: '+s.title);}
+  else{p.scenarios[id]=true;addActivity('Natapos ang scenario: '+s.title,'done');}
+  saveProgress(p);renderPage('scenarios');updateCounts();
+}
+
+// ============================================================
+// RENDER: ACTIVITY
+// ============================================================
+function renderActivity() {
+  const ac=getActivity();
+  let h=`<h1 class="page-title">Activity Log</h1><p class="page-sub">Record ng lahat ng actions na ginawa mo sa simulation</p><div class="card"><div style="padding:8px 20px;max-height:500px;overflow-y:auto">`;
+  if(!ac.length){h+=`<div class="alert alert-info">Wala pang activity. Magsimulang mag-practice ng ITIL processes!</div>`;}
+  else{ac.forEach(a=>{h+=`<div class="activity-item"><i class="ti ${a.type==='done'?'ti-check-circle activity-icon done':a.type==='warn'?'ti-alert-triangle activity-icon warn':'ti-info-circle activity-icon info'}"></i><span>${a.msg}</span><span class="activity-time">${new Date(a.time).toLocaleString('fil-PH')}</span></div>`});}
+  h+=`</div></div><button class="btn btn-outline" onclick="if(confirm('I-clear ang activity log?')){saveActivity([]);renderPage('activity');}"><i class="ti ti-trash"></i> Clear Log</button>`;
+  return h;
+}
+
+// ============================================================
+// MODALS
+// ============================================================
+function openModal(html) {
+  document.getElementById('modalBox').innerHTML=html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() {document.getElementById('modalOverlay').classList.remove('open');}
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// ---- Create Incident Modal ----
+function openCreateIncidentModal() {
+  openModal(`
+    <div class="modal-title"><i class="ti ti-alert-triangle" style="color:#c5221f"></i> Log Incident</div>
+    <div class="form-group"><label>Title</label><input id="incTitle" placeholder="e.g. Email server is down"></div>
+    <div class="form-group"><label>Description</label><input id="incDesc" placeholder="Describe the incident"></div>
+    <div class="form-group"><label>Priority</label><select id="incPriority"><option value="Low">Low</option><option value="Medium">Medium</option><option value="High">High</option><option value="Critical">Critical</option></select></div>
+    <div class="form-group"><label>Category</label><select id="incCategory"><option value="Server">Server</option><option value="Network">Network</option><option value="Application">Application</option><option value="Email">Email</option><option value="Security">Security</option></select></div>
+    <div class="form-group"><label>Assigned To</label><select id="incAssign"><option value="L1 Support">L1 Support</option><option value="L2 Support">L2 Support</option><option value="L3 Support">L3 Support</option><option value="Security Team">Security Team</option></select></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="createIncident()"><i class="ti ti-device-floppy"></i> Create</button>
+    </div>
+  `);
+}
+function createIncident() {
+  const title=document.getElementById('incTitle').value.trim();const desc=document.getElementById('incDesc').value.trim();
+  const priority=document.getElementById('incPriority').value;const category=document.getElementById('incCategory').value;
+  const assign=document.getElementById('incAssign').value;
+  if(!title){alert('Please enter an incident title.');return;}
+  const d=getData();d.incidents.push({title,desc,priority,category,assign,status:'Open',createdAt:ts()});saveData(d);
+  addActivity('Nag-log ng incident: '+title+' ['+priority+']','warn');closeModal();renderPage('incidents');
+}
+
+// ---- Create Change Modal ----
+function openCreateChangeModal() {
+  openModal(`
+    <div class="modal-title"><i class="ti ti-settings-cog" style="color:#0369a1"></i> New Change Request</div>
+    <div class="form-group"><label>Title</label><input id="chTitle" placeholder="e.g. Deploy security patch"></div>
+    <div class="form-group"><label>Description</label><input id="chDesc" placeholder="Describe the change"></div>
+    <div class="form-group"><label>Change Type</label><select id="chType"><option value="Standard">Standard</option><option value="Normal">Normal</option><option value="Emergency">Emergency</option></select></div>
+    <div class="form-group"><label>Risk Level</label><select id="chRisk"><option value="Low">Low</option><option value="Medium">Medium</option><option value="High">High</option></select></div>
+    <div class="form-group"><label>Rollback Plan</label><input id="chRollback" placeholder="e.g. Restore from backup"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="createChange()"><i class="ti ti-device-floppy"></i> Submit</button>
+    </div>
+  `);
+}
+function createChange() {
+  const title=document.getElementById('chTitle').value.trim();const desc=document.getElementById('chDesc').value.trim();
+  const type=document.getElementById('chType').value;const risk=document.getElementById('chRisk').value;
+  const rollback=document.getElementById('chRollback').value.trim();
+  if(!title){alert('Please enter a change title.');return;}
+  const d=getData();d.changes.push({title,desc,type,risk,rollback,status:'Pending',createdAt:ts()});saveData(d);
+  addActivity('Gumawa ng change request: '+title+' ['+type+']');closeModal();renderPage('changes');
+}
+
+// ---- Create Problem Modal ----
+function openCreateProblemModal() {
+  openModal(`
+    <div class="modal-title"><i class="ti ti-search" style="color:#9334e6"></i> New Problem Record</div>
+    <div class="form-group"><label>Title</label><input id="prTitle" placeholder="e.g. Recurring network disconnects"></div>
+    <div class="form-group"><label>Description</label><input id="prDesc" placeholder="Describe the problem"></div>
+    <div class="form-group"><label>Symptoms</label><input id="prSymptoms" placeholder="e.g. Users losing connectivity every 2 hours"></div>
+    <div class="form-group"><label>Status</label><select id="prStatus"><option value="Under Investigation">Under Investigation</option><option value="Known Error">Known Error</option></select></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="createProblem()"><i class="ti ti-device-floppy"></i> Create</button>
+    </div>
+  `);
+}
+function createProblem() {
+  const title=document.getElementById('prTitle').value.trim();const desc=document.getElementById('prDesc').value.trim();
+  const symptoms=document.getElementById('prSymptoms').value.trim();const status=document.getElementById('prStatus').value;
+  if(!title){alert('Please enter a problem title.');return;}
+  const d=getData();d.problems.push({title,desc,symptoms,status,rootCause:'',createdAt:ts()});saveData(d);
+  addActivity('Gumawa ng problem record: '+title);closeModal();renderPage('problems');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.querySelectorAll('.nav-item').forEach(el=>{
+  el.addEventListener('click',function(){switchPage(this.dataset.page);});
+});
+renderPage('dashboard');
+</script>
+<div style="text-align:center;padding:12px 24px;font-size:11px;color:#8896a6;border-top:1px solid #e0e4e8;background:#f8f9fa;">Disclaimer: Independent training simulation for educational purposes. Not affiliated with, endorsed by, or associated with AXELOS or the copyright holders of ITIL. ITIL is a registered trademark of AXELOS Limited.</div>
+<script>
+(function(){function p(e){e.preventDefault()}document.addEventListener('contextmenu',p);document.addEventListener('keydown',function(e){if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(e.key.toLowerCase()))||(e.ctrlKey&&['u','c','x'].includes(e.key.toLowerCase()))){e.preventDefault();return false}});document.addEventListener('copy',p);document.addEventListener('cut',p)})();
+</script>
+</body>
+</html>
