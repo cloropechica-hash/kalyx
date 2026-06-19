@@ -704,13 +704,18 @@ function fbSyncLocalToFirestore() {
   if (!username) return;
 
   var data = {};
-  var typeKeys = ['tasks', 'shared_tasks', 'plans', 'milestones', 'dailylog', 'trips'];
-  typeKeys.forEach(function(k) {
+  var allKeys = [
+    'tasks', 'shared_tasks', 'plans', 'milestones', 'dailylog', 'trips',
+    'expenses', 'notifications', 'scratchpad', 'notes',
+    'welcome', 'tutorial', 'avatar', 'it_tickets_public'
+  ];
+  allKeys.forEach(function(k) {
     try {
       var v = JSON.parse(localStorage.getItem(k + '_' + username));
       if (v !== null && v !== undefined) data[k] = v;
     } catch(e) {}
   });
+  // it_ prefixed types
   var itTypes = ['assets', 'services', 'maintenance', 'inventory', 'task', 'planner', 'accomplishments', 'tickets', 'systems', 'knowledge', 'timetrack', 'auditlog'];
   itTypes.forEach(function(t) {
     try {
