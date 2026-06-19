@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 tailwind.config = {
   darkMode: "class",
@@ -223,11 +224,12 @@ button, input, select, textarea { min-width: 0; }
     </div>
   </div>
   <div class="flex items-center gap-2">
+    <button id="langToggle" class="text-xs font-bold text-on-surface-variant hover:bg-surface-container-high w-9 h-9 rounded-xl transition-all" onclick="toggleLang()" title="Toggle language">TL</button>
     <button id="themeToggle" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="toggleTheme()" title="Toggle theme">dark_mode</button>
     <button id="tripNotificationBtn" class="relative material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90 no-print" onclick="showTripNotifications()" title="Upcoming trips">notifications<span id="tripNotificationCount" class="hidden absolute -top-1 -right-1 h-5 w-5 rounded-full bg-amber-500 text-[11px] text-white flex items-center justify-center font-semibold"></span></button>
+    <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all no-print" onclick="exportAllData()" title="Export all data">file_download</button>
     <a class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90 no-print" href="#" onclick="goTo('guide/')">help</a>
     <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90 no-print" onclick="window.print()" title="Print report">print</button>
-    <a class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90 no-print" href="#" title="Export PDF" onclick="window.print(); return false;">picture_as_pdf</a>
     <div class="relative">
       <button id="userBtn" class="h-9 w-9 rounded-xl overflow-hidden border border-outline-variant bg-primary text-on-primary flex items-center justify-center font-bold text-sm hover:opacity-80 transition-all active:scale-90 ring-2 ring-transparent hover:ring-primary/20" onclick="toggleUserMenu()"></button>
       <div id="userMenu" class="hidden absolute right-0 top-12 w-56 bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl p-2 z-50">
@@ -293,24 +295,16 @@ button, input, select, textarea { min-width: 0; }
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
 
-  <!-- Monthly Trend Chart -->
-  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift" style="animation-delay:0.1s;">
+  <!-- Monthly Trend Chart (Chart.js) -->
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift lg:col-span-2" style="animation-delay:0.1s;">
     <h3 class="font-title-lg text-title-lg text-primary mb-6">Monthly Trip Trend</h3>
-    <div id="monthlyChart" class="flex items-end justify-between gap-1.5 h-48">
-      <!-- bars injected by JS -->
-    </div>
-    <div class="flex justify-between mt-2 text-on-surface-variant font-label-md" id="monthLabels">
-      <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
-      <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
-    </div>
+    <div class="relative h-64"><canvas id="monthlyChartJs"></canvas></div>
   </div>
 
-  <!-- Status Distribution -->
+  <!-- Status Distribution (Chart.js) -->
   <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift" style="animation-delay:0.15s;">
     <h3 class="font-title-lg text-title-lg text-primary mb-6">Status Distribution</h3>
-    <div id="statusChart" class="space-y-4">
-      <!-- status bars injected by JS -->
-    </div>
+    <div class="relative h-64"><canvas id="statusChartJs"></canvas></div>
   </div>
 
   <!-- Top Destinations -->
@@ -329,12 +323,24 @@ button, input, select, textarea { min-width: 0; }
     </div>
   </div>
 
-  <!-- Requestor Breakdown (admin only) -->
+  <!-- Requestor Breakdown -->
   <div id="requestorSection" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift lg:col-span-2" style="animation-delay:0.3s;">
     <h3 class="font-title-lg text-title-lg text-primary mb-6">Trips by Requestor</h3>
     <div id="requestorList" class="space-y-3">
       <p class="font-body-md text-on-surface-variant">No data</p>
     </div>
+  </div>
+
+  <!-- Expense Summary (Chart.js) - new -->
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift" style="animation-delay:0.35s;">
+    <h3 class="font-title-lg text-title-lg text-primary mb-6">Expense by Category</h3>
+    <div class="relative h-64"><canvas id="expenseChartJs"></canvas></div>
+  </div>
+
+  <!-- IT Asset Summary (Chart.js) - new -->
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift" style="animation-delay:0.4s;">
+    <h3 class="font-title-lg text-title-lg text-primary mb-6">IT Assets by Status</h3>
+    <div class="relative h-64"><canvas id="itAssetChartJs"></canvas></div>
   </div>
 
 </div>
@@ -554,6 +560,35 @@ function getYears(trips) {
   return Object.keys(years).sort().reverse();
 }
 
+var _chartInstances = {};
+
+function destroyCharts() {
+  Object.keys(_chartInstances).forEach(function(k) { try { _chartInstances[k].destroy(); } catch(e) {} });
+  _chartInstances = {};
+}
+
+function renderChart(canvasId, type, labels, datasets, opts) {
+  var canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  if (_chartInstances[canvasId]) _chartInstances[canvasId].destroy();
+  var isDark = document.documentElement.classList.contains('dark');
+  var textColor = isDark ? '#c4c8ce' : '#45474c';
+  var gridColor = isDark ? '#2a3448' : '#e5eeff';
+  opts = opts || {};
+  _chartInstances[canvasId] = new Chart(canvas.getContext('2d'), {
+    type: type,
+    data: { labels: labels, datasets: datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: textColor, font: { family: 'Inter' } } } },
+      scales: type === 'pie' || type === 'doughnut' ? {} : {
+        x: { ticks: { color: textColor }, grid: { color: gridColor } },
+        y: { beginAtZero: true, ticks: { color: textColor }, grid: { color: gridColor } }
+      }
+    }
+  });
+}
+
 function renderReport() {
   var allTrips = getTrips();
   var yearEl = document.getElementById('yearSelect');
@@ -581,35 +616,27 @@ function renderReport() {
   document.getElementById('statCompleted').textContent = completed;
   document.getElementById('statCancelled').textContent = cancelled;
 
-  // Monthly chart
+  destroyCharts();
+
+  // Monthly bar chart (Chart.js)
   var months = Array(12).fill(0);
   trips.forEach(function(t) {
-    if (t.date) {
-      var m = parseInt(t.date.split('-')[1], 10) - 1;
-      if (m >= 0 && m < 12) months[m]++;
-    }
+    if (t.date) { var m = parseInt(t.date.split('-')[1], 10) - 1; if (m >= 0 && m < 12) months[m]++; }
   });
-  var maxVal = Math.max.apply(null, months) || 1;
-  var chart = document.getElementById('monthlyChart');
-  chart.innerHTML = months.map(function(count, i) {
-    var pct = Math.round((count / maxVal) * 100);
-    var h = Math.max(pct, count > 0 ? 4 : 0);
-    var color = count > 0 ? 'bg-gradient-to-t from-[#0D9488] to-[#14B8A6]' : 'bg-surface-container-higher';
-    return '<div class="flex-1 flex flex-col items-center justify-end h-full"><div class="w-full max-w-[32px] rounded-t-md ' + color + ' bar-item" style="height:' + h + '%;min-height:' + (count > 0 ? '4px' : '0') + ';transition:height 0.8s cubic-bezier(0.4,0,0.2,1);" title="' + count + ' trips"></div><span class="font-label-md text-on-surface-variant mt-1">' + count + '</span></div>';
-  }).join('');
+  renderChart('monthlyChartJs', 'bar',
+    ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    [{ label: 'Trips', data: months, backgroundColor: '#0D9488', borderRadius: 4 }],
+    { scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+  );
 
-  // Status distribution
-  var statusData = [
-    { label: 'Active', count: active, color: 'bg-[#6366F1]' },
-    { label: 'Completed', count: completed, color: 'bg-[#0EA5E9]' },
-    { label: 'Cancelled', count: cancelled, color: 'bg-[#F59E0B]' }
-  ];
-  var statusMax = Math.max(active, completed, cancelled, 1);
-  document.getElementById('statusChart').innerHTML = statusData.map(function(s) {
-    var pct = Math.round((s.count / statusMax) * 100);
-    if (s.count === 0) pct = 0;
-    return '<div><div class="flex justify-between mb-1"><span class="font-label-md text-on-surface">' + s.label + '</span><span class="font-label-md text-on-surface-variant">' + s.count + '</span></div><div class="w-full h-2.5 rounded-full bg-surface-container-high overflow-hidden"><div class="h-full rounded-full ' + s.color + ' transition-all duration-700" style="width:' + pct + '%"></div></div></div>';
-  }).join('');
+  // Status pie chart (Chart.js)
+  var statusVals = [active, completed, cancelled];
+  var statusLabels = ['Active', 'Completed', 'Cancelled'];
+  var statusColors = ['#6366F1', '#0EA5E9', '#F59E0B'];
+  renderChart('statusChartJs', 'doughnut',
+    statusLabels,
+    [{ data: statusVals, backgroundColor: statusColors, borderWidth: 0 }]
+  );
 
   // Top destinations
   var destCounts = {};
@@ -674,18 +701,86 @@ function renderReport() {
   }
 }
 
+  // Expense by Category chart
+  var expenses = [];
+  try {
+    var s = window._session;
+    if (s) {
+      var exData = JSON.parse(localStorage.getItem('expenses_' + s.username) || '[]');
+      if (Array.isArray(exData)) expenses = exData;
+    }
+  } catch(e) {}
+  var catCounts = {};
+  expenses.forEach(function(e) {
+    var cat = e.category || 'Other';
+    catCounts[cat] = (catCounts[cat] || 0) + parseFloat(e.amount) || 0;
+  });
+  var catLabels = Object.keys(catCounts);
+  var catValues = catLabels.map(function(k) { return catCounts[k]; });
+  var catColors = ['#0D9488','#6366F1','#0EA5E9','#F59E0B','#EF4444','#8B5CF6','#EC4899','#14B8A6'];
+  if (catLabels.length > 0) {
+    renderChart('expenseChartJs', 'pie',
+      catLabels,
+      [{ data: catValues, backgroundColor: catColors.slice(0, catLabels.length), borderWidth: 0 }]
+    );
+  }
+
+  // IT Asset Status chart
+  var assets = [];
+  try {
+    if (s) {
+      var aData = JSON.parse(localStorage.getItem('it_assets_' + s.username) || '[]');
+      if (Array.isArray(aData)) assets = aData;
+    }
+  } catch(e) {}
+  var asCounts = {};
+  assets.forEach(function(a) {
+    var st = a.status || 'Unknown';
+    asCounts[st] = (asCounts[st] || 0) + 1;
+  });
+  var asLabels = Object.keys(asCounts);
+  var asValues = asLabels.map(function(k) { return asCounts[k]; });
+  var asColors = ['#0D9488','#6366F1','#F59E0B','#EF4444','#8B5CF6','#0EA5E9'];
+  if (asLabels.length > 0) {
+    renderChart('itAssetChartJs', 'doughnut',
+      asLabels,
+      [{ data: asValues, backgroundColor: asColors.slice(0, asLabels.length), borderWidth: 0 }]
+    );
+  }
+
+  audit('view_report', { year: year, trips: total });
+}
+
 function showEmpty() {
+  destroyCharts();
   document.getElementById('statTotalTrips').textContent = '0';
   document.getElementById('statActive').textContent = '0';
   document.getElementById('statCompleted').textContent = '0';
   document.getElementById('statCancelled').textContent = '0';
-  document.getElementById('monthlyChart').innerHTML = '';
-  document.getElementById('statusChart').innerHTML = '<p class="font-body-md text-on-surface-variant">No data</p>';
   document.getElementById('destinationsList').innerHTML = '<p class="font-body-md text-on-surface-variant">No data</p>';
   document.getElementById('vehicleList').innerHTML = '<p class="font-body-md text-on-surface-variant">No data</p>';
   document.getElementById('requestorList').innerHTML = '<p class="font-body-md text-on-surface-variant">No data</p>';
   document.getElementById('tripsTableBody').innerHTML = '';
   document.getElementById('noTripsMsg').classList.remove('hidden');
+}
+
+function exportAllData() {
+  var session = window._session;
+  if (!session) return;
+  var allData = {};
+  var prefixes = ['trips_','tasks_','plans_','milestones_','dailylog_','expenses_','it_assets_','it_services_','it_maintenance_','it_inventory_','it_task_','it_planner_','it_accomplishments_','it_tickets_','it_systems_'];
+  var isAdmin = session.isAdmin;
+  var users = isAdmin ? (function(){ var u=[]; for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k&&k.indexOf('trips_')===0) u.push(k.replace('trips_','')); } return u; })() : [session.username];
+  users.forEach(function(u) {
+    prefixes.forEach(function(p) {
+      try {
+        var v = JSON.parse(localStorage.getItem(p + u) || '[]');
+        if (Array.isArray(v) && v.length) allData[p + u] = v;
+      } catch(e) {}
+    });
+  });
+  exportJSON(allData, 'kalyx-full-export-' + new Date().toISOString().split('T')[0] + '.json');
+  showToast('Data exported successfully!', 'success');
 }
 
 function filterTrips(query) {

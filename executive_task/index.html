@@ -244,7 +244,9 @@ button:active, .btn:active { opacity: 0.8; }
     </div>
   </div>
   <div class="flex items-center gap-2">
+    <button id="langToggle" class="text-xs font-bold text-on-surface-variant hover:bg-surface-container-high w-9 h-9 rounded-xl transition-all" onclick="toggleLang()" title="Toggle language">TL</button>
     <button id="themeToggle" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="toggleTheme()" title="Toggle theme">dark_mode</button>
+    <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all" onclick="exportTasks()" title="Export tasks">file_download</button>
     <div class="relative">
       <button id="pomodoroBtn" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="togglePomodoro()" title="Pomodoro Timer">timer</button>
       <span id="pomodoroBadge" class="hidden absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping"></span>
@@ -425,6 +427,20 @@ button:active, .btn:active { opacity: 0.8; }
 </div>
 
 <div id="tasksContainer" class="space-y-3"></div>
+
+<div class="mt-6 mb-4 flex items-center justify-between no-print">
+  <div class="flex items-center gap-3">
+    <button id="viewListBtn" class="bg-primary text-on-primary px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 active:scale-95 transition-all" onclick="switchView('list')">
+      <span class="material-symbols-outlined text-sm">list</span> List
+    </button>
+    <button id="viewKanbanBtn" class="bg-surface-container text-on-surface-variant px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 active:scale-95 transition-all border border-outline-variant" onclick="switchView('kanban')">
+      <span class="material-symbols-outlined text-sm">dashboard</span> Kanban
+    </button>
+  </div>
+</div>
+<div id="kanbanSection" class="hidden">
+  <div id="kanbanBoard" class="flex gap-4 overflow-x-auto pb-4"></div>
+</div>
 
 </section>
 
@@ -3009,6 +3025,67 @@ function tutorialPrev() {
     tutorialStep--;
     renderTutorialStep();
   }
+}
+
+function toggleLang() {
+  var l = localStorage.getItem('kalyx_lang') || 'tl';
+  localStorage.setItem('kalyx_lang', l === 'en' ? 'tl' : 'en');
+  document.getElementById('langToggle').textContent = localStorage.getItem('kalyx_lang') === 'en' ? 'TL' : 'EN';
+}
+
+function exportTasks() {
+  var s = JSON.parse(localStorage.getItem('session') || '{}');
+  if (!s.loggedIn) return;
+  var tasks = JSON.parse(localStorage.getItem('tasks_' + s.username) || '[]');
+  var plans = JSON.parse(localStorage.getItem('plans_' + s.username) || '[]');
+  var dailylog = JSON.parse(localStorage.getItem('dailylog_' + s.username) || '[]');
+  var all = { tasks: tasks, plans: plans, dailylog: dailylog };
+  exportJSON(all, 'tasks-export-' + s.username + '-' + new Date().toISOString().split('T')[0] + '.json');
+  showToast('Tasks exported!', 'success');
+}
+
+function switchView(view) {
+  var listEl = document.getElementById('taskListView') || document.querySelector('.task-list-container') || document.querySelector('.overflow-x-auto');
+  var kanbanEl = document.getElementById('kanbanSection');
+  var listBtn = document.getElementById('viewListBtn');
+  var kanbanBtn = document.getElementById('viewKanbanBtn');
+  if (!kanbanEl) return;
+  if (view === 'kanban') {
+    if (listEl) listEl.classList.add('hidden');
+    kanbanEl.classList.remove('hidden');
+    listBtn.className = 'bg-surface-container text-on-surface-variant px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 border border-outline-variant';
+    kanbanBtn.className = 'bg-primary text-on-primary px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2';
+    renderKanban();
+  } else {
+    if (listEl) listEl.classList.remove('hidden');
+    kanbanEl.classList.add('hidden');
+    listBtn.className = 'bg-primary text-on-primary px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2';
+    kanbanBtn.className = 'bg-surface-container text-on-surface-variant px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 border border-outline-variant';
+  }
+}
+
+function renderKanban() {
+  var s = JSON.parse(localStorage.getItem('session') || '{}');
+  if (!s.loggedIn) return;
+  var tasks = JSON.parse(localStorage.getItem('tasks_' + s.username) || '[]');
+  var statuses = [
+    { key: 'pending', label: 'Pending' },
+    { key: 'in_progress', label: 'In Progress' },
+    { key: 'completed', label: 'Completed' }
+  ];
+  initKanban('kanbanBoard', tasks, statuses, {
+    onMove: function(id, newStatus, oldStatus) {
+      var allTasks = JSON.parse(localStorage.getItem('tasks_' + s.username) || '[]');
+      var task = allTasks.find(function(t) { return (t.id || t.title) === id; });
+      if (task) {
+        task.status = newStatus;
+        localStorage.setItem('tasks_' + s.username, JSON.stringify(allTasks));
+        showToast('Task moved to ' + newStatus, 'info');
+        audit('task_move', { id: id, from: oldStatus, to: newStatus });
+      }
+      if (typeof loadTasks === 'function') loadTasks();
+    }
+  });
 }
 
 function checkWelcome() {

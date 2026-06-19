@@ -19,6 +19,9 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 <body class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 min-h-screen">
 
 <div class="max-w-2xl mx-auto px-4 py-8 md:py-16">
+  <div class="flex justify-end mb-4">
+    <button id="langToggle" class="text-xs font-bold text-on-surface-variant hover:bg-surface-container-high w-9 h-9 rounded-xl transition-all" onclick="toggleLang()" title="Toggle language">TL</button>
+  </div>
   <div class="text-center mb-10 animate-in">
     <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white mb-4 shadow-lg">
       <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL'1,'wght'400">support_agent</span>
@@ -154,6 +157,10 @@ function submitTicket() {
       ref: ticket.ref,
       source: 'service-desk',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function() {
+      showToast('Ticket submitted successfully!', 'success');
+      playNotify();
+      audit('create_ticket', { title: ticket.title, category: ticket.department });
     }).catch(function(err) { console.error('Firestore sync error:', err); });
   }
 
@@ -161,6 +168,13 @@ function submitTicket() {
   document.getElementById('successBody').classList.remove('hidden');
   document.getElementById('ticketRef').textContent = 'Reference: ' + ticket.ref;
   btn.disabled = false;
+}
+
+function toggleLang() {
+  var l = localStorage.getItem('kalyx_lang') || 'tl';
+  localStorage.setItem('kalyx_lang', l === 'en' ? 'tl' : 'en');
+  var btn = document.getElementById('langToggle');
+  if (btn) btn.textContent = localStorage.getItem('kalyx_lang') === 'en' ? 'TL' : 'EN';
 }
 
 function resetForm() {
