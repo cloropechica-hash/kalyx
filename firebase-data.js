@@ -237,16 +237,18 @@ function loadFBData(uid, user, callback) {
             var data = uDoc.exists ? uDoc.data() : {};
             data.profile = profileData;
 
-            // If Firestore doc missing and cache has data, merge & upload
-            if (!uDoc.exists && window.__fbCache) {
-              var hasExtra = false;
+            // Merge existing cache data into Firestore data
+            if (window.__fbCache && window.__fbCache !== data) {
+              var needsUpload = false;
               Object.keys(window.__fbCache).forEach(function(k) {
                 if (k !== 'profile' && window.__fbCache[k] !== undefined) {
-                  data[k] = window.__fbCache[k];
-                  hasExtra = true;
+                  if (!uDoc.exists || !(k in data)) {
+                    data[k] = window.__fbCache[k];
+                    needsUpload = true;
+                  }
                 }
               });
-              if (hasExtra) {
+              if (needsUpload) {
                 var payload = {};
                 Object.keys(data).forEach(function(k) {
                   if (k !== 'profile') payload[k] = data[k];
@@ -288,17 +290,18 @@ function loadFBData(uid, user, callback) {
       var data = doc.exists ? doc.data() : {};
       data.profile = profileData;
 
-      // If Firestore doc missing but cache has data (from localStorage fallback), merge & upload
-      if (!doc.exists && window.__fbCache && window.__fbCache !== data) {
-        var hasExtraData = false;
+      // Merge existing cache data (from localStorage fallback) into Firestore data
+      if (window.__fbCache && window.__fbCache !== data) {
+        var needsUpload = false;
         Object.keys(window.__fbCache).forEach(function(k) {
           if (k !== 'profile' && window.__fbCache[k] !== undefined) {
-            data[k] = window.__fbCache[k];
-            hasExtraData = true;
+            if (!doc.exists || !(k in data)) {
+              data[k] = window.__fbCache[k];
+              needsUpload = true;
+            }
           }
         });
-        if (hasExtraData) {
-          // Upload existing data to Firestore so other devices can access it
+        if (needsUpload) {
           var uploadData = {};
           Object.keys(data).forEach(function(k) {
             if (k !== 'profile') uploadData[k] = data[k];
