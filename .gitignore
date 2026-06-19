@@ -14,11 +14,16 @@ Thumbs.db
 scheduler-backup-*.json
 backup_manifest.json
 
+# Temp files
+tmp_*.php
+node-red-*.txt
+
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*.sublime-*
 
 # Logs
 *.log

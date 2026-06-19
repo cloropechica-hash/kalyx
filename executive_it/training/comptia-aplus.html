@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CompTIA A+ — Training Simulator</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f5f7;min-height:100vh;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+.login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 40%,#0f3460 100%);}
+.login-card{background:#fff;border-radius:12px;padding:40px 44px;width:360px;box-shadow:0 8px 40px rgba(0,0,0,0.25);}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:24px;justify-content:center;}
+.login-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#e94560,#0f3460);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.login-logo-icon i{font-size:20px;color:#fff;}
+.login-logo-text{font-size:20px;font-weight:600;color:#1a1a2e;}
+.login-subtitle{font-size:13px;color:#6b7a8d;text-align:center;margin-bottom:28px;margin-top:-18px;}
+.login-label{font-size:12px;font-weight:500;color:#3d4a5a;margin-bottom:5px;display:block;}
+.login-input{width:100%;border:1px solid #d1d5db;border-radius:7px;padding:9px 12px;font-size:14px;color:#1a2332;outline:none;transition:border 0.15s;}
+.login-input:focus{border-color:#e94560;box-shadow:0 0 0 3px rgba(233,69,96,0.12);}
+.login-group{margin-bottom:16px;}
+.login-btn{width:100%;background:linear-gradient(135deg,#e94560,#0f3460);color:#fff;border:none;border-radius:7px;padding:11px;font-size:15px;font-weight:600;cursor:pointer;transition:background 0.15s;}
+.login-btn:hover{background:linear-gradient(135deg,#c73b3a,#a42e2d);}
+.login-hint{font-size:12px;color:#9aa3ad;text-align:center;margin-top:18px;}
+.login-error{background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:8px 12px;font-size:13px;color:#dc2626;margin-bottom:14px;display:none;}
+.app{display:none;flex-direction:column;height:100vh;}
+.topnav{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;display:flex;align-items:center;gap:0;height:46px;flex-shrink:0;}
+.topnav-brand{display:flex;align-items:center;gap:9px;padding:0 16px;border-right:1px solid rgba(255,255,255,0.08);height:100%;}
+.topnav-brand-icon{width:26px;height:26px;background:linear-gradient(135deg,#e94560,#0f3460);border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.topnav-brand-icon i{font-size:15px;color:#fff;}
+.topnav-brand-text{font-size:14px;font-weight:600;color:#fff;}
+.topnav-right{margin-left:auto;display:flex;align-items:center;gap:2px;padding-right:12px;}
+.topnav-btn{background:none;border:none;color:#aab4c0;cursor:pointer;padding:7px 8px;border-radius:5px;font-size:15px;display:flex;align-items:center;gap:5px;}
+.topnav-btn:hover{background:rgba(255,255,255,0.08);color:#fff;}
+.topnav-user{font-size:12px;color:#aab4c0;padding:0 10px;border-left:1px solid rgba(255,255,255,0.08);height:100%;display:flex;align-items:center;gap:7px;cursor:pointer;}
+.avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#e94560,#0f3460);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;}
+.shell{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:210px;background:#1a1a2e;color:#fff;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;}
+.nav-section{padding:4px 0;}
+.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:#5a6a7a;padding:6px 18px 3px;font-weight:600;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:7px 18px;font-size:13px;color:#8a9aaa;cursor:pointer;border-left:3px solid transparent;transition:all 0.12s;}
+.nav-item:hover{background:rgba(233,69,96,0.06);color:#d0d8e0;}
+.nav-item.active{background:rgba(233,69,96,0.1);color:#e94560;border-left-color:#e94560;font-weight:500;}
+.nav-item i{font-size:15px;}
+.nav-item .nav-badge{margin-left:auto;background:#ffb900;color:#1a1a2e;font-size:9px;padding:1px 6px;border-radius:8px;font-weight:700;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.panels{flex:1;overflow-y:auto;padding:16px 20px;}
+.panel{display:none;animation:fadeIn 0.2s ease;}
+.panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+@keyframes toastIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.breadcrumb{font-size:13px;color:#8a9aaa;margin-bottom:8px;}
+.page-title{font-size:22px;font-weight:700;color:#1a1a2e;margin-bottom:4px;}
+.page-sub{font-size:14px;color:#6b7a8d;margin-bottom:16px;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.stats-row-3{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));}
+.stat-card{background:#fff;border-radius:10px;border:1px solid #e1dfdd;padding:16px;text-align:center;}
+.stat-label{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#8a9aaa;margin-bottom:4px;}
+.stat-value{font-size:28px;font-weight:700;color:#1a1a2e;}
+.stat-sub{font-size:12px;color:#6b7a8d;margin-top:2px;}
+.module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
+.module-card{background:#fff;border:1px solid #e1dfdd;border-radius:10px;padding:16px;cursor:pointer;transition:all 0.15s;}
+.module-card:hover{border-color:#e94560;box-shadow:0 2px 12px rgba(233,69,96,0.08);}
+.module-card.completed{border-color:#1d9e75;background:#f6fff6;}
+.module-card-title{font-size:14px;font-weight:600;color:#201f1e;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.module-card-desc{font-size:12px;color:#605e5c;margin-bottom:10px;line-height:1.5;}
+.module-card-status{font-size:11px;color:#1d9e75;font-weight:600;}
+.progress-bar{height:6px;background:#e1dfdd;border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:#e94560;border-radius:3px;transition:width 0.3s;}
+.progress-fill.green{background:#1d9e75;}
+.tab-bar{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid #e1dfdd;padding-bottom:0;}
+.tab-btn{padding:8px 16px;font-size:13px;font-weight:500;color:#6b7a8d;cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:all 0.12s;}
+.tab-btn:hover{color:#1a2332;}
+.tab-btn.active{color:#e94560;border-bottom-color:#e94560;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+.info-box{background:#f0f6fc;border:1px solid #dce5f5;border-radius:8px;padding:14px 16px;font-size:13px;color:#1a2332;line-height:1.6;margin-bottom:12px;}
+.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#fff;border-radius:10px;width:500px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.2);padding:20px;}
+.modal-box.wide{width:640px;}
+.modal-title{font-size:16px;font-weight:600;color:#1a2332;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:12px;border-top:1px solid #e1dfdd;}
+.quiz-progress{font-size:12px;color:#605e5c;margin-bottom:12px;}
+.quiz-question{font-size:15px;font-weight:600;color:#1a2332;margin-bottom:12px;}
+.quiz-option{display:block;width:100%;text-align:left;padding:10px 14px;border:1px solid #d1d5db;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;margin-bottom:6px;font-family:inherit;transition:all 0.12s;}
+.quiz-option:hover{border-color:#e94560;background:#fef2f2;}
+.quiz-option.selected{border-color:#e94560;background:#fef2f2;font-weight:500;}
+.quiz-option.correct{border-color:#107c10;background:#dff6dd;}
+.quiz-option.correct::after{content:' ✓';color:#107c10;font-weight:700;}
+.quiz-option.wrong{border-color:#a4262c;background:#fde7e9;}
+.quiz-option.wrong::after{content:' ✗';color:#a4262c;font-weight:700;}
+.quiz-option:disabled{cursor:default;opacity:0.8;}
+.quiz-result-score{font-size:48px;font-weight:700;text-align:center;padding:20px 0;}
+.quiz-result-label{font-size:14px;text-align:center;color:#605e5c;margin-bottom:16px;}
+.scenario-step{margin-bottom:16px;}
+.scenario-step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#e94560;color:#fff;font-size:13px;font-weight:700;margin-right:10px;flex-shrink:0;}
+.scenario-step.completed .scenario-step-num{background:#1d9e75;}
+.scenario-step-content{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:6px;border:1px solid #e1dfdd;}
+.scenario-step.completed .scenario-step-content{border-color:#1d9e75;background:#f6fff6;}
+.scenario-step-text{flex:1;font-size:13px;line-height:1.6;}
+.scenario-step-text strong{display:block;margin-bottom:4px;font-size:14px;}
+.toast{position:fixed;bottom:24px;right:24px;background:#1d9e75;color:#fff;padding:12px 20px;border-radius:6px;font-size:13px;font-weight:500;z-index:200;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:toastIn 0.3s ease;}
+.toast.error{background:#e94560;}
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6;font-size:12px;color:#6b7a8d;}
+.activity-item:last-child{border-bottom:none;}
+.achievement{display:inline-flex;align-items:center;gap:6px;padding:4px 12px 4px 8px;border-radius:20px;font-size:12px;font-weight:600;}
+.achievement.unlocked{background:#fff4ce;color:#7a5008;}
+.achievement.locked{background:#f3f2f1;color:#c8c6c4;}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;}
+.badge-green{background:#dff6dd;color:#107c10;}
+.badge-red{background:#fde7e9;color:#a4262c;}
+.badge-gray{background:#f3f2f1;color:#8a9aaa;}
+.pill{display:inline-block;padding:2px 12px;border-radius:12px;font-size:11px;font-weight:600;}
+.pill-green{background:#dff6dd;color:#107c10;}
+.pill-blue{background:#e0edfc;color:#1d4ed8;}
+.pill-amber{background:#fff4ce;color:#7a5008;}
+.pill-gray{background:#f3f2f1;color:#8a9aaa;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.12s;}
+.btn-primary{background:#e94560;color:#fff;}
+.btn-primary:hover{background:#c73b3a;}
+.btn-success{background:#1d9e75;color:#fff;}
+.btn-success:hover{background:#16805e;}
+.btn-ghost{background:transparent;color:#6b7a8d;border:1px solid #d1d5db;}
+.btn-ghost:hover{background:#f3f2f1;}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn:disabled{opacity:0.5;cursor:default;}
+@media(max-width:640px){
+  .sidebar{width:48px;}
+  .nav-item span,.nav-label,.topnav-user span{display:none;}
+  .nav-item{justify-content:center;padding:10px;}
+  .nav-item i{font-size:20px;}
+  .module-grid{grid-template-columns:1fr;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon"><i class="ti ti-device-desktop"></i></div>
+      <div class="login-logo-text">A+ Academy</div>
+    </div>
+    <div class="login-subtitle">CompTIA A+ Training Simulator (220-1101 &amp; 220-1102)</div>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-group">
+      <label class="login-label">Employee ID / Username</label>
+      <input class="login-input" id="loginUser" placeholder="e.g., jdelacruz" autocomplete="off">
+    </div>
+    <div class="login-group">
+      <label class="login-label">Full Name</label>
+      <input class="login-input" id="loginName" placeholder="e.g., Juan Dela Cruz">
+    </div>
+    <button class="login-btn" onclick="doLogin()"><i class="ti ti-device-desktop"></i> Start Training</button>
+    <div class="login-hint">Gamitin ang iyong company credentials. Libre ang training na ito.</div>
+  </div>
+</div>
+
+<div class="app" id="appMain">
+  <div class="topnav">
+    <div class="topnav-brand">
+      <div class="topnav-brand-icon"><i class="ti ti-device-desktop"></i></div>
+      <div class="topnav-brand-text">A+ Academy</div>
+    </div>
+    <div class="topnav-right">
+      <div class="topnav-user" id="userDisplay"><div class="avatar" id="userAvatar">U</div><span id="userName">User</span></div>
+    </div>
+  </div>
+  <div class="shell">
+    <div class="sidebar">
+      <div class="nav-section">
+        <div class="nav-label">Navigation</div>
+        <div class="nav-item active" onclick="switchPanel('home',this)"><i class="ti ti-layout-dashboard"></i> <span>Home</span></div>
+        <div class="nav-item" onclick="switchPanel('training',this)"><i class="ti ti-school"></i> <span>Training</span> <span class="nav-badge" id="trainingNavBadge">NEW</span></div>
+        <div class="nav-item" onclick="switchPanel('progress',this)"><i class="ti ti-trending-up"></i> <span>My Progress</span></div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="panels">
+
+        <!-- ===== BREADCRUMB ===== -->
+        <div class="breadcrumb" id="breadcrumb"><strong>Home</strong></div>
+
+        <!-- ===== HOME ===== -->
+        <div class="panel active" id="panel-home">
+          <div class="page-title">CompTIA A+ Training</div>
+          <div class="page-sub">Maging certified IT professional. Alamin ang hardware, software, networking, at troubleshooting.</div>
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-label">Modules</div><div class="stat-value" id="homeModulesDone">0/6</div><div class="stat-sub">Completed</div></div>
+            <div class="stat-card"><div class="stat-label">Quizzes</div><div class="stat-value" id="homeQuizzesDone">0/6</div><div class="stat-sub">Passed (80%+)</div></div>
+            <div class="stat-card"><div class="stat-label">Scenarios</div><div class="stat-value" id="homeScenariosDone">0/4</div><div class="stat-sub">Completed</div></div>
+            <div class="stat-card"><div class="stat-label">Progress</div><div class="stat-value" id="homeProgressPct">0%</div><div class="progress-bar" style="margin-top:8px"><div class="progress-fill" id="homeProgressBar" style="width:0%"></div></div></div>
+          </div>
+          <div class="panel" style="margin-bottom:12px">
+            <div class="panel-head"><span><i class="ti ti-activity-heartbeat"></i> Recent Activity</span></div>
+            <div class="panel-body" id="homeActivityLog" style="padding:8px 0"><div style="color:#9aa3ad;text-align:center;padding:20px">No activity yet. Start your training!</div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><span><i class="ti ti-trending-up"></i> Module Progress</span></div>
+            <div class="panel-body" id="homeModuleProgress" style="padding:8px 0"></div>
+          </div>
+        </div>
+
+        <!-- ===== TRAINING ===== -->
+        <div class="panel" id="panel-training">
+          <div class="page-title">Training Center</div>
+          <div class="page-sub">6 modules, quizzes, at practical scenarios para sa CompTIA A+ certification</div>
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('modules',this)">Modules</button>
+            <button class="tab-btn" onclick="switchTab('quizzes',this)">Quizzes</button>
+            <button class="tab-btn" onclick="switchTab('scenarios',this)">Scenarios</button>
+          </div>
+          <div class="tab-content active" id="tab-modules"><div class="module-grid" id="moduleGrid"></div></div>
+          <div class="tab-content" id="tab-quizzes"><div class="module-grid" id="quizGrid"></div></div>
+          <div class="tab-content" id="tab-scenarios"><div class="module-grid" id="scenarioGrid"></div></div>
+        </div>
+
+        <!-- ===== PROGRESS ===== -->
+        <div class="panel" id="panel-progress">
+          <div class="page-title">My Progress</div>
+          <div class="page-sub">Detailed breakdown ng iyong training accomplishments</div>
+          <div class="stats-row stats-row-3">
+            <div class="stat-card"><div class="stat-label">Modules</div><div class="stat-value" id="progressModules">0/6</div><div class="pill" id="progressModulesPill">Not started</div></div>
+            <div class="stat-card"><div class="stat-label">Quizzes</div><div class="stat-value" id="progressQuizzes">0/6</div><div class="pill" id="progressQuizzesPill">Not started</div></div>
+            <div class="stat-card"><div class="stat-label">Scenarios</div><div class="stat-value" id="progressScenarios">0/4</div><div class="pill" id="progressScenariosPill">Not started</div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><span><i class="ti ti-star"></i> Achievements</span></div>
+            <div class="panel-body" id="achievementsList"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><span><i class="ti ti-activity-heartbeat"></i> Activity Log</span></div>
+            <div class="panel-body" id="progressActivityLog"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quiz modal -->
+<div class="modal-overlay" id="quizOverlay">
+  <div class="modal-box wide">
+    <div class="modal-title"><i class="ti ti-checklist"></i> <span id="quizTitle">Quiz</span></div>
+    <div id="quizBody">
+      <div class="quiz-progress" id="quizProgress">Question 1 of 5</div>
+      <div class="quiz-question" id="quizQuestion"></div>
+      <div id="quizOptions"></div>
+      <div id="quizResult" style="display:none">
+        <div class="quiz-result-score" id="quizScoreDisplay">0/5</div>
+        <div class="quiz-result-label" id="quizResultLabel"></div>
+      </div>
+    </div>
+    <div class="modal-actions" id="quizActions">
+      <button class="btn btn-ghost" onclick="closeModal('quizOverlay')">Cancel</button>
+      <button class="btn" id="quizNextBtn" onclick="nextQuizQuestion()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scenario modal -->
+<div class="modal-overlay" id="scenarioOverlay">
+  <div class="modal-box wide">
+    <div class="modal-title"><i class="ti ti-tasks"></i> <span id="scenarioTitle">Scenario</span></div>
+    <div id="scenarioBody"></div>
+    <div class="modal-actions" id="scenarioActions">
+      <button class="btn btn-ghost" onclick="closeModal('scenarioOverlay')">Close</button>
+      <button class="btn" id="scenarioNextBtn" onclick="nextScenarioStep()">Start →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lesson modal -->
+<div class="modal-overlay" id="lessonOverlay">
+  <div class="modal-box wide">
+    <div class="modal-title"><i class="ti ti-book"></i> <span id="lessonTitle">Lesson</span></div>
+    <div id="lessonBody"></div>
+    <div class="modal-actions" id="lessonActions">
+      <button class="btn btn-ghost" onclick="closeModal('lessonOverlay')">Close</button>
+      <button class="btn" id="lessonNextBtn" onclick="nextLessonStep()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'comptia_aplus_trainer';
+
+const lessons = {
+  hardware: {
+    title: 'Hardware Fundamentals',
+    steps: [
+      { title: 'Motherboard Components', text: 'Ang motherboard ang central circuit board ng computer. Mga importanteng components:\n\n- CPU Socket: Dito nakakabit ang processor (LGA para sa Intel, PGA para sa AMD)\n- RAM Slots: DIMM slots para sa memory modules (DDR3, DDR4, DDR5)\n- Chipset: Northbridge (memory/PCIe control) at Southbridge (I/O control) — ngayon nasa CPU na ang northbridge functions\n- Expansion Slots: PCIe x16 (GPU), PCIe x1 (network/WiFi cards), M.2 slots (NVMe SSDs)\n- I/O Ports: USB (2.0, 3.0, 3.1, 3.2, USB-C), HDMI, DisplayPort, Ethernet (RJ45), audio jacks\n- Storage Connectors: SATA (3 Gb/s, 6 Gb/s), M.2 (SATA at NVMe)\n- Power Connectors: 24-pin ATX (main power), 4/8-pin CPU power\n\nForm Factors: ATX (standard), Micro-ATX (mas maliit, less slots), Mini-ITX (compact, single expansion slot)' },
+      { title: 'CPU (Processor)', text: 'Ang CPU (Central Processing Unit) ang utak ng computer.\n\nKey Concepts:\n- Clock Speed (GHz): Mas mataas = mas mabilis (e.g., 4.0 GHz vs 3.0 GHz)\n- Cores: Multiple processing units (dual-core, quad-core, 6-core, 8-core)\n- Threads: Logical processors — Hyper-Threading (Intel) / SMT (AMD) doubles threads per core\n- Cache: L1 (fastest, smallest), L2, L3 (larger, slower) — mas marami = mas maganda\n- TDP (Thermal Design Power): Heat output — mahalaga para sa cooling\nCommon CPU Families:\n- Intel: Core i3 (entry), i5 (mid-range), i7 (high-end), i9 (enthusiast); Xeon (server)\n- AMD: Ryzen 3, 5, 7, 9; Threadripper (workstation); EPYC (server)\n\nCooling: Air cooler (stock/fan + heatsink), Liquid cooler (AIO/all-in-one), Thermal paste sa pagitan ng CPU at cooler.' },
+      { title: 'RAM (Memory)', text: 'RAM (Random Access Memory) ay temporary storage para sa active data at programs.\n\nTypes:\n- DDR3: 240-pin DIMM, 1.5V, speeds 800-2133 MHz\n- DDR4: 288-pin DIMM, 1.2V, speeds 1600-3200 MHz (common: 2400-3200)\n- DDR5: 288-pin DIMM (different key), 1.1V, speeds 4800-6400 MHz\n\nImportant Terms:\n- Capacity: 8GB (minimum), 16GB (recommended for most users), 32GB+ (gaming/workstation)\n- Dual Channel: Dalawang stick ng RAM para ma-activate — mas mabilis kaysa single channel\n- CAS Latency (CL): Lower numbers = faster response\n- ECC RAM: Error-Correcting Code — ginagamit sa servers, hindi sa consumer boards\n\nInstallation Tip: I-align ang notch sa RAM stick sa slot key bago pindutin pababa hanggang mag-click.' },
+      { title: 'Power Supply (PSU)', text: 'Ang PSU (Power Supply Unit) ang nagko-convert ng AC power mula sa wall outlet papuntang DC power para sa components.\n\nKey Specs:\n- Wattage: 300W (basic office), 500W (mid-range), 750W+ (gaming/workstation)\n- Efficiency Rating: 80+ White (basic), Bronze, Silver, Gold, Platinum, Titanium (best)\n- Modularity: Non-modular (all cables attached), Semi-modular (essential cables attached), Fully modular (choose your cables)\n- Rails: +3.3V, +5V, +12V (most important para sa CPU at GPU)\n\nConnectors:\n- 24-pin ATX (main motherboard power)\n- 4/8-pin EPS12V (CPU power)\n- 6/8-pin PCIe (GPU power)\n- SATA power (storage drives)\n- Molex (legacy drives, fans)\n\nSafety: Huwag buksan ang PSU — may capacitors na nagre-retain ng charge kahit naka-unplug.' },
+      { title: 'Cooling & Thermal Management', text: 'Ang sobrang init ay #1 enemy ng computer components.\n\nCooling Methods:\n- Air Cooling: Fan + heatsink (CPU), case fans (intake/exhaust), GPU fans\n- Liquid Cooling: AIO (All-in-One) — pump, radiator, fans; Custom loop — reservoir, pump, tubing\n- Passive Cooling: Heatsink lang, walang fan (low-power devices)\n- Thermal Paste: Nasa pagitan ng CPU at cooler — mag-apply ng pea-sized amount\n\nTemperature Monitoring:\n- CPU: 30-40°C idle, 60-80°C under load (max 90-100°C depende sa model)\n- GPU: 30-40°C idle, 65-85°C under load\n- HDD/SSD: 25-45°C\n\nCase Airflow: Positive pressure (more intake than exhaust) = less dust. Front/side = intake, rear/top = exhaust.' },
+      { title: 'BIOS/UEFI Settings', text: 'Ang BIOS (Basic Input/Output System) o UEFI (Unified Extensible Firmware Interface) ang nag-iinitiate ng hardware bago mag-load ang OS.\n\nUEFI vs Legacy BIOS:\n- UEFI: Modern, graphical interface, mouse support, Secure Boot, GPT partitioning\n- Legacy BIOS: Text-based, keyboard only, MBR partitioning (limited to 2TB drives)\n\nCommon BIOS Settings:\n- Boot Order: Aling device ang uunahin (USB, HDD/SSD, DVD)\n- XMP/DOCP: Enable para ma-achieve ang advertised RAM speed\n- Secure Boot: Security feature laban sa bootkits (kailangan ng Windows 11)\n- TPM 2.0: Trusted Platform Module — requirement ng Windows 11\n- Virtualization: VT-x (Intel) / AMD-V — kailangan para sa virtual machines\n- Fan Curves: Speed settings per temperature\n\nAccess: Pindutin ang Del, F2, F10, o Esc habang nagbo-boot (depende sa manufacturer).' }
+    ]
+  },
+  storage: {
+    title: 'Storage Devices',
+    steps: [
+      { title: 'HDD (Hard Disk Drive)', text: 'Ang HDD ay gumagamit ng spinning magnetic platters para mag-store ng data.\n\nSpecs:\n- Capacity: 500GB hanggang 20TB+\n- Speed: 5400 RPM (slower, mas matipid), 7200 RPM (faster), 10K/15K RPM (enterprise/enthusiast)\n- Form Factor: 3.5-inch (desktop), 2.5-inch (laptop)\n- Interface: SATA 3 (6 Gb/s)\n- Cache: 64-256 MB\n\nPros: Mura per GB, malalaking capacity\nCons: Mabagal (sequential ~150-200 MB/s), may moving parts (mas prone sa damage), maingay, mainit\n\nBest for: Bulk storage (documents, media, backups) — hindi para sa OS o programs.' },
+      { title: 'SSD (Solid State Drive)', text: 'Ang SSD ay gumagamit ng NAND flash memory (walang moving parts).\n\nMga Uri:\n- SATA SSD: 2.5-inch form factor, same interface as HDD (SATA 3), up to ~550 MB/s\n- M.2 SATA: M.2 form factor pero SATA protocol — same speed as SATA SSD\n- M.2 NVMe: M.2 form factor na may PCIe interface — mas mabilis (1,500-7,000+ MB/s depende sa PCIe generation)\n\nNAND Types:\n- SLC (Single-Level Cell): Fastest, longest life, mahal — enterprise use\n- MLC (Multi-Level Cell): Balance — mid-range\n- TLC (Triple-Level Cell): Common sa consumer SSDs — good value\n- QLC (Quad-Level Cell): Mura pero mas mabagal at mas maikli ang lifespan\n\nPros: Mabilis (lalo na NVMe), silent, durable (no moving parts), energy efficient\nCons: Mas mahal per GB kaysa HDD\n\nBest for: OS, applications, games, frequently accessed files.' },
+      { title: 'RAID Configurations', text: 'RAID (Redundant Array of Independent Disks) ay ang pagsasama ng multiple drives para sa performance o redundancy.\n\nRAID Levels:\n- RAID 0 (Striping): Data divided across 2+ drives. High performance, NO redundancy. Kapag nasira ang isang drive, mawawala lahat ng data.\n- RAID 1 (Mirroring): Identical copy sa dalawang drives. May redundancy (survive ang 1 drive failure). Slow write speed.\n- RAID 5 (Striping + Parity): Kailangan ng 3+ drives. May parity info for redundancy. Survive ang 1 drive failure. Good balance.\n- RAID 6 (Striping + Double Parity): Kailangan ng 4+ drives. Survive ang 2 drive failures.\n- RAID 10 (1+0): Mirroring + Striping. Kailangan ng 4 drives. High performance + redundancy. Survive ang 1 drive per mirror.\n\nSoftware vs Hardware RAID: Software RAID = OS manages it (mas mura). Hardware RAID = dedicated RAID controller (mas reliable, better performance).' },
+      { title: 'Removable Storage', text: 'Mga external at portable storage devices.\n\nUSB Flash Drives:\n- USB 2.0: 480 Mbps — mabagal pero compatible sa lahat\n- USB 3.0/3.1 Gen 1: 5 Gbps (SuperSpeed)\n- USB 3.1 Gen 2: 10 Gbps (SuperSpeed+)\n- USB 3.2 Gen 2x2: 20 Gbps\n- USB4 / Thunderbolt 4: 40 Gbps\n\nMemory Cards:\n- SD (Secure Digital): Standard (up to 2GB), SDHC (4-32GB), SDXC (64GB-2TB)\n- Speed Classes: Class 2,4,6,10 (sequential write speed), UHS-I/UHS-II (U1, U3), Video Speed (V6-V90)\n- microSD: Commonly ginagamit sa phones, tablets, Raspberry Pi\n\nExternal Drives:\n- External HDD: Portable (2.5-inch, USB-powered) o Desktop (3.5-inch, AC powered)\n- External SSD: USB-C, mas mabilis, mas mahal\n- Optical Drives: DVD-RW, Blu-ray — paunti nang paunti ang gamit\n\nNAS (Network Attached Storage): Storage na naka-konek sa network — accessible ng multiple devices/users.' },
+      { title: 'Data Recovery & Backup', text: 'Ang backup ay ang pinakamahalagang bagay na dapat gawin para protektahan ang data.\n\nBackup Types:\n- Full Backup: Kopyahin lahat ng files — pinaka-complete pero matagal at malaki\n- Incremental Backup: Files na nagbago since LAST BACKUP — mabilis at maliit\n- Differential Backup: Files na nagbago since LAST FULL BACKUP — mas malaki sa incremental pero mas mabilis i-restore\n\nBackup Methods:\n- Cloud Backup: OneDrive, Google Drive, iCloud, Dropbox, Backblaze\n- Local Backup: External drive, NAS, USB drive\n- Hybrid: Both cloud at local (3-2-1 rule: 3 copies, 2 different media, 1 off-site)\n\nData Recovery:\n- Recycle Bin/Trash: Una tingnan\n- File History/Previous Versions: Windows feature\n- Backup Software: Veeam, Acronis, Windows Backup\n- Professional Recovery: Para sa physically damaged drives — mahal at hindi guaranteed\n\nTip: HDD na nag-iingay (clicking sound) — i-shutdown agad. Huwag subukang buksan. Professional recovery lang ang solusyon.' },
+      { title: 'S.M.A.R.T. Status', text: 'Ang S.M.A.R.T. (Self-Monitoring, Analysis, and Reporting Technology) ay ang built-in monitoring system ng drives.\n\nImportant Attributes:\n- Reallocated Sectors: May bad sectors na pinalitan ng spare sectors. Pag tumaas, failing na ang drive.\n- Spin Retry Count: HDD-specific — pag mataas, failing motor/head\n- Read Error Rate: Frequency ng read errors\n- Power-On Hours (POH): Ilang oras naka-on ang drive\n- Temperature: Ideal ay 25-45°C. Above 60°C = risk\n- CRC Error Count: Connection/cable issues\n- Wear Leveling Count (SSD): Nag-indicate ng estimated remaining life\n\nHow to Check:\n- Windows: Gamit ang CrystalDiskInfo, HD Tune, o WD Dashboard\n- Linux: smartctl command\n- macOS: DriveDx\n\nDecision Guide:\n- PASS: Drive is healthy\n- WARNING: May potential issues — backup agad\n- FAIL: I-replace agad ang drive\n\nSa SSD, ang health ay based sa NAND wear level. Pag nasira ang NAND, hindi na magagamit ang SSD. I-monitor at mag-backup bago maubos ang lifespan.' }
+    ]
+  },
+  networking: {
+    title: 'Networking Basics',
+    steps: [
+      { title: 'Network Types & Topologies', text: 'Ang computer network ay grupo ng interconnected devices para mag-share ng resources.\n\nNetwork Types:\n- PAN (Personal Area Network): Bluetooth, USB — personal devices (~1-10m)\n- LAN (Local Area Network): Office, bahay — connected via switch/router (~10-100m)\n- WLAN (Wireless LAN): WiFi network\n- WAN (Wide Area Network): Internet — connects LANs across large distances\n- MAN (Metropolitan Area Network): City-wide network\n- CAN (Campus Area Network): University/Corporate campus\n\nNetwork Topologies:\n- Star: Lahat ng devices connected sa central switch — pinaka-common\n- Bus: Iisang cable ang backbone — prone sa failure (legacy)\n- Ring: Bawat device connected sa dalawa — data travels in one direction (legacy)\n- Mesh: Lahat interconnected — high redundancy pero costly\n- Hybrid: Combination of topologies\n\nClient-Server: Central server manages resources (AD, file server, print server)\nPeer-to-Peer: Each device acts as both client at server (small networks)' },
+      { title: 'IP Addressing & Subnetting', text: 'Ang IP address ay unique identifier ng device sa network.\n\nIPv4: 32-bit, 4 octets (e.g., 192.168.1.10)\n- Classes: A (1-126, /8), B (128-191, /16), C (192-223, /24), D (224-239, multicast), E (240-255, reserved)\n- Private IPs: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 — hindi na-r-route sa internet\n- Loopback: 127.0.0.1 (localhost)\n- APIPA: 169.254.x.x — automatic kung walang DHCP\n\nSubnet Mask: 255.255.255.0 (/24) = 256 addresses (254 usable)\n\nCIDR Notation: /24 = 255.255.255.0, /16 = 255.255.0.0\n\nIPv6: 128-bit, 8 groups of 4 hex digits (e.g., 2001:0db8:85a3:0000:0000:8a2e:0370:7334)\n- Mas maraming addresses kaysa IPv4\n- Link-local: fe80::/10\n- Unique Local: fc00::/7 (similar sa private IPv4)\n- Global Unicast: 2000::/3 (internet-routable)\n\nDHCP: Automatic IP assignment. DHCP server assigns IP, subnet mask, gateway, DNS.' },
+      { title: 'Network Hardware', text: 'Mga physical devices na bumubuo ng network.\n\nSwitch: Connects devices sa loob ng LAN. Nagde-decide kung saang port ang data based sa MAC address. Layer 2 device.\n- Unmanaged: Plug-and-play, walang configuration\n- Managed: May configuration (VLANs, QoS, port security) — PoE (Power over Ethernet): Nagbibigay ng power sa devices (IP phones, APs, cameras)\n\nRouter: Connects different networks (LAN to WAN). Nagde-decide ng path ng data based sa IP address. Layer 3 device. May NAT (Network Address Translation) para mag-share ng internet.\n\nAccess Point (AP): Nag-e-extend ng wired network para maging wireless. Iba sa "wireless router" — ang wireless router ay router + switch + AP sa iisang device.\n\nPatch Panel: Central termination point para sa network cables sa server room.\n\nFirewall: Security device na nag-fi-filter ng network traffic. Pwedeng hardware (Cisco ASA, FortiGate) o software (Windows Firewall).\n\nModem: Nagko-convert ng signal mula sa ISP (coax/fiber/DSL) papuntang Ethernet.' },
+      { title: 'Network Cables & Connectors', text: 'Ang cable ang physical medium ng network.\n\nEthernet (Twisted Pair):\n- Cat5: 100 MHz, 100 Mbps (Fast Ethernet)\n- Cat5e: 100 MHz, 1 Gbps (Gigabit) — pinaka-common\n- Cat6: 250 MHz, 1 Gbps (10 Gbps up to 55m)\n- Cat6a: 500 MHz, 10 Gbps\n- Cat7: 600 MHz, 10 Gbps (shielded)\n- Cat8: 2000 MHz, 25/40 Gbps (data center)\nConnector: RJ45\n\nFiber Optic:\n- Single-mode: Laser, long distance (40+ km), mas mahal\n- Multi-mode: LED, shorter distance (550m), mas mura\nConnectors: LC (small), SC (standard), ST (bayonet), FC (screw)\n\nCoaxial:\n- RG-6: Cable TV, cable internet\n- RG-59: CCTV (legacy)\nConnector: F-type, BNC\n\nTools: Crimper, wire stripper, cable tester, punch-down tool, tone generator & probe.\n\nT568A vs T568B: Two wiring standards para sa RJ45. T568B ang mas common. Both ends dapat same standard (straight-through cable) o cross-over (iba ang ends).' },
+      { title: 'Wireless Networking (WiFi)', text: 'Ang WiFi ay wireless network technology na gumagamit ng radio waves.\n\nWiFi Standards:\n- 802.11a: 5 GHz, 54 Mbps (legacy)\n- 802.11b: 2.4 GHz, 11 Mbps (legacy)\n- 802.11g: 2.4 GHz, 54 Mbps (legacy)\n- 802.11n (WiFi 4): 2.4/5 GHz, up to 600 Mbps — MIMO technology\n- 802.11ac (WiFi 5): 5 GHz, up to 3.5 Gbps — MU-MIMO\n- 802.11ax (WiFi 6/6E): 2.4/5/6 GHz, up to 9.6 Gbps — OFDMA, better efficiency\n- 802.11be (WiFi 7): Lahat ng bands, up to 46 Gbps — latest\n\nSecurity: WEP (hindi na safe), WPA (mas luma), WPA2 (AES encryption — minimum standard), WPA3 (latest, mas secure)\n\nFrequencies:\n- 2.4 GHz: Mas malayo ang range, mas maraming interference (microwave, Bluetooth)\n- 5 GHz: Mas mabilis, mas maikli ang range\n- 6 GHz (WiFi 6E/7): Less congested, fastest\n\nSSID: Network name. Broadcasting o nakatago.\n\nChannel: Pwedeng i-manual na piliin para iwas interference (1, 6, 11 ang non-overlapping channels sa 2.4 GHz).' },
+      { title: 'TCP/IP Protocols & Ports', text: 'Ang TCP/IP ay ang protocol suite na ginagamit ng internet at karamihan ng networks.\n\nTransport Layer Protocols:\n- TCP (Transmission Control Protocol): Connection-oriented, reliable, may acknowledgment at retransmission. Ginagamit ng websites, email, file transfer.\n- UDP (User Datagram Protocol): Connectionless, walang acknowledgment, mas mabilis. Ginagamit ng streaming, VoIP, gaming, DNS.\n\nCommon Ports:\n- 20/21: FTP (File Transfer) — 20 for data, 21 for control\n- 22: SSH (Secure Shell) — remote administration\n- 23: Telnet (unencrypted remote access)\n- 25: SMTP (email sending)\n- 53: DNS (Domain Name System)\n- 80: HTTP (web traffic — unencrypted)\n- 110: POP3 (email receiving)\n- 143: IMAP (email receiving — mas moderno)\n- 443: HTTPS (web traffic — encrypted)\n- 3389: RDP (Remote Desktop Protocol)\n\nApplication Layer Protocols:\n- HTTP/HTTPS: Web browsing\n- FTP/SFTP: File transfer\n- SMTP/POP3/IMAP: Email\n- DNS: Domain name to IP resolution\n- DHCP: Dynamic IP assignment\n- SNMP: Network monitoring\n- LDAP: Directory services (Active Directory)' }
+    ]
+  },
+  mobile: {
+    title: 'Mobile Devices',
+    steps: [
+      { title: 'Laptop Hardware & Components', text: 'Ang laptop ay portable computer na may integrated components.\n\nMga Component:\n- CPU: Mobile processors — mas low-power kaysa desktop (U-series = 15W, H-series = 45W)\n- RAM: SO-DIMM (Small Outline DIMM) — DDR4/DDR5\n- Storage: M.2 NVMe SSD (common sa modern laptops), 2.5-inch SATA SSD (older models)\n- Battery: Lithium-ion (Li-ion) o Lithium-polymer (LiPo). Measured sa watt-hours (Wh). 2-4 hours typical.\n- Display: LED-backlit LCD (IPS = better colors/angles, TN = faster response), OLED (best quality)\n- Wi-Fi/Bluetooth: Built-in module (M.2 form factor, Intel AX200/AX210 common)\n- Keyboard/Trackpad: Integrated — replacement requires specific part\n\nForm Factors: Ultrabook (thin/light), Convertible (2-in-1), Gaming laptop (thick/high performance), Mobile workstation\n\nRepair Considerations: Laptops ay mahirap i-upgrade — RAM at storage lang ang common na upgradable. CPU at GPU ay soldered (maliban sa ilang gaming laptops).' },
+      { title: 'Mobile Device Types', text: 'Mga handheld at portable devices.\n\nSmartphones:\n- iOS (Apple): Closed ecosystem, App Store, iCloud\n- Android (Google/Samsung/etc.): Open ecosystem, Google Play, manufacturer skins (One UI, Pixel UI)\n\nTablets:\n- iPad (iPadOS): Apple ecosystem, Apple Pencil support\n- Android Tablets: Samsung Galaxy Tab, Lenovo Tab\n- Windows Tablets: Microsoft Surface Pro — full Windows OS\n\nWearables:\n- Smartwatches: Apple Watch, Galaxy Watch, Fitbit\n- Fitness Trackers: Basic health monitoring\n\nOther:\n- E-readers: Amazon Kindle (e-ink display)\n- Handheld Gaming: Nintendo Switch, Steam Deck\n- VR/AR Headsets: Meta Quest, Apple Vision Pro\n- POS Terminals: Payment processing\n\nCommon Features:\n- Touchscreen (capacitive = multi-touch, resistive = stylus/gloves)\n- Cameras (front at rear)\n- Sensors: Accelerometer, gyroscope, proximity, ambient light, compass, fingerprint, Face ID\n- Ports: USB-C (standard), Lightning (Apple, phased out), 3.5mm headphone jack (rare na)\n- Wireless: Cellular (4G LTE/5G), WiFi, Bluetooth, NFC' },
+      { title: 'Device Connectivity', text: 'Paano nagkokonek ang mga mobile devices.\n\nCellular Networks:\n- 4G LTE: Common, up to 100 Mbps\n- 5G: Mas mabilis (up to 10 Gbps), lower latency, pero limited coverage\n\nBluetooth:\n- Bluetooth 4.x: Low Energy (BLE) — common for accessories\n- Bluetooth 5.x: Mas longer range (240m), faster (2 Mbps), LE Audio\n- Pairing: Detectable mode → pairing → bonding\n- Profiles: A2DP (audio), HFP (headset), HID (keyboard/mouse), PAN (network), SPP (serial)\n\nNFC (Near Field Communication):\n- Range: ~4 cm\n- Uses: Contactless payment (Apple Pay, Google Pay), file transfer (Android Beam), pairing, access cards\n- Active vs Passive: Active generates RF field, passive uses the field to respond\n\nHotspot/Tethering: I-share ang cellular data sa ibang devices via WiFi, Bluetooth, o USB\n\nAirDrop (iOS) / Nearby Share (Android): Direct device-to-device file transfer using WiFi Direct/Bluetooth\n\nMDM (Mobile Device Management): Company management ng mobile devices — enforce policies, wipe data, deploy apps (Intune, Workspace ONE, Jamf).' },
+      { title: 'Mobile Device Troubleshooting', text: 'Common issues at solusyon sa mobile devices.\n\nBattery Issues:\n- Mabilis ma-drain: Check power-hungry apps (Settings > Battery), reduce screen brightness, disable background refresh\n- Hindi nagcha-charge: Check cable/charger, clean charging port (lint/dust), try wireless charging\n- Battery swelling: DELIKADO — i-stop ang paggamit, dalhin sa repair shop\n\nScreen Issues:\n- Cracked screen: Palitan ang screen assembly\n- Unresponsive touch: Restart, remove screen protector, check for moisture\n- Dead pixels: Wala nang remedyo — screen replacement\n\nOverheating:\n- I-remove ang case, i-stop ang heavy usage (gaming/streaming), i-check kung nagcha-charge habang ginagamit\n\nSlow Performance:\n- I-clear ang cache, i-uninstall unused apps, i-restart, check for OS updates\n\nWi-Fi/Bluetooth Issues:\n- I-toggle off/on, i-forget at reconnect, i-restart phone, i-reset network settings\n\nNo Service (Cellular):\n- I-toggle Airplane mode, i-restart, i-check SIM card (re-seat), i-check kung may outage sa area\n\nWater Damage:\n- I-shutdown agad, huwag i-charge, huwag gumamit ng rice (dust particles). I-dry sa air o silica gel. Dalhin sa repair shop.' },
+      { title: 'Printer Types & Technologies', text: 'Mga iba\'t ibang uri ng printer.\n\nLaser Printers:\n- Technology: Electrostatic printing gamit ang toner (powder) at fuser (heat)\n- Steps: Processing → Charging → Writing → Developing → Transferring → Fusing → Cleaning\n- Pros: Fast, high volume, sharp text, low cost per page\n- Cons: Mahal ang initial cost, complex mechanism\n- Components: Toner cartridge, drum, fuser, transfer roller, fuser roller, pickup rollers\n- Maintenance: Replace toner, drum, fuser (pag sira), pickup rollers\n\nInkjet Printers:\n- Technology: Nag-spray ng liquid ink sa paper gamit ang printhead\n- Pros: Mura, maganda sa photos/color, mas maliit\n- Cons: Mabagal, mas mahal per page kaysa laser, pwedeng ma-clog ang printhead\n- Ink Types: Dye-based (mura, less vibrant), Pigment-based (water-resistant, better for text)\n\nThermal Printers:\n- Direct Thermal: Walang ink/toner — heat sa special paper. Gamit sa receipts, shipping labels.\n- Thermal Transfer: Gumagamit ng ribbon — mas durable, gamit sa barcode labels.\n\nImpact Printers:\n- Dot Matrix: Gumagamit ng pins at ribbon. Gamit sa multi-part forms (carbon copies). Maingay.\n\n3D Printers:\n- FDM: Filament (PLA/ABS) na natutunaw at nagla-layer\n- SLA: Liquid resin na ni-cure ng UV light' },
+      { title: 'Printer Maintenance & Troubleshooting', text: 'Paano mag-maintain at mag-troubleshoot ng printers.\n\nRoutine Maintenance:\n- Laser: I-vacuum ang toner dust, i-check ang fuser at rollers, i-calibrate, i-update firmware\n- Inkjet: Print test page regularly para iwas clog, i-run cleaning cycle, i-align printhead\n- Thermal: Clean printhead gamit ang alcohol, check paper sensor\n\nCommon Issues:\n- Paper Jam: Buksan lahat ng covers, gently pull paper in direction of paper path, check for torn pieces\n- Poor Print Quality (Laser): Ghosting (drum issue), vertical lines/scratches (drum scratched), faded print (low toner)\n- Poor Print Quality (Inkjet): Missing colors (clogged nozzle — run cleaning), streaks (align printhead), banding (cleaning needed)\n- No Print: Check kung may paper, may ink/toner, naka-on, connected (USB/network/WiFi)\n- Offline: I-restart printer at computer, i-check connection, i-set bilang default printer\n- Network Printer: Ping ang IP, i-check kung naka-login sa network, re-add printer\n\nSafety: Huwag gumamit ng compressed air sa laser printer (maaaring mag-spread ng toxic toner particles). Gamitin ang toner vacuum.' }
+    ]
+  },
+  os: {
+    title: 'Operating Systems',
+    steps: [
+      { title: 'Windows OS Basics', text: 'Ang Microsoft Windows ang pinaka-common na desktop OS sa enterprise.\n\nMga Bersyon:\n- Windows 10: LTSB/LTSC (Long-Term Servicing — enterprise), Pro, Enterprise, Education\n- Windows 11: Mas strict hardware requirements (TPM 2.0, Secure Boot, 8th gen Intel/Ryzen 2000+)\n- Windows Server: Server OS — AD, DHCP, DNS, IIS, File Services\n\nWindows Editions (Desktop):\n- Home: Basic features\n- Pro: BitLocker, Remote Desktop, Hyper-V, Group Policy\n- Enterprise: DirectAccess, AppLocker, Windows Defender ATP\n\nWindows Installation Methods:\n- Clean Install: Boot from USB/DVD, format drive, install fresh\n- Upgrade: Keep files/apps/settings (same edition or higher)\n- In-place Upgrade: Pag-ayos ng Windows nang hindi nagde-delete ng files\n- Image Deployment: Gamit ang WDS/MDT/SCCM para i-deploy sa maraming computers\n\nWindows File Systems:\n- FAT32: Legacy, max 4GB file size, max 2TB partition\n- exFAT: Modern flash drives, no file size limit\n- NTFS: Standard para sa Windows — permissions, encryption (EFS), compression, quotas\n- ReFS: Server-grade, resiliency features\n\nSystem Tools: Task Manager, Event Viewer, Performance Monitor, Disk Management, Device Manager.' },
+      { title: 'Windows Administration', text: 'Mga tool at concept para i-administer ang Windows.\n\nMicrosoft Management Console (MMC):\n- lusrmgr.msc: Local Users and Groups management\n- gpedit.msc: Group Policy Editor (Pro/Enterprise lang)\n- secpol.msc: Local Security Policy\n- services.msc: Services management\n- diskmgmt.msc: Disk Management\n- devmgmt.msc: Device Manager\n- eventvwr.msc: Event Viewer\n- compmgmt.msc: Computer Management (all-in-one)\n\nCommand Line Tools:\n- cmd: Legacy command prompt\n- PowerShell: Modern, object-oriented, scripting capabilities\n- DISM: Deployment Image Servicing and Management — repair Windows image\n- SFC /scannow: System File Checker — i-check at i-repair ang protected system files\n- CHKDSK: Check Disk — i-check ang file system integrity at bad sectors\n\nUser Account Control (UAC): Prompt para sa administrative actions. Security feature.\n\nBitLocker: Full disk encryption — nangangailangan ng TPM at Pro/Enterprise edition\n\nWindows Update: Mga security patches at feature updates. Maaaring i-manage via WSUS sa enterprise.\n\nRemote Management: RDP (Remote Desktop Protocol — port 3389), WinRM (PowerShell remoting), Remote Server Administration Tools (RSAT).' },
+      { title: 'macOS & Linux Basics', text: 'Alternatibong desktop at server OS.\n\nmacOS:\n- Desktop: Finder, Dock, Mission Control, Launchpad\n- File System: APFS (Apple File System) — optimized para sa SSDs\n- Disk Utility: Partition at repair drives\n- Time Machine: Built-in backup\n- Terminal: Unix-based command line\n- Keychain: Password management\n- Target Disk Mode: I-connect ang Mac bilang external drive\n- Recovery Mode: Cmd+R during boot — Disk Utility, Terminal, reinstall macOS\n- Features: Gatekeeper (app security), FileVault (encryption), iCloud integration\n\nLinux:\n- Distributions: Ubuntu (beginner-friendly), Debian (stable), Fedora (cutting-edge), CentOS/RHEL (enterprise), Linux Mint\n- Desktop Environments: GNOME (modern), KDE (configurable), XFCE (lightweight)\n- File System: ext4 (default), XFS (large files), Btrfs (snapshots)\n- Package Managers: apt (Debian/Ubuntu), yum/dnf (RHEL/Fedora), pacman (Arch)\n- Command Line: Terminal — mas malakas kaysa GUI\n- File Permissions: rwx (read, write, execute) para sa owner, group, others (chmod, chown)\n- Processes: ps, top, htop, systemctl\n\nDisk Commands: fdisk, lsblk, mount, df -h, du -sh' },
+      { title: 'Virtualization & Cloud', text: 'Ang virtualization ay ang pagpapatakbo ng multiple OS sa iisang physical machine.\n\nHypervisor:\n- Type 1 (Bare Metal): VMware ESXi, Microsoft Hyper-V, Proxmox — direktang naka-install sa hardware\n- Type 2 (Hosted): VirtualBox, VMware Workstation/Player, Parallels — tumatakbo sa OS\n\nVirtual Machines:\n- Guest OS: OS na tumatakbo sa loob ng VM\n- Host OS: Physical machine\'s OS\n- Hypervisor: Nagmi-manage ng resources (CPU, RAM, storage, network) sa pagitan ng host at guests\n- Snapshots: I-save ang state ng VM para ma-restore kung may problema\n- Migration: Move VMs between hosts (vMotion, Live Migration)\n\nCloud Computing Models:\n- IaaS (Infrastructure as a Service): Virtual servers, storage, networking (AWS EC2, Azure VM, GCP Compute)\n- PaaS (Platform as a Service): Deploy apps without managing infrastructure (Azure App Service, Google App Engine)\n- SaaS (Software as a Service): Ready-to-use software (Office 365, Google Workspace, Salesforce)\n\nCloud Deployment:\n- Public Cloud: Shared infrastructure (AWS, Azure, GCP)\n- Private Cloud: Dedicated infrastructure (on-premise)\n- Hybrid Cloud: Combination of public at private\n\nContainerization: Docker, Kubernetes — mas magaan kaysa VMs (ibinabahagi ang host OS kernel)' },
+      { title: 'Troubleshooting OS Issues', text: 'Common OS issues at paano i-diagnose.\n\nSlow Boot/Performance:\n- I-check ang startup programs (Task Manager > Startup)\n- I-check ang disk usage (Task Manager > Performance)\n- Run Disk Cleanup, i-defrag (HDD lang)\n- I-check para sa malware (Windows Defender full scan)\n- I-check ang available RAM at disk space\n\nBlue Screen of Death (BSOD):\n- Stop code (e.g., MEMORY_MANAGEMENT, DRIVER_IRQL_NOT_LESS_OR_EQUAL)\n- I-search ang stop code\n- Common causes: Bad driver, faulty hardware (RAM/HDD), corrupt system files\n- Check Event Viewer > Windows Logs > System\n- Run memory diagnostic (mdsched.exe)\n- Run SFC /scannow at DISM\n\nApplication Crashes:\n- I-reinstall ang app\n- I-update ang app\n- Run compatibility troubleshooter\n- Check Event Viewer (Application logs)\n\nCannot Boot:\n- Check boot order sa BIOS\n- Use Windows Recovery Environment (WinRE) — boot from installation media\n- Startup Repair, System Restore, Safe Mode\n- Check kung may bagong hardware/driver na na-install\n\nMalware Infection:\n- Run Windows Defender offline scan\n- Run Malwarebytes\n- I-disable startup items sa Safe Mode\n- I-check browser extensions\n- I-reset browser settings\n\nTips: Lagging mag-backup. Keep OS updated. I-document ang steps para sa future reference.' },
+      { title: 'Security Best Practices', text: 'Mga basic security practices para sa workstation.\n\nPassword & Authentication:\n- Strong password (12+ chars, complex)\n- Biometrics (fingerprint, Windows Hello face)\n- PIN (mas secure kaysa password sa Windows — TPM-backed)\n- MFA/2FA (authenticator app, hardware key)\n\nWindows Security Features:\n- Windows Defender Antivirus: Built-in, automatic\n- Windows Firewall: May inbound/outbound rules\n- BitLocker: Encrypt drive\n- Secure Boot: Protect boot process\n- Windows Sandbox: Run untrusted apps in isolation (Pro/Enterprise)\n- Exploit Protection: Mitigation for common exploit techniques\n\nFile & Folder Permissions (NTFS):\n- Full Control, Modify, Read & Execute, List Folder Contents, Read, Write\n- Effective Permissions: Cumulative + Deny overrides Allow\n- Inherited vs Explicit permissions\n\nData Sanitization:\n- Delete = nawawala lang ang pointer, hindi ang data\n- Reformat = hindi secure (pwede pang ma-recover)\n- Secure Erase: DBAN, SSD Secure Erase, BitLocker + format\n- Physical Destruction: Crush, shred, degauss (HDD only)\n\nPatch Management: Regular updates = critical security. I-automate via WSUS o third-party tools.\n\nPhysical Security: Lock workstation (Win+L), cable lock, secure room, badge access, CCTV.' }
+    ]
+  },
+  troubleshooting: {
+    title: 'Troubleshooting Methodology',
+    steps: [
+      { title: 'The CompTIA Troubleshooting Process', text: 'Ang CompTIA 6-step troubleshooting process ay ang standard methodology para i-resolve ang technical issues.\n\nStep 1: Identify the Problem\n- Gather information mula sa user (open-ended questions)\n- Duplicate ang issue (kung possible)\n- Identify recent changes (new hardware, software, updates)\n- Determine scope (iisa lang ba o maraming users apektado?)\n\nStep 2: Establish a Theory of Probable Cause\n- List possible causes (hardware? software? configuration? user error?)\n- Start with the most obvious at simplest cause (Occam\'s Razor)\n- Isipin ang common causes bago mag-complicate\n\nStep 3: Test the Theory\n- Try isang solution at a time\n- Kung hindi gumana, i-eliminate ang theory at subukan ang next\n- Document ang results\n- Kung na-determine ang exact cause, proceed to Step 4\n\nStep 4: Establish a Plan of Action\n- Plan kung paano i-resolve ang issue\n- Consider impact (downtime? data loss?)\n- Mag-backup kung kinakailangan\n- I-communicate sa user/stakeholders\n\nStep 5: Implement the Solution\n- Execute ang plan\n- Escalate kung kinakailangan (lampas sa scope)\n- Verify na na-resolve ang issue\n\nStep 6: Verify Full System Functionality\n- I-confirm sa user na working na\n- I-check kung walang bagong issues na na-caused ng fix\n- Close ang ticket\n\nStep 7 (Bonus): Document\n- I-document ang issue, root cause, solution\n- I-update ang knowledge base para sa future reference\n- Para hindi na ulitin ang investigation sa same issue' },
+      { title: 'Safety & ESD Precautions', text: 'Kaligtasan sa paghawak ng computer hardware.\n\nESD (Electrostatic Discharge):\n- ESD ay ang biglaang pag-discharge ng static electricity — pwedeng pumatay ng sensitive components\n- Antistatic wrist strap — ikabit sa grounded metal\n- Antistatic mat — work surface\n- I-ground ang sarili: hawakan ang metal case ng PSU bago humawak ng components\n- Iwasan ang carpets, wool, synthetic clothing\n- Humidity: 30-70% ideal para mabawasan ang static\n\nTools:\n- Screwdrivers: Phillips #0 at #2 (mostly #2), flathead\n- Multimeter: Para mag-measure ng voltage, continuity\n- Cable Tester: Para i-verify ang network cables\n- Loopback Plug: Para i-test ang network ports\n- Hex/Allen Wrench: Para sa standoffs at case screws\n- Thermal Paste: Para sa CPU installation\n- Compressed Air: Para sa cleaning (huwag sa laser printer!)\n\nSafety Precautions:\n- I-unplug ang computer bago mag-open\n- I-press ang power button pagkatapos ma-unplug para ma-discharge ang capacitors\n- Huwag magsuot ng jewelry (conductive)\n- Magtrabaho sa well-lit area\n- I-check ang PSU connectors — force ay pwedeng makasira\n- I-report ang accidents (cuts, electric shock)\n\nFire Safety: Alamin kung saan ang fire extinguisher (Class C para sa electrical fires). Huwag gumamit ng tubig sa electrical fire.' },
+      { title: 'Common Hardware Issues', text: 'Mga common hardware problems at diagnostic approach.\n\nNo Power:\n1. I-check ang power cable at outlet\n2. I-check ang PSU switch (I/O)\n3. I-test ang PSU (multimeter o PSU tester)\n4. I-check ang front panel connectors\n5. I-reseat ang RAM at GPU\n6. I-try ang minimal boot (PSU + mobo + CPU + isang stick ng RAM)\n\nNo Display:\n1. I-check ang monitor power at cable\n2. I-check kung naka-correct input source\n3. I-reseat ang GPU\n4. I-check kung may beep codes (diagnostic LEDs)\n5. I-try ang integrated graphics (kung may CPU na may iGPU)\n\nStrange Noises:\n- Beeping: POST code (diagnostic beeps — check manual)\n- Clicking (HDD): Failing drive — i-backup agad\n- Grinding (fan): Bearing failure — replace fan\n- Buzzing (coil whine): Normal sa GPU/PSU minsan, harmless\n\nOverheating:\n1. I-check ang fan operation\n2. I-clean ang dust (compressed air)\n3. I-check ang thermal paste application\n4. I-check ang case airflow\n5. I-check kung naka-overclock\n\nBlue Screen (BSOD) during boot:\n1. Boot in Safe Mode\n2. I-rollback ang recent driver\n3. I-check ang RAM (memtest86)\n4. I-check ang disk health (S.M.A.R.T.)\n5. Last resort: Reinstall OS' },
+      { title: 'Common Software Issues', text: 'Mga software problems na madalas makita.\n\nApplication Won\'t Install:\n1. I-check ang system requirements\n2. Run as Administrator\n3. I-check ang compatibility mode\n4. I-disable ang antivirus temporarily\n5. I-check kung may conflicting software\n\nApplication Won\'t Launch:\n1. I-restart ang app\n2. I-restart ang computer\n3. I-reinstall ang app\n4. Run compatibility troubleshooter\n5. I-check Event Viewer for error details\n\nDriver Issues:\n- Yellow exclamation mark sa Device Manager: Driver problem\n- I-update ang driver (manufacturer website, hindi Windows Update)\n- I-rollback kung bago ang driver\n- I-uninstall at reinstall\n- Use manufacturer\'s driver cleaner tool (DDU para sa GPU)\n\nNetwork Connectivity:\n1. Ipconfig /all — check IP configuration\n2. Ping loopback (127.0.0.1) — gumagana ba ang TCP/IP?\n3. Ping gateway — kaya bang mag-reach sa router?\n4. Ping external IP (8.8.8.8) — may internet connection ba?\n5. Ping domain name (google.com) — gumagana ba ang DNS?\n6. Ipconfig /release + /renew — renew IP\n7. Ipconfig /flushdns — clear DNS cache\n8. Netsh winsock reset — reset network stack\n\nSlowness:\n- I-check ang Task Manager (CPU, RAM, Disk, Network usage)\n- I-check ang startup programs\n- Run Disk Cleanup\n- I-check para sa malware\n- I-check ang disk space (at least 10-15% free sa C: drive)' },
+      { title: 'Customer Service & Professionalism', text: 'Soft skills na kailangan ng IT professional.\n\nCommunication:\n- Use simple, non-technical language para sa end users\n- Huwag gumamit ng acronyms na hindi nila alam\n- I-confirm na naiintindihan nila ang explanation\n- Magbigay ng realistic timeline\n- Huwag mangako ng hindi sigurado\n\nActive Listening:\n- Hayaan ang user mag-explain nang hindi pinuputol\n- Magtanong ng clarifying questions\n- I-paraphrase ang issue para i-confirm: "So ang sabi mo ay... tama ba?"\n- Show empathy: "I understand how frustrating that must be"\n\nProfessional Behavior:\n- Maging punctual sa appointments\n- Dress appropriately (business casual / company dress code)\n- I-respect ang user\'s workspace\n- I-propose ang privacy ng data\n- I-document lahat ng actions\n\nEscalation:\n- Alamin ang scope ng iyong knowledge at authority\n- Kung hindi mo alam, sabihin na "I need to research this further" o "I need to escalate this"\n- I-communicate ang escalation sa user\n- Huwag mag-assume na "hindi ko trabaho" — i-direct sa tamang tao/department\n\nDifficult Users:\n- Stay calm at professional\n- Huwag makipag-argumento\n- I-accept na hindi lahat ng issues ay maaayos mo\n- I-involve ang manager kung kailangan\n- I-focus sa solution, hindi sa blame\n\nDocumentation: Kung hindi mo na-document, hindi ito nangyari. I-log ang tickets nang maayos.' },
+      { title: 'Preventive Maintenance', text: 'Ang preventive maintenance ay ang regular na pag-aalaga para iwasan ang issues bago sila mangyari.\n\nDaily:\n- I-check ang backup status\n- I-clear ang temporary files\n- I-check ang storage space\n- I-check ang antivirus status\n\nWeekly:\n- Run disk cleanup\n- I-check ang Event Viewer for warnings/errors\n- I-update ang software\n- I-check ang S.M.A.R.T. status ng drives\n\nMonthly:\n- I-clean ang hardware interiors (compressed air)\n- I-check at i-update ang drivers\n- I-run ang manual Windows Update check\n- I-run ang full antivirus scan\n- I-check ang UPS battery status\n\nQuarterly:\n- I-check ang cable management\n- I-replace ang thermal paste kung kinakailangan\n- I-check ang fan bearings (replace kung maingay)\n- I-run ang hard drive manufacturer diagnostic tool\n- I-archive at i-delete ang old files\n\nAnnually:\n- I-full backup at test restore\n- I-re-evaluate ang hardware — kailangan na bang i-replace?\n- I-update ang documentation\n- I-check ang warranty status\n\nBest Practice: Gamit ang ticketing system (Spiceworks, osTicket, Jira Service Management) para i-track ang preventive maintenance tasks. I-schedule ang reminders.' }
+    ]
+  }
+};
+
+const moduleIds = ['hardware','storage','networking','mobile','os','troubleshooting'];
+const moduleIcons = ['ti ti-cpu','ti ti-device-floppy','ti ti-network','ti ti-device-mobile','ti ti-brand-windows','ti ti-wrench'];
+const moduleColors = ['#e94560','#0f3460','#1d4ed8','#7c3aed','#ef9f27','#1d9e75'];
+const moduleDesc = ['Motherboard, CPU, RAM, PSU, cooling at BIOS','HDD, SSD, RAID, backup at data recovery','Network types, IP addressing, hardware, cables at protocols','Laptops, smartphones, tablets, printers at troubleshooting','Windows, macOS, Linux, virtualization at security','6-step process, safety, common issues at preventive maintenance'];
+
+const quizData = {
+  hardware: [
+    { q: 'Ano ang form factor na pinakamaliit para sa motherboard?', options: ['ATX', 'Micro-ATX', 'Mini-ITX', 'E-ATX'], answer: 2 },
+    { q: 'Ilang pins mayroon ang DDR4 DIMM?', options: ['240', '260', '284', '288'], answer: 3 },
+    { q: 'Ano ang ibig sabihin ng higher TDP?', options: ['Mas efficient ang CPU', 'Mas maraming heat ang CPU', 'Mas bago ang CPU', 'Mas mura ang CPU'], answer: 1 },
+    { q: 'Ano ang tamang halaga ng thermal paste na ilalagay sa CPU?', options: ['Punuin ang buong surface', 'Pea-sized amount sa gitna', 'Isang manipis na linya', 'Wala — hindi na kailangan'], answer: 1 },
+    { q: 'Anong PCIe version ang ginagamit ng karamihan ng modernong GPU?', options: ['PCIe 2.0', 'PCIe 3.0', 'PCIe 4.0/5.0', 'PCIe 1.0'], answer: 2 }
+  ],
+  storage: [
+    { q: 'Alin ang pinakamabilis na storage interface?', options: ['SATA 3', 'M.2 SATA', 'M.2 NVMe PCIe 4.0', 'USB 3.0'], answer: 2 },
+    { q: 'Ano ang RAID 1?', options: ['Striping', 'Mirroring', 'Parity', 'Spanning'], answer: 1 },
+    { q: 'Ilang drives ang kailangan para sa RAID 5?', options: ['2', '3', '4', '5'], answer: 1 },
+    { q: 'Ano ang maximum file size ng FAT32?', options: ['2GB', '4GB', '8GB', '16GB'], answer: 1 },
+    { q: 'Ano ang S.M.A.R.T.?', options: ['File system', 'Drive monitoring technology', 'RAID controller', 'Power management'], answer: 1 }
+  ],
+  networking: [
+    { q: 'Anong cable standard ang sumusuporta ng 1 Gbps sa 100 meters?', options: ['Cat3', 'Cat5', 'Cat5e', 'Cat6a'], answer: 2 },
+    { q: 'Anong port ang ginagamit ng HTTPS?', options: ['80', '443', '22', '3389'], answer: 1 },
+    { q: 'Ano ang IP address ng localhost?', options: ['192.168.1.1', '10.0.0.1', '127.0.0.1', '169.254.1.1'], answer: 2 },
+    { q: 'Anong WiFi standard ang kilala bilang WiFi 6?', options: ['802.11ac', '802.11ax', '802.11n', '802.11be'], answer: 1 },
+    { q: 'Anong device ang nagko-connect ng LAN sa WAN?', options: ['Switch', 'Hub', 'Router', 'Access Point'], answer: 2 }
+  ],
+  mobile: [
+    { q: 'Anong RAM form factor ang ginagamit ng laptop?', options: ['DIMM', 'SO-DIMM', 'SIMM', 'RIMM'], answer: 1 },
+    { q: 'Anong connectivity technology ang may range na ~4 cm?', options: ['Bluetooth', 'WiFi Direct', 'NFC', 'Infrared'], answer: 2 },
+    { q: 'Ano ang dapat gawin kapag may swollen battery?', options: ['Continue using, it\'s normal', 'Puncture to release gas', 'I-stop ang paggamit at dalhin sa repair shop', 'I-charge ng mas matagal'], answer: 2 },
+    { q: 'Anong printer technology ang pinakamahusay para sa high-volume text printing?', options: ['Inkjet', 'Laser', 'Thermal', 'Dot Matrix'], answer: 1 },
+    { q: 'Ano ang tamang gamitin para linisin ang laser printer?', options: ['Compressed air', 'Toner vacuum', 'Regular vacuum', 'Damp cloth'], answer: 1 }
+  ],
+  os: [
+    { q: 'Anong tool ang ginagamit para i-check at i-repair ang Windows system files?', options: ['CHKDSK', 'SFC /scannow', 'DISM', 'Defrag'], answer: 1 },
+    { q: 'Anong Windows edition ang may BitLocker?', options: ['Home', 'Pro', 'Home Single Language', 'Home in S Mode'], answer: 1 },
+    { q: 'Ano ang Type 1 hypervisor?', options: ['VirtualBox', 'VMware Player', 'VMware ESXi', 'Parallels'], answer: 2 },
+    { q: 'Anong file system ang default para sa modernong Linux?', options: ['NTFS', 'FAT32', 'ext4', 'APFS'], answer: 2 },
+    { q: 'Ang TPM 2.0 ay requirement para sa anong OS?', options: ['Windows 10', 'Windows 11', 'macOS Ventura', 'Ubuntu 22.04'], answer: 1 }
+  ],
+  troubleshooting: [
+    { q: 'Ano ang UNANG step sa CompTIA troubleshooting process?', options: ['Establish theory of probable cause', 'Identify the problem', 'Implement solution', 'Verify functionality'], answer: 1 },
+    { q: 'Ano ang tamang tawag sa static electricity discharge na makakasira ng components?', options: ['EMP', 'ESD', 'EMI', 'RFI'], answer: 1 },
+    { q: 'Ano ang dapat mong isuot para maiwasan ang ESD?', options: ['Rubber gloves', 'Antistatic wrist strap', 'Steel-toed boots', 'Safety glasses'], answer: 1 },
+    { q: 'Anong tool ang ginagamit para i-test ang RAM?', options: ['CHKDSK', 'Memtest86', 'SFC', 'CrystalDiskInfo'], answer: 1 },
+    { q: 'Ano ang unang command na dapat patakbuhin para mag-troubleshoot ng network?', options: ['Tracert', 'Ipconfig', 'Netstat', 'Nslookup'], answer: 1 }
+  ]
+};
+
+const scenarioData = {
+  'no-power': {
+    title: 'No Power — Desktop Won\'t Turn On',
+    desc: 'Exercise: Isang user ang nag-report na hindi umiilaw ang desktop computer niya. Walang LED, walang fan, walang response nang pindutin ang power button.',
+    steps: [
+      { text: 'I-check ang power cable: nakasaksak ba sa outlet at sa PSU? I-check kung may ibang device na gumagana sa same outlet.' },
+      { text: 'I-check ang PSU switch sa likod — dapat naka-set sa "I" (ON), hindi "O" (OFF).' },
+      { text: 'I-check ang front panel connectors sa motherboard — baka natanggal ang power switch connector.' },
+      { text: 'I-test ang PSU gamit ang multimeter o PSU tester. I-check ang standby power (purple wire = +5V SB).' },
+      { text: 'I-try ang paperclip test: I-short ang green wire (PS_ON) at kahit anong black wire (ground) sa 24-pin connector. Kung hindi umandar ang PSU fan, palitan ang PSU.' },
+      { text: '✅ Na-diagnose mo ang issue! Kung ang PSU ay dead, palitan ito ng bagong PSU na may tamang wattage at 80+ rating. I-verify na nagbo-boot na ang computer.' }
+    ]
+  },
+  'bsod-diagnosis': {
+    title: 'BSOD — Memory Management Error',
+    desc: 'Exercise: Nagre-report ang user na nag-bi-blue screen ang computer na may stop code na MEMORY_MANAGEMENT. Madalas ito nangyayari kapag nag-o-open ng maraming programs.',
+    steps: [
+      { text: 'I-record ang exact stop code: MEMORY_MANAGEMENT (0x0000001A) — ito ay nag-indicate ng RAM issue.' },
+      { text: 'I-run ang Windows Memory Diagnostic (mdsched.exe). Piliin ang "Restart now and check for problems".' },
+      { text: 'Kung may nakitang errors ang diagnostics, i-reseat ang RAM sticks — tanggalin at ibalik nang maayos hanggang mag-click.' },
+      { text: 'Kung marami kang RAM sticks, i-test ang tig-isa: iwan lang ang isang stick at tingnan kung nag-bi-BSOD pa rin.' },
+      { text: 'I-try ang ibang RAM slot sa motherboard — baka may sira ang slot, hindi ang RAM stick.' },
+      { text: '✅ Kung isang RAM stick ang cause, palitan ito. Kung lahat ng sticks ay may error sa iba\'t ibang slots, baka motherboard issue. I-test ang RAM sa ibang computer para ma-confirm.' }
+    ]
+  },
+  'network-down': {
+    title: 'Network Connectivity Issue',
+    desc: 'Exercise: Isang buong department ang hindi makapag-internet. Ang LAN at WiFi ay hindi gumagana. Kailangan mong i-diagnose kung saan ang problema.',
+    steps: [
+      { text: 'I-check ang isang computer: ipconfig /all — may IP address ba? 169.254.x.x = APIPA (walang DHCP).' },
+      { text: 'Ping ang default gateway (ipconfig para malaman ang gateway IP). Kung hindi mag-reply, may issue sa router o switch.' },
+      { text: 'Ping ang 8.8.8.8 (Google DNS). Kung hindi mag-reply pero nag-reply ang gateway, may WAN issue (ISP problem).' },
+      { text: 'I-check ang physical devices: Naka-on ba ang switch? May link lights ba sa ports? I-restart ang switch at router.' },
+      { text: 'Kung physical switch/router ang issue, i-power cycle: i-unplug ng 30 seconds, isaksak ulit. Maghintay ng 2 minutes para mag-fully boot.' },
+      { text: '✅ Kung nag-restore ang connectivity pagkatapos ng power cycle, ang issue ay router/switch hang or temporary glitch. I-document at i-monitor. Kung hindi parin, i-contact ang ISP o i-replace ang faulty network device.' }
+    ]
+  },
+  'printer-issue': {
+    title: 'Printer Not Printing',
+    desc: 'Exercise: Nagre-report ang user na nagse-send siya ng print job pero walang lumalabas sa printer. Ang printer ay network-connected HP LaserJet.',
+    steps: [
+      { text: 'I-check ang printer: naka-on ba? May "Ready" status ba ang display? May papel ba? May toner ba?' },
+      { text: 'I-check ang connection: Ping ang printer IP address. Kung hindi nag-reply, may network issue.' },
+      { text: 'I-check ang print queue sa computer: Start > Printers > right-click printer > "See what\'s printing". I-cancel ang mga stuck jobs, i-restart ang Print Spooler service (services.msc > Print Spooler > Restart).' },
+      { text: 'I-try mag-print ng test page mula sa printer mismo (menu > Print Test Page). Kung gumagana, ang issue ay nasa computer/network, hindi sa printer.' },
+      { text: 'I-run ang Windows Printer Troubleshooter. I-check kung naka-set bilang default printer ang tamang printer. I-reinstall ang printer driver kung kinakailangan.' },
+      { text: '✅ Na-resolve mo ang issue! Document kung ano ang cause: stuck print job o driver issue. I-advise ang user na i-check ang print queue bago mag-print ulit para iwas duplicate jobs.' }
+    ]
+  }
+};
+
+function getProgress() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveProgress(key, subkey, value) {
+  const p = getProgress();
+  if (!p[key]) p[key] = {};
+  p[key][subkey] = value;
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  updateAllDisplays();
+}
+function getModuleProgress(id) {
+  const p = getProgress();
+  const m = p.modules && p.modules[id];
+  if (!m || !m.steps) return { completed: 0, total: lessons[id].steps.length, steps: [] };
+  return { completed: m.steps.filter(Boolean).length, total: lessons[id].steps.length, steps: m.steps };
+}
+function addActivity(text) {
+  const p = getProgress();
+  if (!p.activity) p.activity = [];
+  p.activity.unshift({ text: text, time: Date.now() });
+  if (p.activity.length > 50) p.activity = p.activity.slice(0, 50);
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  updateAllDisplays();
+}
+const achievementDefs = [
+  { id: 'first-module', label: 'First Steps', desc: 'Complete your first training module', icon: 'ti ti-star' },
+  { id: 'all-modules', label: 'Scholar', desc: 'Complete all 6 training modules', icon: 'ti ti-books' },
+  { id: 'first-quiz', label: 'Quiz Novice', desc: 'Pass your first quiz (80%+)', icon: 'ti ti-checklist' },
+  { id: 'all-quizzes', label: 'Quiz Master', desc: 'Pass all 6 quizzes (80%+)', icon: 'ti ti-award' },
+  { id: 'first-scenario', label: 'Scenario Solver', desc: 'Complete your first scenario', icon: 'ti ti-tasks' },
+  { id: 'all-scenarios', label: 'Scenario Expert', desc: 'Complete all 4 scenarios', icon: 'ti ti-medal' },
+  { id: 'perfect-quiz', label: 'Perfect Score', desc: 'Get 100% on any quiz', icon: 'ti ti-crown' },
+  { id: 'half-progress', label: 'Halfway There', desc: 'Reach 50% overall progress', icon: 'ti ti-flag' }
+];
+function checkAchievements() {
+  const p = getProgress();
+  if (!p.achievements) p.achievements = {};
+  const mods = p.modules || {};
+  const quizzes = p.quizzes || {};
+  const scen = p.scenarios || {};
+  const modDone = moduleIds.filter(id => { const mp = getModuleProgress(id); return mp.completed === mp.total; }).length;
+  const quizPassed = moduleIds.filter(id => { const q = quizzes[id]; return q && q.correct / q.total >= 0.8; }).length;
+  const scenDone = Object.keys(scenarioData).filter(k => scen[k] && scen[k].completed).length;
+  const totalSteps = moduleIds.reduce((s,id) => s + lessons[id].steps.length, 0);
+  const doneSteps = moduleIds.reduce((s,id) => s + getModuleProgress(id).completed, 0);
+  const pct = totalSteps ? Math.round(doneSteps / totalSteps * 100) : 0;
+  if (!p.achievements['first-module'] && modDone >= 1) unlockAchievement('first-module');
+  if (!p.achievements['all-modules'] && modDone === moduleIds.length) unlockAchievement('all-modules');
+  if (!p.achievements['first-quiz'] && quizPassed >= 1) unlockAchievement('first-quiz');
+  if (!p.achievements['all-quizzes'] && quizPassed === moduleIds.length) unlockAchievement('all-quizzes');
+  if (!p.achievements['first-scenario'] && scenDone >= 1) unlockAchievement('first-scenario');
+  if (!p.achievements['all-scenarios'] && scenDone === Object.keys(scenarioData).length) unlockAchievement('all-scenarios');
+  if (!p.achievements['half-progress'] && pct >= 50) unlockAchievement('half-progress');
+  Object.keys(quizzes).forEach(k => { const q = quizzes[k]; if (!p.achievements['perfect-quiz'] && q && q.total > 0 && q.correct === q.total) unlockAchievement('perfect-quiz'); });
+}
+function unlockAchievement(id) {
+  const p = getProgress();
+  if (!p.achievements) p.achievements = {};
+  if (p.achievements[id]) return;
+  p.achievements[id] = { unlockedAt: Date.now() };
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  addActivity('🏆 Achieved: ' + achievementDefs.find(a => a.id === id).label);
+  showToast('🏆 Achievement unlocked: ' + achievementDefs.find(a => a.id === id).label);
+}
+function showToast(msg, isError) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, 3000);
+}
+function switchPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  document.getElementById('breadcrumb').innerHTML = '<strong>' + ({ home:'Home', training:'Training Center', progress:'My Progress' }[id] || 'Home') + '</strong>';
+  if (id === 'training') updateTrainingDisplays();
+  if (id === 'progress') updateProgressPage();
+}
+function switchTab(tab, el) {
+  document.querySelectorAll('#panel-training .tab-content').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('#panel-training .tab-btn').forEach(function(t) { t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  updateTrainingDisplays();
+}
+function updateAllDisplays() {
+  const p = getProgress();
+  const mods = p.modules || {};
+  const quizzes = p.quizzes || {};
+  const scen = p.scenarios || {};
+  const modDone = moduleIds.filter(function(id) { const mp = getModuleProgress(id); return mp.completed === mp.total; }).length;
+  const quizPassed = moduleIds.filter(function(id) { const q = quizzes[id]; return q && q.correct / q.total >= 0.8; }).length;
+  const scenDone = Object.keys(scenarioData).filter(function(k) { return scen[k] && scen[k].completed; }).length;
+  const totalSteps = moduleIds.reduce(function(s,id) { return s + lessons[id].steps.length; }, 0);
+  const doneSteps = moduleIds.reduce(function(s,id) { return s + getModuleProgress(id).completed; }, 0);
+  const pct = totalSteps ? Math.round(doneSteps / totalSteps * 100) : 0;
+  document.getElementById('homeModulesDone').textContent = modDone + '/' + moduleIds.length;
+  document.getElementById('homeQuizzesDone').textContent = quizPassed + '/' + moduleIds.length;
+  document.getElementById('homeScenariosDone').textContent = scenDone + '/' + Object.keys(scenarioData).length;
+  document.getElementById('homeProgressPct').textContent = pct + '%';
+  document.getElementById('homeProgressBar').style.width = pct + '%';
+  var trainingBadge = document.getElementById('trainingNavBadge');
+  if (trainingBadge) { trainingBadge.textContent = pct > 0 ? pct + '%' : 'NEW'; }
+  var html = '';
+  moduleIds.forEach(function(id) {
+    const mp = getModuleProgress(id);
+    const pct2 = mp.total ? Math.round(mp.completed / mp.total * 100) : 0;
+    const status = mp.completed === 0 ? 'Not started' : mp.completed === mp.total ? '✅ Complete' : mp.completed + '/' + mp.total + ' done';
+    html += '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6;font-size:13px;"><span style="width:90px;font-weight:500;color:#1a2332">' + lessons[id].title + '</span><div style="flex:1"><div class="progress-bar"><div class="progress-fill" style="width:' + pct2 + '%"></div></div></div><span style="color:#6b7a8d;font-size:12px;min-width:90px;text-align:right">' + status + '</span></div>';
+  });
+  document.getElementById('homeModuleProgress').innerHTML = html;
+  var acts = p.activity || [];
+  if (acts.length === 0) { document.getElementById('homeActivityLog').innerHTML = '<div style="color:#9aa3ad;text-align:center;padding:10px">No activity yet.</div>'; } else { document.getElementById('homeActivityLog').innerHTML = acts.slice(0, 10).map(function(a) { return '<div class="activity-item">' + a.text + '</div>'; }).join(''); }
+}
+function updateTrainingDisplays() { renderModuleGrid(); renderQuizGrid(); renderScenarioGrid(); }
+function renderModuleGrid() {
+  const el = document.getElementById('moduleGrid');
+  el.innerHTML = moduleIds.map(function(id, i) {
+    const mp = getModuleProgress(id);
+    const pct = mp.total ? Math.round(mp.completed / mp.total * 100) : 0;
+    const cls = mp.completed === mp.total ? 'completed' : mp.completed > 0 ? 'in-progress' : '';
+    const status = mp.completed === 0 ? 'Not started' : mp.completed === mp.total ? '✅ Completed (' + mp.total + '/' + mp.total + ')' : mp.completed + '/' + mp.total + ' steps';
+    return '<div class="module-card ' + cls + '" onclick="startLesson(\'' + id + '\')"><div class="module-card-title"><i class="' + moduleIcons[i] + '" style="color:' + moduleColors[i] + '"></i> ' + lessons[id].title + '</div><div class="module-card-desc">' + moduleDesc[i] + '</div><div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div><div style="margin-top:6px"><span class="module-card-status">' + status + '</span></div></div>';
+  }).join('');
+}
+function renderQuizGrid() {
+  const el = document.getElementById('quizGrid');
+  const p = getProgress();
+  const quizzes = p.quizzes || {};
+  el.innerHTML = moduleIds.map(function(id, i) {
+    const q = quizzes[id];
+    const score = q ? q.correct + '/' + q.total : null;
+    const passed = q && q.correct / q.total >= 0.8;
+    const badgeCls = passed ? 'badge-green' : q ? 'badge-red' : 'badge-gray';
+    const label = passed ? '✅ Passed (' + score + ')' : q ? '❌ ' + score : 'Not taken';
+    return '<div class="module-card" onclick="startQuiz(\'' + id + '\')"><div class="module-card-title"><i class="' + moduleIcons[i] + '" style="color:' + moduleColors[i] + '"></i> ' + lessons[id].title + ' Quiz</div><div class="module-card-desc">5 questions — ' + moduleDesc[i].substring(0, 40) + '...</div><div style="margin-top:8px"><span class="badge ' + badgeCls + '">' + label + '</span></div></div>';
+  }).join('');
+}
+function renderScenarioGrid() {
+  const el = document.getElementById('scenarioGrid');
+  const p = getProgress();
+  const scen = p.scenarios || {};
+  el.innerHTML = Object.keys(scenarioData).map(function(k) {
+    const s = scenarioData[k];
+    const done = scen[k] && scen[k].completed;
+    const cls = done ? 'completed' : '';
+    return '<div class="module-card ' + cls + '" onclick="startScenario(\'' + k + '\')"><div class="module-card-title"><i class="ti ti-tasks" style="color:#7c3aed"></i> ' + s.title + '</div><div class="module-card-desc">' + s.desc.substring(0, 80) + '...</div><div style="margin-top:8px"><span class="module-card-status">' + (done ? '✅ Completed' : 'Not started') + '</span></div></div>';
+  }).join('');
+}
+function updateProgressPage() {
+  const p = getProgress();
+  const quizzes = p.quizzes || {};
+  const scen = p.scenarios || {};
+  const modDone = moduleIds.filter(function(id) { const mp = getModuleProgress(id); return mp.completed === mp.total; }).length;
+  const quizPassed = moduleIds.filter(function(id) { const q = quizzes[id]; return q && q.correct / q.total >= 0.8; }).length;
+  const scenDone = Object.keys(scenarioData).filter(function(k) { return scen[k] && scen[k].completed; }).length;
+  document.getElementById('progressModules').textContent = modDone + '/' + moduleIds.length;
+  document.getElementById('progressQuizzes').textContent = quizPassed + '/' + moduleIds.length;
+  document.getElementById('progressScenarios').textContent = scenDone + '/' + Object.keys(scenarioData).length;
+  document.getElementById('progressModulesPill').textContent = modDone === 0 ? 'Not started' : modDone === moduleIds.length ? '✅ All complete' : modDone + ' done';
+  document.getElementById('progressModulesPill').className = 'pill ' + (modDone === 0 ? 'pill-gray' : modDone === moduleIds.length ? 'pill-green' : 'pill-blue');
+  document.getElementById('progressQuizzesPill').textContent = quizPassed === 0 ? 'Not started' : quizPassed === moduleIds.length ? '✅ All passed' : quizPassed + ' passed';
+  document.getElementById('progressQuizzesPill').className = 'pill ' + (quizPassed === 0 ? 'pill-gray' : quizPassed === moduleIds.length ? 'pill-green' : 'pill-amber');
+  document.getElementById('progressScenariosPill').textContent = scenDone === 0 ? 'Not started' : scenDone === Object.keys(scenarioData).length ? '✅ All complete' : scenDone + ' done';
+  document.getElementById('progressScenariosPill').className = 'pill ' + (scenDone === 0 ? 'pill-gray' : scenDone === Object.keys(scenarioData).length ? 'pill-green' : 'pill-blue');
+  var achHtml = achievementDefs.map(function(a) { const unlocked = p.achievements && p.achievements[a.id]; return '<div class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '"><i class="' + a.icon + '"></i> ' + a.label + '</div>'; }).join('');
+  document.getElementById('achievementsList').innerHTML = achHtml || '<div style="color:#9aa3ad;text-align:center">No achievements yet.</div>';
+  var acts = p.activity || [];
+  document.getElementById('progressActivityLog').innerHTML = acts.length === 0 ? '<div style="color:#9aa3ad;text-align:center">No activity yet.</div>' : acts.slice(0, 30).map(function(a) { return '<div class="activity-item">' + a.text + '</div>'; }).join('');
+}
+
+var activeLesson = null, lessonStepIdx = 0;
+function startLesson(id) {
+  activeLesson = id; lessonStepIdx = 0;
+  document.getElementById('lessonTitle').textContent = lessons[id].title;
+  document.getElementById('lessonNextBtn').textContent = 'Next →';
+  showLessonStep();
+  document.getElementById('lessonOverlay').classList.add('open');
+}
+function showLessonStep() {
+  var lesson = lessons[activeLesson];
+  var steps = lesson.steps;
+  var idx = lessonStepIdx;
+  var mp = getModuleProgress(activeLesson);
+  var done = mp.steps && mp.steps[idx];
+  var html = '<div class="quiz-progress">Step ' + (idx + 1) + ' of ' + steps.length + '</div>';
+  var st = steps[idx];
+  html += '<div class="scenario-step" style="margin-bottom:16px"><div class="scenario-step-content"><div><span class="scenario-step-num">' + (idx + 1) + '</span></div><div class="scenario-step-text">';
+  if (done) { html += '<span style="color:#1d9e75;font-weight:600">✓ Completed</span>'; } else { html += '<strong>' + st.title + '</strong><p style="margin-top:6px;white-space:pre-line">' + st.text + '</p>'; }
+  html += '</div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">';
+  if (!done) { html += '<button class="btn btn-success" onclick="completeLessonStep(' + idx + ')"><i class="ti ti-check"></i> Mark as complete</button>'; }
+  if (idx > 0) { html += '<button class="btn btn-ghost" onclick="prevLessonStep()"><i class="ti ti-arrow-left"></i> Previous</button>'; }
+  html += '</div>';
+  document.getElementById('lessonBody').innerHTML = html;
+  document.getElementById('lessonNextBtn').style.display = idx < steps.length - 1 ? 'inline-flex' : 'none';
+  var closeBtn = document.querySelector('#lessonActions .btn-ghost');
+  if (closeBtn) closeBtn.textContent = 'Close';
+}
+function completeLessonStep(idx) {
+  if (!activeLesson) return;
+  var p = getProgress();
+  if (!p.modules) p.modules = {};
+  if (!p.modules[activeLesson]) p.modules[activeLesson] = { steps: [] };
+  if (!p.modules[activeLesson].steps) p.modules[activeLesson].steps = [];
+  p.modules[activeLesson].steps[idx] = true;
+  p.modules[activeLesson]._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  addActivity('📖 Completed: ' + lessons[activeLesson].steps[idx].title + ' (' + lessons[activeLesson].title + ')');
+  checkAchievements();
+  showLessonStep(); updateAllDisplays();
+}
+function nextLessonStep() { if (activeLesson && lessonStepIdx < lessons[activeLesson].steps.length - 1) { lessonStepIdx++; showLessonStep(); } }
+function prevLessonStep() { if (lessonStepIdx > 0) { lessonStepIdx--; showLessonStep(); } }
+
+var activeQuiz = null, quizQuestionIdx = 0, quizAnswers = [];
+function startQuiz(id) {
+  activeQuiz = id; quizQuestionIdx = 0; quizAnswers = [];
+  document.getElementById('quizTitle').textContent = lessons[id].title + ' Quiz';
+  document.getElementById('quizResult').style.display = 'none';
+  document.getElementById('quizNextBtn').style.display = 'inline-flex';
+  document.getElementById('quizNextBtn').disabled = true;
+  document.getElementById('quizNextBtn').textContent = 'Next →';
+  showQuizQuestion();
+  document.getElementById('quizOverlay').classList.add('open');
+}
+function showQuizQuestion() {
+  var qs = quizData[activeQuiz];
+  var idx = quizQuestionIdx;
+  var q = qs[idx];
+  document.getElementById('quizProgress').textContent = 'Question ' + (idx + 1) + ' of ' + qs.length;
+  document.getElementById('quizQuestion').textContent = q.q;
+  var answered = quizAnswers[idx] !== undefined;
+  var html = q.options.map(function(o, i) {
+    var cls = 'quiz-option';
+    if (answered) {
+      if (i === q.answer) cls += ' correct';
+      else if (i === quizAnswers[idx]) cls += ' wrong';
+    } else if (i === quizAnswers[idx]) { cls += ' selected'; }
+    return '<button class="' + cls + '" onclick="answerQuiz(' + i + ')"' + (answered ? ' disabled' : '') + '>' + o + '</button>';
+  }).join('');
+  document.getElementById('quizOptions').innerHTML = html;
+  document.getElementById('quizNextBtn').disabled = quizAnswers[idx] === undefined;
+}
+function answerQuiz(idx) { if (activeQuiz === null) return; quizAnswers[quizQuestionIdx] = idx; showQuizQuestion(); }
+function nextQuizQuestion() {
+  if (activeQuiz === null) return;
+  var qs = quizData[activeQuiz];
+  if (quizQuestionIdx < qs.length - 1) { quizQuestionIdx++; document.getElementById('quizNextBtn').disabled = true; showQuizQuestion(); } else { finishQuiz(); }
+}
+function finishQuiz() {
+  var qs = quizData[activeQuiz];
+  var correct = 0;
+  qs.forEach(function(q, i) { if (quizAnswers[i] === q.answer) correct++; });
+  var total = qs.length;
+  var pct = Math.round(correct / total * 100);
+  var passed = pct >= 80;
+  document.getElementById('quizScoreDisplay').textContent = correct + '/' + total;
+  document.getElementById('quizScoreDisplay').style.color = passed ? '#1d9e75' : pct >= 50 ? '#ef9f27' : '#e94560';
+  document.getElementById('quizResultLabel').textContent = passed ? '✅ Passed! Mahusay!' : pct >= 50 ? 'Kailangan pang mag-aral. Try again!' : 'Need more practice. I-review ang module at subukan ulit.';
+  document.getElementById('quizResult').style.display = 'block';
+  document.getElementById('quizNextBtn').style.display = 'none';
+  var p = getProgress();
+  if (!p.quizzes) p.quizzes = {};
+  if (!p.quizzes[activeQuiz] || p.quizzes[activeQuiz].correct < correct) {
+    p.quizzes[activeQuiz] = { correct: correct, total: total };
+    p._updated = Date.now();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+    addActivity('📝 Quiz "' + lessons[activeQuiz].title + '": ' + correct + '/' + total + ' (' + pct + '%)' + (passed ? ' ✅ PASSED' : ''));
+    checkAchievements(); updateAllDisplays();
+  }
+}
+
+var activeScenarioKey = null, scenarioStepIdx = 0;
+function startScenario(k) {
+  activeScenarioKey = k; scenarioStepIdx = 0;
+  document.getElementById('scenarioTitle').textContent = scenarioData[k].title;
+  showScenarioStep();
+  document.getElementById('scenarioOverlay').classList.add('open');
+}
+function showScenarioStep() {
+  var k = activeScenarioKey; if (!k) return;
+  var s = scenarioData[k]; var steps = s.steps;
+  var idx = scenarioStepIdx;
+  var p = getProgress();
+  var done = p.scenarios && p.scenarios[k] && p.scenarios[k].completed;
+  var html = '<div style="margin-bottom:12px;font-size:13px;color:#6b7a8d">' + s.desc + '</div>' +
+    steps.map(function(st, i) {
+      var isDone = done || (p.scenarios && p.scenarios[k] && p.scenarios[k].steps && p.scenarios[k].steps[i]);
+      return '<div class="scenario-step ' + (isDone ? 'completed' : '') + '" id="ss-' + i + '"><div class="scenario-step-content"><div><span class="scenario-step-num">' + (i + 1) + '</span></div><div class="scenario-step-text">' +
+        (isDone ? '<span style="color:#1d9e75;font-weight:600">✓ Completed</span>' : '<strong>Step ' + (i + 1) + ':</strong><p style="margin-top:4px;white-space:pre-line">' + st.text + '</p>' + (i <= idx ? '<button class="btn btn-success btn-sm" style="margin-top:8px" onclick="completeScenarioStep(' + i + ')"><i class="ti ti-check"></i> Mark done</button>' : '')) +
+        '</div></div></div>';
+    }).join('');
+  document.getElementById('scenarioBody').innerHTML = html;
+  if (done) { document.getElementById('scenarioNextBtn').style.display = 'none'; }
+  else { document.getElementById('scenarioNextBtn').textContent = idx < steps.length - 1 ? 'Next Step →' : 'Complete Scenario'; document.getElementById('scenarioNextBtn').style.display = 'inline-flex'; }
+}
+function completeScenarioStep(idx) {
+  if (!activeScenarioKey) return;
+  var p = getProgress();
+  if (!p.scenarios) p.scenarios = {};
+  if (!p.scenarios[activeScenarioKey]) p.scenarios[activeScenarioKey] = { steps: [] };
+  if (!p.scenarios[activeScenarioKey].steps) p.scenarios[activeScenarioKey].steps = [];
+  p.scenarios[activeScenarioKey].steps[idx] = true;
+  if (idx === scenarioData[activeScenarioKey].steps.length - 1) {
+    p.scenarios[activeScenarioKey].completed = true;
+    p.scenarios[activeScenarioKey].completedAt = Date.now();
+    addActivity('🏁 Completed scenario: ' + scenarioData[activeScenarioKey].title);
+  } else {
+    addActivity('📋 Scenario step ' + (idx + 1) + ': ' + scenarioData[activeScenarioKey].title);
+  }
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  checkAchievements();
+  if (idx < scenarioData[activeScenarioKey].steps.length - 1) { scenarioStepIdx++; }
+  showScenarioStep(); updateAllDisplays();
+}
+function nextScenarioStep() {
+  if (activeScenarioKey) { if (scenarioStepIdx < scenarioData[activeScenarioKey].steps.length - 1) { scenarioStepIdx++; showScenarioStep(); } }
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'lessonOverlay') { activeLesson = null; }
+  if (id === 'quizOverlay') { activeQuiz = null; }
+  if (id === 'scenarioOverlay') { activeScenarioKey = null; }
+}
+function doLogin() {
+  var user = document.getElementById('loginUser').value.trim();
+  var name = document.getElementById('loginName').value.trim();
+  if (!user) { document.getElementById('loginError').textContent = 'Please enter your Employee ID / Username.'; document.getElementById('loginError').style.display = 'block'; return; }
+  if (!name) { document.getElementById('loginError').textContent = 'Please enter your Full Name.'; document.getElementById('loginError').style.display = 'block'; return; }
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('appMain').style.display = 'flex';
+  document.getElementById('userName').textContent = name;
+  document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+  updateAllDisplays();
+  addActivity('🔐 Started CompTIA A+ Training');
+}
+document.addEventListener('DOMContentLoaded', function() { updateAllDisplays(); });
+</script>
+<div style="text-align:center;padding:10px 20px;font-size:11px;color:#8a9aaa;border-top:1px solid rgba(255,255,255,0.08);background:#1a1a2e;">Independent training simulation. Hindi affiliated sa CompTIA o sa kahit anong kumpanya.</div>
+<script>
+(function(){function p(e){e.preventDefault()}document.addEventListener('contextmenu',p);document.addEventListener('keydown',function(e){if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(e.key.toLowerCase()))||(e.ctrlKey&&['u','c','x'].includes(e.key.toLowerCase()))){e.preventDefault();return false}});document.addEventListener('copy',p);document.addEventListener('cut',p)})();
+</script>
+</body>
+</html>

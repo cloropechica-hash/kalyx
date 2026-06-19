@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCNA — Training Simulator</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f5f7;min-height:100vh;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+.login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 40%,#0f3460 100%);}
+.login-card{background:#fff;border-radius:12px;padding:40px 44px;width:360px;box-shadow:0 8px 40px rgba(0,0,0,0.25);}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:24px;justify-content:center;}
+.login-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#e94560,#0f3460);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.login-logo-icon i{font-size:20px;color:#fff;}
+.login-logo-text{font-size:20px;font-weight:600;color:#1a1a2e;}
+.login-subtitle{font-size:13px;color:#6b7a8d;text-align:center;margin-bottom:28px;margin-top:-18px;}
+.login-label{font-size:12px;font-weight:500;color:#3d4a5a;margin-bottom:5px;display:block;}
+.login-input{width:100%;border:1px solid #d1d5db;border-radius:7px;padding:9px 12px;font-size:14px;color:#1a2332;outline:none;transition:border 0.15s;}
+.login-input:focus{border-color:#e94560;box-shadow:0 0 0 3px rgba(233,69,96,0.12);}
+.login-group{margin-bottom:16px;}
+.login-btn{width:100%;background:linear-gradient(135deg,#e94560,#0f3460);color:#fff;border:none;border-radius:7px;padding:11px;font-size:15px;font-weight:600;cursor:pointer;transition:background 0.15s;}
+.login-btn:hover{background:linear-gradient(135deg,#c73b3a,#a42e2d);}
+.login-hint{font-size:12px;color:#9aa3ad;text-align:center;margin-top:18px;}
+.login-error{background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:8px 12px;font-size:13px;color:#dc2626;margin-bottom:14px;display:none;}
+.app{display:none;flex-direction:column;height:100vh;}
+.topnav{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;display:flex;align-items:center;gap:0;height:46px;flex-shrink:0;}
+.topnav-brand{display:flex;align-items:center;gap:9px;padding:0 16px;border-right:1px solid rgba(255,255,255,0.08);height:100%;}
+.topnav-brand-icon{width:26px;height:26px;background:linear-gradient(135deg,#e94560,#0f3460);border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.topnav-brand-icon i{font-size:15px;color:#fff;}
+.topnav-brand-text{font-size:14px;font-weight:600;color:#fff;}
+.topnav-right{margin-left:auto;display:flex;align-items:center;gap:2px;padding-right:12px;}
+.topnav-btn{background:none;border:none;color:#aab4c0;cursor:pointer;padding:7px 8px;border-radius:5px;font-size:15px;display:flex;align-items:center;gap:5px;}
+.topnav-btn:hover{background:rgba(255,255,255,0.08);color:#fff;}
+.topnav-user{font-size:12px;color:#aab4c0;padding:0 10px;border-left:1px solid rgba(255,255,255,0.08);height:100%;display:flex;align-items:center;gap:7px;cursor:pointer;}
+.avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#e94560,#0f3460);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;}
+.shell{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:210px;background:#1a1a2e;color:#fff;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;}
+.nav-section{padding:4px 0;}
+.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:#5a6a7a;padding:6px 18px 3px;font-weight:600;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:7px 18px;font-size:13px;color:#8a9aaa;cursor:pointer;border-left:3px solid transparent;transition:all 0.12s;}
+.nav-item:hover{background:rgba(233,69,96,0.06);color:#d0d8e0;}
+.nav-item.active{background:rgba(233,69,96,0.1);color:#e94560;border-left-color:#e94560;font-weight:500;}
+.nav-item i{font-size:15px;}
+.nav-item .nav-badge{margin-left:auto;background:#ffb900;color:#1a1a2e;font-size:9px;padding:1px 6px;border-radius:8px;font-weight:700;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.panels{flex:1;overflow-y:auto;padding:16px 20px;}
+.panel{display:none;animation:fadeIn 0.2s ease;}
+.panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+@keyframes toastIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.breadcrumb{font-size:13px;color:#8a9aaa;margin-bottom:8px;}
+.page-title{font-size:22px;font-weight:700;color:#1a1a2e;margin-bottom:4px;}
+.page-sub{font-size:14px;color:#6b7a8d;margin-bottom:16px;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.stats-row-3{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));}
+.stat-card{background:#fff;border-radius:10px;border:1px solid #e1dfdd;padding:16px;text-align:center;}
+.stat-label{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#8a9aaa;margin-bottom:4px;}
+.stat-value{font-size:28px;font-weight:700;color:#1a1a2e;}
+.stat-sub{font-size:12px;color:#6b7a8d;margin-top:2px;}
+.module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
+.module-card{background:#fff;border:1px solid #e1dfdd;border-radius:10px;padding:16px;cursor:pointer;transition:all 0.15s;}
+.module-card:hover{border-color:#e94560;box-shadow:0 2px 12px rgba(233,69,96,0.08);}
+.module-card.completed{border-color:#1d9e75;background:#f6fff6;}
+.module-card-title{font-size:14px;font-weight:600;color:#201f1e;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.module-card-desc{font-size:12px;color:#605e5c;margin-bottom:10px;line-height:1.5;}
+.module-card-status{font-size:11px;color:#1d9e75;font-weight:600;}
+.progress-bar{height:6px;background:#e1dfdd;border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:#e94560;border-radius:3px;transition:width 0.3s;}
+.progress-fill.green{background:#1d9e75;}
+.tab-bar{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid #e1dfdd;padding-bottom:0;}
+.tab-btn{padding:8px 16px;font-size:13px;font-weight:500;color:#6b7a8d;cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:all 0.12s;}
+.tab-btn:hover{color:#1a2332;}
+.tab-btn.active{color:#e94560;border-bottom-color:#e94560;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+.info-box{background:#f0f6fc;border:1px solid #dce5f5;border-radius:8px;padding:14px 16px;font-size:13px;color:#1a2332;line-height:1.6;margin-bottom:12px;}
+.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#fff;border-radius:10px;width:500px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.2);padding:20px;}
+.modal-box.wide{width:640px;}
+.modal-title{font-size:16px;font-weight:600;color:#1a2332;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:12px;border-top:1px solid #e1dfdd;}
+.quiz-progress{font-size:12px;color:#605e5c;margin-bottom:12px;}
+.quiz-question{font-size:15px;font-weight:600;color:#1a2332;margin-bottom:12px;}
+.quiz-option{display:block;width:100%;text-align:left;padding:10px 14px;border:1px solid #d1d5db;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;margin-bottom:6px;font-family:inherit;transition:all 0.12s;}
+.quiz-option:hover{border-color:#e94560;background:#fef2f2;}
+.quiz-option.selected{border-color:#e94560;background:#fef2f2;font-weight:500;}
+.quiz-option.correct{border-color:#107c10;background:#dff6dd;}
+.quiz-option.correct::after{content:' ✓';color:#107c10;font-weight:700;}
+.quiz-option.wrong{border-color:#a4262c;background:#fde7e9;}
+.quiz-option.wrong::after{content:' ✗';color:#a4262c;font-weight:700;}
+.quiz-option:disabled{cursor:default;opacity:0.8;}
+.quiz-result-score{font-size:48px;font-weight:700;text-align:center;padding:20px 0;}
+.quiz-result-label{font-size:14px;text-align:center;color:#605e5c;margin-bottom:16px;}
+.scenario-step{margin-bottom:16px;}
+.scenario-step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#e94560;color:#fff;font-size:13px;font-weight:700;margin-right:10px;flex-shrink:0;}
+.scenario-step.completed .scenario-step-num{background:#1d9e75;}
+.scenario-step-content{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:6px;border:1px solid #e1dfdd;}
+.scenario-step.completed .scenario-step-content{border-color:#1d9e75;background:#f6fff6;}
+.scenario-step-text{flex:1;font-size:13px;line-height:1.6;}
+.scenario-step-text strong{display:block;margin-bottom:4px;font-size:14px;}
+.toast{position:fixed;bottom:24px;right:24px;background:#1d9e75;color:#fff;padding:12px 20px;border-radius:6px;font-size:13px;font-weight:500;z-index:200;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:toastIn 0.3s ease;}
+.toast.error{background:#e94560;}
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6;font-size:12px;color:#6b7a8d;}
+.activity-item:last-child{border-bottom:none;}
+.achievement{display:inline-flex;align-items:center;gap:6px;padding:4px 12px 4px 8px;border-radius:20px;font-size:12px;font-weight:600;}
+.achievement.unlocked{background:#fff4ce;color:#7a5008;}
+.achievement.locked{background:#f3f2f1;color:#c8c6c4;}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;}
+.badge-green{background:#dff6dd;color:#107c10;}
+.badge-red{background:#fde7e9;color:#a4262c;}
+.badge-gray{background:#f3f2f1;color:#8a9aaa;}
+.pill{display:inline-block;padding:2px 12px;border-radius:12px;font-size:11px;font-weight:600;}
+.pill-green{background:#dff6dd;color:#107c10;}
+.pill-blue{background:#e0edfc;color:#1d4ed8;}
+.pill-amber{background:#fff4ce;color:#7a5008;}
+.pill-gray{background:#f3f2f1;color:#8a9aaa;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.12s;}
+.btn-primary{background:#e94560;color:#fff;}
+.btn-primary:hover{background:#c73b3a;}
+.btn-success{background:#1d9e75;color:#fff;}
+.btn-success:hover{background:#16805e;}
+.btn-ghost{background:transparent;color:#6b7a8d;border:1px solid #d1d5db;}
+.btn-ghost:hover{background:#f3f2f1;}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn:disabled{opacity:0.5;cursor:default;}
+@media(max-width:640px){
+  .sidebar{width:48px;}
+  .nav-item span,.nav-label,.topnav-user span{display:none;}
+  .nav-item{justify-content:center;padding:10px;}
+  .nav-item i{font-size:20px;}
+  .module-grid{grid-template-columns:1fr;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon"><i class="ti ti-network"></i></div>
+      <div class="login-logo-text">CCNA Academy</div>
+    </div>
+    <div class="login-subtitle">CCNA Training Simulator (200-301)</div>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-group">
+      <label class="login-label">Username</label>
+      <input class="login-input" id="loginUser" placeholder="Username" autocomplete="off">
+    </div>
+    <div class="login-group">
+      <label class="login-label">Password</label>
+      <input class="login-input" id="loginName" type="password" placeholder="Password">
+    </div>
+    <button class="login-btn" onclick="doLogin()"><i class="ti ti-network"></i> Start Training</button>
+    <div class="login-hint">Demo: ccna / password</div>
+  </div>
+</div>
+
+<div class="app" id="appMain">
+  <div class="topnav">
+    <div class="topnav-brand">
+      <div class="topnav-brand-icon"><i class="ti ti-network"></i></div>
+      <div class="topnav-brand-text">CCNA Academy</div>
+    </div>
+    <div class="topnav-right">
+      <div class="topnav-user" id="userDisplay"><div class="avatar" id="userAvatar">C</div><span id="userName">Student</span></div>
+    </div>
+  </div>
+  <div class="shell">
+    <div class="sidebar">
+      <div class="nav-section">
+        <div class="nav-label">Navigation</div>
+        <div class="nav-item active" onclick="switchPanel('home',this)"><i class="ti ti-layout-dashboard"></i> <span>Home</span></div>
+        <div class="nav-item" onclick="switchPanel('training',this)"><i class="ti ti-school"></i> <span>Training</span> <span class="nav-badge" id="trainingNavBadge">NEW</span></div>
+        <div class="nav-item" onclick="switchPanel('progress',this)"><i class="ti ti-trending-up"></i> <span>My Progress</span></div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="panels">
+
+        <div class="breadcrumb" id="breadcrumb"><strong>Home</strong></div>
+
+        <div class="panel active" id="panel-home">
+          <div class="page-title">CCNA Training</div>
+          <div class="page-sub">Master routing, switching, network services, at troubleshooting para sa CCNA certification.</div>
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-label">Modules</div><div class="stat-value" id="homeModulesDone">0/6</div><div class="stat-sub">Completed</div></div>
+            <div class="stat-card"><div class="stat-label">Quizzes</div><div class="stat-value" id="homeQuizzesDone">0/6</div><div class="stat-sub">Passed (80%+)</div></div>
+            <div class="stat-card"><div class="stat-label">Scenarios</div><div class="stat-value" id="homeScenariosDone">0/4</div><div class="stat-sub">Completed</div></div>
+            <div class="stat-card"><div class="stat-label">Progress</div><div class="stat-value" id="homeProgressPct">0%</div><div class="progress-bar" style="margin-top:8px"><div class="progress-fill" id="homeProgressBar" style="width:0%"></div></div></div>
+          </div>
+          <div class="panel" style="margin-bottom:12px">
+            <div class="panel-head"><span><i class="ti ti-activity-heartbeat"></i> Recent Activity</span></div>
+            <div class="panel-body" id="homeActivityLog" style="padding:8px 0"><div style="color:#9aa3ad;text-align:center;padding:20px">No activity yet. Start your training!</div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><span><i class="ti ti-trending-up"></i> Module Progress</span></div>
+            <div class="panel-body" id="homeModuleProgress" style="padding:8px 0"></div>
+          </div>
+        </div>
+
+        <div class="panel" id="panel-training">
+          <div class="page-title">Training Center</div>
+          <div class="page-sub">6 modules, quizzes, at practical scenarios para sa CCNA certification</div>
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('modules',this)">Modules</button>
+            <button class="tab-btn" onclick="switchTab('quizzes',this)">Quizzes</button>
+            <button class="tab-btn" onclick="switchTab('scenarios',this)">Scenarios</button>
+          </div>
+          <div class="tab-content active" id="tab-modules"><div class="module-grid" id="moduleGrid"></div></div>
+          <div class="tab-content" id="tab-quizzes"><div class="module-grid" id="quizGrid"></div></div>
+          <div class="tab-content" id="tab-scenarios"><div class="module-grid" id="scenarioGrid"></div></div>
+        </div>
+
+        <div class="panel" id="panel-progress">
+          <div class="page-title">My Progress</div>
+          <div class="page-sub">Detailed breakdown ng iyong training accomplishments</div>
+          <div class="stats-row stats-row-3">
+            <div class="stat-card"><div class="stat-label">Modules</div><div class="stat-value" id="progressModules">0/6</div><div class="pill" id="progressModulesPill">Not started</div></div>
+            <div class="stat-card"><div class="stat-label">Quizzes</div><div class="stat-value" id="progressQuizzes">0/6</div><div class="pill" id="progressQuizzesPill">Not started</div></div>
+            <div class="stat-card"><div class="stat-label">Scenarios</div><div class="stat-value" id="progressScenarios">0/4</div><div class="pill" id="progressScenariosPill">Not started</div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><span><i class="ti ti-star"></i> Achievements</span></div>
+            <div class="panel-body" id="achievementsList"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><span><i class="ti ti-activity-heartbeat"></i> Activity Log</span></div>
+            <div class="panel-body" id="progressActivityLog"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="quizOverlay">
+  <div class="modal-box wide">
+    <div class="modal-title"><i class="ti ti-checklist"></i> <span id="quizTitle">Quiz</span></div>
+    <div id="quizBody">
+      <div class="quiz-progress" id="quizProgress">Question 1 of 5</div>
+      <div class="quiz-question" id="quizQuestion"></div>
+      <div id="quizOptions"></div>
+      <div id="quizResult" style="display:none">
+        <div class="quiz-result-score" id="quizScoreDisplay">0/5</div>
+        <div class="quiz-result-label" id="quizResultLabel"></div>
+      </div>
+    </div>
+    <div class="modal-actions" id="quizActions">
+      <button class="btn btn-ghost" onclick="closeModal('quizOverlay')">Cancel</button>
+      <button class="btn" id="quizNextBtn" onclick="nextQuizQuestion()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="scenarioOverlay">
+  <div class="modal-box wide">
+    <div class="modal-title"><i class="ti ti-tasks"></i> <span id="scenarioTitle">Scenario</span></div>
+    <div id="scenarioBody"></div>
+    <div class="modal-actions" id="scenarioActions">
+      <button class="btn btn-ghost" onclick="closeModal('scenarioOverlay')">Close</button>
+      <button class="btn" id="scenarioNextBtn" onclick="nextScenarioStep()">Start →</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="lessonOverlay">
+  <div class="modal-box wide">
+    <div class="modal-title"><i class="ti ti-book"></i> <span id="lessonTitle">Lesson</span></div>
+    <div id="lessonBody"></div>
+    <div class="modal-actions" id="lessonActions">
+      <button class="btn btn-ghost" onclick="closeModal('lessonOverlay')">Close</button>
+      <button class="btn" id="lessonNextBtn" onclick="nextLessonStep()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'ccna_trainer';
+
+const lessons = {
+  'network-access': {
+    title: 'Network Access',
+    steps: [
+      { title: 'Ethernet & Switching Fundamentals', text: 'Ang Ethernet ang pinaka-common na LAN technology sa modernong networks.\n\nKey Concepts:\n- MAC Address: 48-bit physical address (e.g., 00:1A:2B:3C:4D:5E). Unang 24 bits = OUI (manufacturer), huling 24 bits = unique identifier ng device\n- CSMA/CD: Carrier Sense Multiple Access with Collision Detection — legacy method para iwas collision sa half-duplex (modern switches use full-duplex)\n- Switch Operation: Learning (MAC address learning), Forwarding/Filtering (forward based on MAC table), Loop Avoidance (STP)\n- MAC Address Table: Switch memory na nagmi-map ng MAC addresses sa ports — `show mac address-table`\n- Collision vs Broadcast Domains: Bawat port ng switch ay isang collision domain; ang buong VLAN ay isang broadcast domain\n- Auto-MDIX: Modern switches auto-detect kung straight-through o crossover cable ang kailangan\n\nFull-Duplex vs Half-Duplex: Modern networks use full-duplex (send at receive simultaneously). I-match ang duplex settings sa magkabilang dulo — `duplex full`, `speed 100`.' },
+      { title: 'VLAN Configuration (802.1Q)', text: 'Ang VLAN (Virtual LAN) ay logical na paghihiwalay ng network sa loob ng switch.\n\nKey Concepts:\n- VLAN Range: Standard VLANs 1-1005 (1 = default native VLAN, 1002-1005 = reserved), Extended VLANs 1006-4096\n- Access Port: Naka-assign sa iisang VLAN — para sa end devices (PCs, printers)\n- Trunk Port: Nagdadala ng maraming VLANs — para sa switch-to-switch o switch-to-router connection\n- 802.1Q: Industry standard trunking protocol. Nag-i-insert ng 4-byte tag sa Ethernet frame (VLAN ID + priority)\n- Native VLAN: VLAN 1 default — untagged traffic sa trunk. Dapat match sa magkabilang dulo\n\nConfiguration:\n- `switchport mode access` — access port\n- `switchport access vlan 10` — assign VLAN\n- `switchport mode trunk` — trunk port\n- `switchport trunk allowed vlan 10,20,30` — limit allowed VLANs\n- `switchport trunk native vlan 99` — change native VLAN\n\nVerification: `show vlan brief`, `show interfaces trunk`, `show interfaces gigabitethernet0/1 switchport`' },
+      { title: 'STP Variants & Port States', text: 'Ang STP (Spanning Tree Protocol) ay nag-pre-prevent ng loops sa redundant switched network.\n\nSTP Variants:\n- PVST (Per-VLAN Spanning Tree): Cisco proprietary — iisang STP instance per VLAN\n- PVST+: Enhanced PVST, 802.1Q compatible — default sa Cisco switches\n- RSTP (802.1w): Rapid Spanning Tree — mas mabilis mag-converge (seconds instead of 30-50s)\n- MSTP (802.1s): Multiple Spanning Tree — ilang VLANs sa iisang STP instance\n\nPort States (STP):\n- Blocking: Hindi nagfo-forward, nakikinig ng BPDUs (max 20s)\n- Listening: Nagfo-forward ng BPDUs, hindi pa nagfo-forward ng data (15s)\n- Learning: Nagbu-build ng MAC table, hindi pa nagfo-forward (15s)\n- Forwarding: Normal operation\n- Disabled: Administratively down\n\nRSTP Port States: Discarding (combines Blocking/Listening/Disabled), Learning, Forwarding\n\nPort Roles: Root Port (RP) — best path to root bridge, Designated Port (DP) — forwarding sa segment, Alternate/Backup Port — blocking' },
+      { title: 'Root Bridge Election & Convergence', text: 'Ang Root Bridge ang reference point ng STP topology.\n\nRoot Bridge Election:\n- Switches nag-e-exchange ng BPDUs (Bridge Protocol Data Units) galing sa Root Bridge\n- Lowest Bridge ID = Root Bridge\n- Bridge ID = Bridge Priority (default 32768) + MAC Address\n- Para ma-control: i-set ang priority ng desired switch mas mababa (e.g., 4096)\n- `spanning-tree vlan 10 priority 4096`\n\nSTP Convergence:\n1. Initially, lahat ng switches assume na sila ang Root Bridge\n2. Nag-e-exchange ng BPDUs para ma-determine ang actual Root Bridge\n3. Bawat switch pumipili ng Root Port (best path to Root)\n4. Bawat segment pumipili ng Designated Port\n5. Remaining ports = Blocking (Alternate/Backup)\n\nConvergence Time:\n- STP: 30-50 seconds (Listening + Learning delays)\n- RSTP: 2-6 seconds (proactive handshake)\n- MSTP: Depends on configuration\n\nVerification: `show spanning-tree`, `show spanning-tree vlan 10`, `show spanning-tree root`' },
+      { title: 'EtherChannel (LACP & PAgP)', text: 'Ang EtherChannel ay ang pagsasama ng multiple physical links para maging iisang logical link.\n\nBenefits:\n- Bandwidth Aggregation: 2-8 links combined (e.g., 4x1G = 4G logical link)\n- Load Balancing: Based on src/dst MAC, src/dst IP, o src/dst port — `show etherchannel load-balance`\n- Redundancy: Kapag nasira ang isang link, ang traffic ay automatic na gumagamit ng remaining links\n\nProtocols:\n- LACP (802.3ad): Open standard — `channel-group 1 mode active` (active nag-i-initiate) o `passive` (naghihintay)\n- PAgP: Cisco proprietary — `channel-group 1 mode desirable` (nag-i-initiate) o `auto` (naghihintay)\n- On Mode: Manual — walang negotiation, `channel-group 1 mode on`\n\nConfiguration:\n`interface range gigabitethernet0/1-2`\n`channel-group 1 mode active`\n`interface port-channel 1`\n`switchport mode trunk`\n`switchport trunk allowed vlan 10,20,30`\n\nVerification: `show etherchannel summary`, `show etherchannel port-channel`\n\nRequirements: Same speed, duplex, VLAN config, STP config sa lahat ng member ports.' },
+      { title: 'Switch Security Features', text: 'Security features para protektahan ang switch infrastructure.\n\nPort Security:\n- Limit kung ilang MAC addresses ang pwedeng matutunan per port\n- `switchport port-security`, `switchport port-security maximum 2`, `switchport port-security mac-address sticky`\n- Violation Modes: `shutdown` (port err-disabled), `restrict` (drops with log), `protect` (drops silently)\n- Recovery: `shutdown` then `no shutdown` sa interface\n\nDHCP Snooping:\n- Nag-pre-prevent ng rogue DHCP server attacks\n- Trusted ports = uplink (legitimate DHCP server), Untrusted = access ports\n- `ip dhcp snooping`, `ip dhcp snooping vlan 10`, `interface gi0/1`, `ip dhcp snooping trust`\n\nDynamic ARP Inspection (DAI):\n- Nag-va-validate ng ARP packets gamit ang DHCP snooping binding table\n- `ip arp inspection vlan 10` — prevents ARP spoofing/man-in-the-middle\n\nVerification: `show port-security`, `show port-security address`, `show ip dhcp snooping binding`, `show ip arp inspection`' }
+    ]
+  },
+  'ip-connectivity': {
+    title: 'IP Connectivity',
+    steps: [
+      { title: 'IPv4 Addressing & Subnetting', text: 'Ang IP address ay ang logical identifier ng device sa network.\n\nIPv4 Address: 32-bit, 4 octets (e.g., 192.168.1.10)\n- Network Portion + Host Portion (divided by subnet mask)\n- Classes: A (1-126, /8), B (128-191, /16), C (192-223, /24)\n- Private IPs: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16\n- Loopback: 127.0.0.0/8 (127.0.0.1 = localhost)\n- APIPA: 169.254.0.0/16 (when DHCP fails)\n\nSubnetting:\n- Subnet Mask: 255.255.255.0 (/24) = 256 addresses (254 usable)\n- CIDR Notation: /24, /25, /26, /27, etc.\n- VLSM (Variable Length Subnet Mask): Iba-ibang subnet mask sa network\n- Formula: 2^n = number of subnets (where n = borrowed bits)\n- Usable hosts = 2^h - 2 (where h = host bits)\n\nExample: /26 = 255.255.255.192 = 64 addresses (62 usable) per subnet\n\nCommands: `show ip interface brief`, `show ip route`' },
+      { title: 'IPv6 Addressing', text: 'Ang IPv6 ay ang susunod na henerasyon ng IP addressing — 128-bit address.\n\nFormat: 8 groups ng 4 hex digits (e.g., 2001:0db8:85a3:0000:0000:8a2e:0370:7334)\n\nShorthand Rules:\n- Leading zeros pwedeng i-omit: 2001:db8:85a3:0:0:8a2e:370:7334\n- Isang group ng consecutive zeros pwedeng i-replace ng :: (once lang!): 2001:db8:85a3::8a2e:370:7334\n\nIPv6 Address Types:\n- Link-Local: fe80::/10 — automatic, ginagamit sa same subnet (OSPF, neighbor discovery)\n- Unique Local: fc00::/7 — katumbas ng private IPv4\n- Global Unicast: 2000::/3 — internet-routable\n- Multicast: ff00::/8 — one-to-many\n- Anycast: One-to-nearest\n\nConfiguration:\n- `ipv6 enable` — enable IPv6 sa interface\n- `ipv6 address 2001:db8::1/64` — assign global unicast\n- `ipv6 address fe80::1 link-local` — assign link-local\n\nNeighbor Discovery (ND): Replaces ARP sa IPv6. `show ipv6 neighbors`' },
+      { title: 'Static Routing', text: 'Ang static routing ay manual na pagdagdag ng route sa routing table.\n\nConfiguration:\n- `ip route [destination] [subnet-mask] [next-hop]`\n- `ip route 192.168.20.0 255.255.255.0 192.168.1.1`\n- `ip route 0.0.0.0 0.0.0.0 192.168.1.1` — default route (gateway of last resort)\n\nStatic Route Types:\n- Directly Connected: Direktang naka-konek sa interface ng router\n- Static: Manual na in-add\n- Default Route: Para sa lahat ng hindi kilalang destinations\n- Floating Static: May higher AD (Administrative Distance) — backup kung may dynamic route\n\nAdministrative Distance:\n- Directly Connected: 0\n- Static Route: 1\n- EIGRP (Internal): 90\n- OSPF: 110\n- RIP: 120\n- External EIGRP: 170\n\nVerification: `show ip route`, `show ip route static`, `show ip route 192.168.20.0`' },
+      { title: 'OSPFv2 Fundamentals', text: 'Ang OSPF (Open Shortest Path First) ay isang link-state routing protocol.\n\nCharacteristics:\n- Link-State Protocol: Bawat router ay may kumpletong topology map (LSDB)\n- SPF Algorithm: Dijkstra\'s algorithm — nagko-compute ng shortest path\n- Administrative Distance: 110\n- Metric: Cost = 10^8 / Bandwidth (bps) — 100 Mbps = cost 1\n- Classless: Supports VLSM at CIDR\n\nOSPF Areas:\n- Backbone Area (Area 0): Lahat ng areas dapat connected sa Area 0\n- Standard Area: Normal area\n- Stub Area: Blocks external LSAs (type 5)\n- Totally Stubby: Blocks external at inter-area LSAs\n\nConfiguration:\n`router ospf 1`\n`network 10.0.0.0 0.255.255.255 area 0` — wildcard mask\n`interface gigabitethernet0/0`\n`ip ospf 1 area 0` — interface-specific (mas moderno)\n\nNeighbor States: Down, Init, 2-Way, ExStart, Exchange, Loading, Full\n\nVerification: `show ip ospf neighbor`, `show ip ospf database`, `show ip ospf interface`' },
+      { title: 'OSPFv3 & EIGRP Basics', text: 'OSPFv3 at EIGRP — advanced routing protocols.\n\nOSPFv3:\n- Para sa IPv6 (while OSPFv2 = IPv4)\n- Same basic mechanics: link-state, SPF, areas, Cost metric\n- Configuration:\n`ipv6 router ospf 1`\n`router-id 1.1.1.1`\n`interface gigabitethernet0/0`\n`ipv6 ospf 1 area 0`\n\nEIGRP Basics:\n- Cisco Proprietary (advanced distance-vector)\n- Composite Metric: Bandwidth + Delay (default), Load + Reliability (optional)\n- AD: Internal 90, External 170, Summary 5\n- DUAL Algorithm: Diffusing Update Algorithm — guaranteed loop-free\n- Feasible Distance (FD): Best metric to destination\n- Feasible Condition (FC): Reported Distance (RD) < FD — para maging feasible successor\n- Configuration: `router eigrp 100`, `network 10.0.0.0 0.255.255.255`\n- EIGRP for IPv6: `ipv6 router eigrp 100`\n\nVerification: `show ip eigrp neighbors`, `show ip eigrp topology`, `show ip protocols`' },
+      { title: 'Inter-VLAN Routing', text: 'Ang Inter-VLAN routing ay ang proseso ng pagpapadala ng traffic sa pagitan ng iba\'t ibang VLANs.\n\nMethods:\n1. Router-on-a-Stick:\n- Isang physical router interface, multiple sub-interfaces (isa per VLAN)\n- `interface gigabitethernet0/0.10`\n- `encapsulation dot1Q 10`\n- `ip address 192.168.10.1 255.255.255.0`\n- Kailangan ng trunk link sa pagitan ng router at switch\n\n2. Multilayer Switch (SVI — Switch Virtual Interface):\n- Sa L3 switch, gumawa ng VLAN interface:\n- `interface vlan 10`, `ip address 192.168.10.1 255.255.255.0`, `no shutdown`\n- `ip routing` — enable routing sa switch\n- Mas mabilis kaysa router-on-a-stick (hardware switching)\n\n3. Layer 3 Switch Port:\n- `no switchport` — gawing routed port ang switch port\n- Direktang lagyan ng IP address\n\nVerification: `show ip route`, `ping` between VLANs, `traceroute`' },
+      { title: 'FHRP (HSRP, VRRP, GLBP)', text: 'Ang First Hop Redundancy Protocols ay nagbibigay ng redundancy para sa default gateway.\n\nConcept: Dalawa o higit pang routers nagsha-share ng virtual IP address. Kapag nasira ang active router, ang standby ang pumalit.\n\nHSRP (Hot Standby Router Protocol):\n- Cisco proprietary\n- Active/Standby model — isang router ang active, isa ang standby\n- Virtual IP shared ng dalawang routers\n- Configuration:\n`interface gigabitethernet0/0`\n`standby 10 ip 192.168.1.1` — virtual IP\n`standby 10 priority 150` — mas mataas = active (default 100)\n`standby 10 preempt` — mag-take over kapag nag-restore ang mas mataas na priority\n- `show standby`\n\nVRRP (Virtual Router Redundancy Protocol):\n- Open standard (RFC 5798)\n- Active/Standby — Master/Backup\n- Mas flexible authentication\n- `vrrp 10 ip 192.168.1.1`\n\nGLBP (Gateway Load Balancing Protocol):\n- Cisco proprietary\n- Active/Active — multiple routers nagfo-forward ng traffic\n- Load balancing across multiple gateways\n- AVG (Active Virtual Gateway) + AVF (Active Virtual Forwarders)' }
+    ]
+  },
+  'ip-services': {
+    title: 'IP Services',
+    steps: [
+      { title: 'NAT (Network Address Translation)', text: 'Ang NAT ay ang pagmi-map ng private IP addresses sa public IP addresses.\n\nTypes:\n1. Static NAT: One-to-one mapping — isang private IP, isang public IP\n- `ip nat inside source static 192.168.1.10 203.0.113.10`\n\n2. Dynamic NAT: Pool ng public IPs — first-come, first-served\n- `ip nat pool POOL 203.0.113.10 203.0.113.20 netmask 255.255.255.0`\n- `ip nat inside source list 1 pool POOL`\n\n3. PAT (Port Address Translation) / NAT Overload:\n- Maraming private IPs, iisang public IP — gamit ang unique port numbers\n- `ip nat inside source list 1 interface gigabitethernet0/0 overload`\n\nConfiguration Steps:\n1. `interface gigabitethernet0/0`, `ip nat inside` — inside interface\n2. `interface gigabitethernet0/1`, `ip nat outside` — outside interface\n3. Define NAT rule\n\nVerification: `show ip nat translations`, `show ip nat statistics`, `clear ip nat translation *`' },
+      { title: 'DHCP (Server, Relay, Snooping)', text: 'Ang DHCP (Dynamic Host Configuration Protocol) ay automatic IP address assignment.\n\nDHCP Process (DORA):\n1. Discover: Client nag broadcast para maghanap ng DHCP server\n2. Offer: Server nag-o-offer ng IP address\n3. Request: Client humihingi ng specific na offer\n4. Acknowledge: Server nag-confirm\n\nDHCP Server Configuration (Cisco Router):\n`ip dhcp pool LAN_POOL`\n`network 192.168.1.0 255.255.255.0`\n`default-router 192.168.1.1`\n`dns-server 8.8.8.8 8.8.4.4`\n`lease 7`\n`ip dhcp excluded-address 192.168.1.1 192.168.1.10` — i-exclude ang static IPs\n\nDHCP Relay:\n- Para ma-reach ng mga client sa ibang subnet ang DHCP server\n- `interface vlan 10`, `ip helper-address 10.10.10.5`\n- Nagko-convert ng broadcast to unicast\n\nDHCP Snooping (Security):\n- Nagfi-filter ng DHCP messages sa untrusted ports\n- `ip dhcp snooping`, `ip dhcp snooping vlan 10`\n\nVerification: `show ip dhcp binding`, `show ip dhcp pool`, `debug ip dhcp server events`' },
+      { title: 'DNS Resolution', text: 'Ang DNS (Domain Name System) ay nagre-resolve ng domain names sa IP addresses.\n\nDNS Hierarchy:\n- Root DNS Servers: 13 root server groups (.)\n- TLD Servers: .com, .org, .net, .ph, .jp\n- Authoritative DNS: Final authority para sa domain (e.g., ns1.google.com)\n- Recursive DNS: Nagha-hanap ng sagot para sa client (e.g., Google DNS 8.8.8.8)\n\nDNS Record Types:\n- A: IPv4 address mapping\n- AAAA: IPv6 address mapping\n- CNAME: Canonical name (alias) — e.g., www.example.com → example.com\n- MX: Mail exchanger\n- NS: Name server\n- PTR: Reverse lookup (IP → domain)\n- TXT: Text records (SPF, DKIM, DMARC para sa email security)\n\nDNS Resolution Process:\n1. Client query → Local DNS cache\n2. → Recursive DNS server\n3. → Root server → TLD server → Authoritative server\n4. → Response pabalik sa client\n\nCommands: `nslookup`, `dig`, `show hosts`\n\nCisco IOS: `ip domain-lookup`, `ip name-server 8.8.8.8`, `ip domain-name example.com`' },
+      { title: 'NTP Configuration', text: 'Ang NTP (Network Time Protocol) ay nagsi-synchronize ng oras sa lahat ng network devices.\n\nImportance:\n- Log accuracy: Tamang timestamp sa syslog at debug messages\n- Authentication: Kerberos at certificate validation nakadepende sa tamang oras\n- Troubleshooting: Pagko-compare ng logs mula sa iba\'t ibang devices\n\nNTP Hierarchy (Stratum):\n- Stratum 0: Atomic clock, GPS (reference clocks)\n- Stratum 1: NTP servers connected to stratum 0\n- Stratum 2: NTP clients ng stratum 1 servers\n- Stratum 15: Maximum\n\nConfiguration:\n`ntp server 132.163.97.6 prefer` — preferred NTP server\n`ntp server 129.6.15.28` — backup\n`ntp update-calendar` — update hardware clock\n`ntp peer 10.0.0.2` — peer-to-peer synchronization\n\nVerification:\n`show ntp associations` — list ng NTP peers\n`show ntp status` — stratum, offset, last sync\n`show clock` — current system time\n\nNTP Authentication: `ntp authenticate`, `ntp authentication-key 1 md5 CISCO123`, `ntp trusted-key 1`' },
+      { title: 'QoS (Quality of Service)', text: 'Ang QoS ay ang pag-prioritize ng network traffic para ma-guarantee ang performance.\n\nQoS Models:\n1. Best Effort: Walang differentiation — lahat ng traffic equal\n2. IntServ (Integrated Services): RSVP — end-to-end resource reservation\n3. DiffServ (Differentiated Services): Per-hop behavior — pinaka-common\n\nClassification & Marking:\n- Classify: I-identify ang traffic (ACL, NBAR)\n- Mark: Lagyan ng DSCP/CoS value\n- CoS (Class of Service): 3 bits sa 802.1Q tag (0-7)\n- DSCP (Differentiated Services Code Point): 6 bits sa IP header (0-63)\n- Common DSCP values: EF (VOIP), AF41 (video), AF21 (data), BE (best effort = 0)\n\nQueuing:\n- FIFO: First In, First Out — default\n- WFQ (Weighted Fair Queuing): Automatic classification\n- CBWFQ (Class-Based WFQ): Per-class queues\n- LLQ (Low Latency Queuing): Priority queue para sa real-time traffic (VOIP)\n\nPolicing & Shaping:\n- Policing: Drop traffic exceeding limit\n- Shaping: Buffer traffic exceeding limit\n- `police rate 1000000` — police sa 1 Mbps\n- `shape average 1000000` — shape sa 1 Mbps\n\nConfiguration: `class-map`, `policy-map`, `service-policy`' },
+      { title: 'CDP & LLDP', text: 'Ang CDP (Cisco Discovery Protocol) at LLDP (Link Layer Discovery Protocol) ay Layer 2 protocols para sa neighbor discovery.\n\nCDP (Cisco Discovery Protocol):\n- Cisco proprietary\n- Enabled by default sa Cisco devices\n- Nagpapadala ng advertisements every 60 seconds\n- Holdtime: 180 seconds\n- Information: Device ID, Platform, Capabilities, Interface, VLAN, IP address\n\nCommands:\n`show cdp neighbors` — summary ng mga konektadong devices\n`show cdp neighbors detail` — detailed info (IP, IOS version, platform)\n`show cdp interface gigabitethernet0/0` — CDP status sa interface\n`show cdp entry *` — lahat ng info\n\nConfiguration:\n`cdp run` — enable globally\n`no cdp enable` — disable sa interface\n`cdp timer 30` — change advertisement interval\n\nLLDP (802.1ab):\n- Vendor-neutral (multi-vendor networks)\n- `lldp run` — enable globally\n- `lldp transmit`, `lldp receive` — per interface\n- `show lldp neighbors`, `show lldp neighbors detail`\n\nUse Cases: Network documentation, troubleshooting connectivity, verifying topology' }
+    ]
+  },
+  'security-fundamentals': {
+    title: 'Security Fundamentals',
+    steps: [
+      { title: 'ACLs (Access Control Lists)', text: 'Ang ACL ay isang listahan ng permit/deny rules para i-filter ang network traffic.\n\nStandard ACL:\n- Filters based on SOURCE IP address only\n- Range: 1-99, 1300-1999 (extended range)\n- Best placed closest to DESTINATION\n- `access-list 10 deny 192.168.1.0 0.0.0.255`\n- `access-list 10 permit any`\n- `interface gigabitethernet0/0`, `ip access-group 10 in`\n\nExtended ACL:\n- Filters based on SOURCE + DESTINATION IP, protocol, port\n- Range: 100-199, 2000-2699\n- Best placed closest to SOURCE\n- `access-list 100 permit tcp 192.168.10.0 0.0.0.255 any eq 80`\n- `access-list 100 deny ip any any`\n\nNamed ACL:\n- `ip access-list standard BLOCK_SALES`\n- `ip access-list extended WEB_FILTER`\n- `deny ip 192.168.20.0 0.0.0.255 any`\n- `permit ip any any`\n\nACL Rules:\n- Implicit deny at the end (kung walang match, ida-deny)\n- Order is important — processed top to bottom\n- `show access-lists`, `show ip interface`' },
+      { title: 'Port Security (Sticky MAC, Violation Modes)', text: 'Ang Port Security ay nagli-limit ng MAC addresses na pwedeng matutunan sa switch port.\n\nConfiguration:\n`interface gigabitethernet0/1`\n`switchport port-security` — enable port security\n`switchport port-security maximum 2` — max 2 MAC addresses\n`switchport port-security mac-address 0050.7966.6800` — static MAC\n`switchport port-security mac-address sticky` — auto-learn at i-save sa config\n`switchport port-security violation shutdown` — violation mode\n\nViolation Modes:\n1. Shutdown (default): Port goes err-disabled — LED turns off, no traffic\n   - Recovery: `shutdown` then `no shutdown`, or `errdisable recovery cause psecure-violation`\n2. Restrict: Drops violating traffic, logs, increments counter\n   - `show port-security` — makikita ang violation count\n3. Protect: Drops violating traffic silently — no log, no counter increment\n\nVerification:\n`show port-security` — global summary\n`show port-security interface gigabitethernet0/1` — per interface details\n`show port-security address` — learned MAC addresses\n`show running-config interface gigabitethernet0/1`' },
+      { title: 'DHCP Snooping & Dynamic ARP Inspection', text: 'Mga advanced security features para sa Layer 2 network.\n\nDHCP Snooping:\n- Pumoprotekta laban sa rogue DHCP servers\n- Trusted ports: Uplink ports (kung saan dapat ang legitimate DHCP server)\n- Untrusted ports: Access ports (end users)\n\nConfiguration:\n`ip dhcp snooping`\n`ip dhcp snooping vlan 10`\n`interface gigabitethernet0/1`\n`ip dhcp snooping trust` — uplink to DHCP server\n`ip dhcp snooping limit rate 10` — rate-limit DHCP packets (prevent DHCP starvation)\n\nDHCP Snooping Database:\n- Nagma-maintain ng binding table (MAC + IP + VLAN + Interface + Lease time)\n- `show ip dhcp snooping binding`\n- `show ip dhcp snooping statistics`\n\nDynamic ARP Inspection (DAI):\n- Nag-va-validate ng ARP packets gamit ang DHCP snooping binding table\n- `ip arp inspection vlan 10`\n- `ip arp inspection validate src-mac dst-mac ip` — validate MAC at IP consistency\n- `ip arp inspection trust` — trusted interfaces\n- Prevents: ARP spoofing, man-in-the-middle, ARP cache poisoning\n\nVerification: `show ip arp inspection`, `show ip arp inspection statistics`' },
+      { title: 'Device Hardening (Password, SSH, Banner)', text: 'Mga best practices para i-secure ang network devices.\n\nPassword Security:\n- `enable secret Cisco123` — encrypted enable password (Type 5 MD5 o Type 8/9 SCRYPT)\n- `service password-encryption` — encrypts plaintext passwords (Type 7 — weak)\n- `security passwords min-length 10` — minimum password length\n\nConsole Access:\n- `line console 0`, `password console123`, `login`\n- `exec-timeout 5 0` — auto logout after 5 mins\n- `logging synchronous` — prevent log messages from interrupting typing\n- `no ip domain-lookup` — prevent accidental DNS lookup mula sa CLI\n\nSSH Configuration:\n`ip domain-name cisco.local`\n`crypto key generate rsa modulus 2048` — at least 2048-bit RSA key\n`ip ssh version 2` — disable SSHv1\n`line vty 0 15`\n`transport input ssh` — SSH lang, huwag Telnet\n`login local` — local authentication\n`username admin secret admin123`\n\nBanner Messages:\n- `banner motd ^CUnauthorized access prohibited^C` — legal warning\n\nAux Port: `line aux 0`, `no exec` — disable auxiliary port' },
+      { title: 'Password Recovery & Console Access', text: 'Paano i-recover ang password ng Cisco device at i-access ang console.\n\nPassword Recovery Procedure (Router):\n1. I-connect ang console cable\n2. I-power cycle ang router\n3. I-press ang Ctrl+Break/Ctrl+C within 60 seconds ng boot para pumasok sa ROMMON mode\n4. `confreg 0x2142` — i-bypass ang startup-config\n5. `reset` — i-restart ang router\n6. Magbo-boot ito nang walang configuration (nasa factory settings)\n7. `enable` — privileged mode na diretso (walang password)\n8. `copy startup-config running-config` — i-restore ang configuration\n9. `configure terminal`\n10. `enable secret NewPassword` — change enable password\n11. `config-register 0x2102` — ibalik sa normal boot\n12. `copy running-config startup-config` — save\n\nPassword Recovery (Switch):\n- Press Mode button while powering on\n- Release after LED blinks\n- `flash_init`, `rename flash:config.text flash:config.text.old`\n- `boot`, then `copy flash:config.text.old running-config`\n- Change password, `copy running-config startup-config`\n\nConsole Cable: Rollover cable (RJ45 to DB9 or USB) — flat, light blue cable\n\nVerification: `show console`, `show users`, `show line`' },
+      { title: 'Management Protocols (Telnet, SSH, SNMP, Syslog)', text: 'Mga protocol para i-manage at i-monitor ang network devices.\n\nTelnet vs SSH:\n- Telnet (port 23): Plaintext — hindi secure\n- SSH (port 22): Encrypted — dapat gamitin sa production\n\nSNMP (Simple Network Management Protocol):\n- SNMPv1/v2c: Community strings (plaintext — insecure)\n- SNMPv3: User-based authentication at encryption (secure)\n- Components: NMS (manager), Agents (devices), MIB (database of variables)\n- Operations: GET (read), SET (write), TRAP (async notification), INFORM (confirmed trap)\n- Configuration: `snmp-server community public RO`, `snmp-server community private RW`, `snmp-server location Manila`, `snmp-server contact admin@company.com`\n\nSyslog:\n- Nagse-send ng log messages sa syslog server (port 514 UDP)\n- Severity Levels: 0 (Emergency) — 7 (Debugging)\n- `logging host 10.10.10.5` — syslog server IP\n- `logging trap 4` — send severity 0-4 (emergency hanggang warning)\n- `logging console`, `logging monitor`, `logging buffered`\n\nNetFlow:\n- Network traffic accounting at analysis\n- `ip flow-export destination 10.10.10.5 2055`\n- `ip flow-export version 9`\n- `interface gigabitethernet0/0`, `ip flow ingress`\n\nVerification: `show snmp`, `show logging`, `show ip flow export`' }
+    ]
+  },
+  automation: {
+    title: 'Automation & Programmability',
+    steps: [
+      { title: 'SDN Architecture', text: 'Ang Software-Defined Networking ay nagse-separate ng control plane at data plane.\n\nThree Planes:\n1. Data Plane (Forwarding Plane):\n- Nagfo-forward ng packets batay sa forwarding table\n- Hardware-based (ASICs) — mabilis\n- Nasa switches/routers\n\n2. Control Plane:\n- Nagde-decide kung paano magfo-forward (routing protocols, STP, etc.)\n- CPU-intensive\n- Sa SDN, centralized ito (SDN Controller)\n\n3. Management Plane:\n- Configuration, monitoring, management\n- SSH, SNMP, NetFlow, REST APIs\n- Interaction with network administrator\n\nTraditional vs SDN:\n- Traditional: Control at data plane sa iisang device (distributed)\n- SDN: Centralized controller, programmable forwarding\n\nSDN Controller: Cisco APIC (ACI), VMware NSX, OpenDaylight, ONOS\n\nNorthbound APIs: REST, RESTconf, NETCONF — communication between apps at controller\n\nSouthbound APIs: OpenFlow, OVSDB, OpFlex — communication between controller at devices' },
+      { title: 'REST APIs & JSON/XML', text: 'Ang REST APIs ay nagpapahintulot sa automation ng network devices.\n\nREST (Representational State Transfer):\n- HTTP-based na API para i-manage ang network devices\n- CRUD Operations: GET (read), POST (create), PUT/PATCH (update), DELETE\n- Stateless — bawat request ay independent\n- Responses: JSON o XML format\n\nHTTP Status Codes:\n- 200 OK: Successful GET/PUT\n- 201 Created: Successful POST\n- 204 No Content: Successful DELETE\n- 400 Bad Request: Invalid syntax\n- 401 Unauthorized: Authentication failed\n- 404 Not Found: Resource doesn\'t exist\n- 500 Internal Server Error: Server-side error\n\nJSON Format:\n{\n  \"interface\": {\n    \"name\": \"GigabitEthernet0/1\",\n    \"ip\": \"192.168.1.1\",\n    \"mask\": \"255.255.255.0\",\n    \"status\": \"up\"\n  }\n}\n\nXML Format:\n<interface>\n  <name>GigabitEthernet0/1</name>\n  <ip>192.168.1.1</ip>\n  <mask>255.255.255.0</mask>\n  <status>up</status>\n</interface>\n\nCisco REST APIs: Cisco Catalyst Center, Meraki Dashboard API, IOS XE REST API' },
+      { title: 'Ansible for Network Automation', text: 'Ang Ansible ay isang powerful automation tool para sa network configuration.\n\nKey Concepts:\n- Agentless: Hindi kailangan ng software sa managed nodes (uses SSH)\n- Push-based: Ang control node ang nagpu-push ng configuration\n- Idempotent: Laging same result kahit ulit-ulitin\n\nComponents:\n- Inventory: List ng devices (hosts, groups)\n- Playbook: YAML file na naglalaman ng tasks\n- Module: Pre-written code para sa specific tasks (e.g., ios_config, ios_command)\n- Task: Isang action sa playbook\n- Role: Organization ng playbooks at files\n\nExample Playbook:\n---\n- name: Configure VLAN\n  hosts: switches\n  gather_facts: no\n  tasks:\n    - name: Configure VLAN 10\n      cisco.ios.ios_vlan:\n        vlan_id: 10\n        name: SALES\n        state: present\n\n- name: Execute show command\n  cisco.ios.ios_command:\n    commands:\n      - show vlan brief\n  register: output\n\n- debug: var=output.stdout_lines\n\nRun: `ansible-playbook configure-vlan.yml`' },
+      { title: 'Python for Network Automation', text: 'Ang Python ay ang most popular programming language para sa network automation.\n\nLibraries:\n- Netmiko: Multi-vendor SSH automation — simplified version ng paramiko\n- Paramiko: Low-level SSH library\n- NAPALM: Multi-vendor abstraction layer (Cisco, Juniper, Arista)\n- ncclient: NETCONF client\n- requests: HTTP/HTTPS API calls (REST APIs)\n- pyATS / Genie: Cisco test at validation framework\n\nNetmiko Example:\nfrom netmiko import ConnectHandler\n\ncisco_switch = {\n    \"device_type\": \"cisco_ios\",\n    \"host\": \"192.168.1.1\",\n    \"username\": \"admin\",\n    \"password\": \"password\"\n}\n\nconnection = ConnectHandler(**cisco_switch)\noutput = connection.send_command(\"show ip interface brief\")\nprint(output)\n\nconfig_commands = [\n    \"vlan 10\",\n    \"name SALES\",\n    \"interface gigabitethernet0/1\",\n    \"switchport mode access\",\n    \"switchport access vlan 10\"\n]\nconnection.send_config_set(config_commands)\nconnection.disconnect()\n\nREST API Example (requests):\nimport requests\nresponse = requests.get(\"https://api.meraki.com/api/v1/organizations\",\n    headers={\"X-Cisco-Meraki-API-Key\": \"YOUR_API_KEY\"})\ndata = response.json()' },
+      { title: 'Puppet & Chef Basics', text: 'Ang Puppet at Chef ay configuration management tools (pull-based).\n\nPuppet:\n- Declarative language — i-describe ang desired state\n- Puppet Master (server) + Puppet Agent (clients)\n- Manifests (.pp files) contain resources at classes\n- Resources: file, package, service, user, exec\n- Facter: Collects system facts (OS, IP, memory)\n\nExample:\nclass network_config {\n  file { \'/etc/network/interfaces\':\n    ensure => file,\n    content => \'# Managed by Puppet\\niface eth0 inet static\\n  address 192.168.1.1/24\'\n  }\n}\n\nChef:\n- Ruby-based DSL — recipes at cookbooks\n- Chef Server + Chef Client (nodes) + Chef Workstation (authoring)\n- Resources: same as Puppet (file, package, service)\n- Knife: Command-line tool para i-manage ang infrastructure\n\nExample Recipe:\npackage \'ntp\' do\n  action :install\nend\n\nservice \'ntp\' do\n  action [:enable, :start]\nend\n\ncookbook_file \'/etc/ntp.conf\' do\n  source \'ntp.conf\'\n  owner \'root\'\n  group \'root\'\n  mode \'0644\'\nend\n\nVS Ansible: Ansible = push/agentless, Puppet/Chef = pull/agent-based. Ansible mas simple, Puppet/Chef mas scalable sa malalaking networks.' },
+      { title: 'NETCONF & YANG', text: 'Ang NETCONF at YANG ay modernong protocols para sa network configuration management.\n\nNETCONF (RFC 6241):\n- Network Configuration Protocol — XML-based\n- Secure: Uses SSH (port 830) or TLS\n- Operations: <get>, <get-config>, <edit-config>, <copy-config>, <delete-config>, <lock>, <unlock>\n- Transactional: Changes are validated before commit; kung may error, i-rollback\n- Datastores: candidate, running, startup\n\nYANG (RFC 6020):\n- Data modeling language (not a protocol)\n- Defines structure ng configuration at state data\n- Hierarchical, module-based\n- Built-in types: string, uint32, boolean, enumeration, leaf-list, container, list\n\nExample YANG Model:\nmodule example-vlan {\n  namespace \"http://example.com/vlan\";\n  prefix vlan;\n\n  container vlans {\n    list vlan {\n      key \"id\";\n      leaf id {\n        type uint16 {\n          range \"1..4094\";\n        }\n      }\n      leaf name {\n        type string;\n      }\n    }\n  }\n}\n\nCisco IOS XE: Supports NETCONF/YANG natively\n- `netconf-yang` — enable NETCONF\n- `show netconf-yang sessions`\n- Tools: pyang (validate YANG), yang-explorer, ncclient (Python NETCONF library)' }
+    ]
+  },
+  'troubleshooting-ccna': {
+    title: 'Troubleshooting',
+    steps: [
+      { title: 'Troubleshooting Methodology', text: 'Ang structured approach sa network troubleshooting.\n\nStep 1: Identify the Problem\n- Gather information sa user (sino, ano, kailan, saan)\n- Duplicate ang issue\n- Identify changes\n- Determine scope (localized o widespread)\n\nStep 2: Establish Theory of Probable Cause\n- List possible causes (configuration error, hardware failure, link down, bottleneck)\n- Start with the simplest (Occam\'s Razor)\n\nStep 3: Test the Theory\n- Use show commands, ping, traceroute, debug\n- Isang change at a time\n- Document results\n\nStep 4: Plan of Action\n- Identify solution steps\n- Consider impact (downtime, users affected)\n- Backup config before changes\n\nStep 5: Implement the Solution\n- Execute changes\n- Escalate kung kailangan\n\nStep 6: Verify Full Functionality\n- Test connectivity, performance\n- Confirm sa user na resolved na\n\nStep 7: Document\n- Root cause, solution, lessons learned\n- Update knowledge base\n\nOSI / TCP/IP Model:\n- Layer 1 (Physical): Cables, optics, power\n- Layer 2 (Data Link): VLAN, STP, MAC, switching\n- Layer 3 (Network): Routing, IP, OSPF\n- Layer 4 (Transport): TCP/UDP ports\n- Layer 7 (Application): DNS, HTTP, DHCP' },
+      { title: 'Show Commands (Interface & Config)', text: 'Ang show commands ang primary tool para mag-diagnose ng network issues.\n\nInterface Status:\n- `show ip interface brief` — summary ng lahat ng interfaces (IP, status, protocol)\n- `show interfaces` — detailed interface stats (errors, collisions, CRC)\n- `show interfaces gigabitethernet0/0` — specific interface\n- `show interfaces description` — interface description at status\n\nConfiguration:\n- `show running-config` — current active configuration\n- `show startup-config` — saved configuration (NVRAM)\n- `show running-config interface gigabitethernet0/0` — specific interface config\n- `show running-config | section router ospf` — filter by section\n\nErrors to Watch For:\n- Input errors: CRC errors, frame errors (cable/duplex issue)\n- Output errors: Late collisions (duplex mismatch)\n- Interface resets: Flapping link\n- Input queue drops: Congestion\n\nInterpretation:\n- Status up / Protocol up = Working\n- Status up / Protocol down = Layer 2 issue\n- Status down / Protocol down = Layer 1 issue (cable, power)\n- Administratively down = Shutdown command' },
+      { title: 'VLAN & STP Troubleshooting', text: 'Mga show commands para i-diagnose ang VLAN at STP issues.\n\nVLAN Verification:\n- `show vlan brief` — list ng VLANs at assigned ports\n- `show vlan id 10` — specific VLAN info\n- `show interfaces trunk` — trunk ports, allowed VLANs, native VLAN\n- `show interfaces gigabitethernet0/1 switchport` — switchport mode, access VLAN\n- `show mac address-table` — MAC address table\n\nCommon VLAN Issues:\n- Access port not assigned to correct VLAN → `show vlan brief`\n- Trunk not allowing VLAN → `switchport trunk allowed vlan add 10`\n- Native VLAN mismatch → dapat pareho sa magkabilang dulo\n- VLAN not created → `vlan 10` sa global config\n\nSTP Verification:\n- `show spanning-tree` — root bridge, port roles/states\n- `show spanning-tree vlan 10` — per-VLAN STP status\n- `show spanning-tree root` — root bridge per VLAN\n- `show spanning-tree interface gigabitethernet0/1` — port-specific STP\n\nCommon STP Issues:\n- Wrong root bridge → i-set priority sa desired switch\n- Blocking port causing traffic issue → i-check kung intended design\n- STP convergence delay → use RSTP\n- BPDU guard error → `show spanning-tree inconsistentports`' },
+      { title: 'Routing Troubleshooting (show ip route)', text: 'Mga command para i-diagnose ang routing issues.\n\nRouting Table:\n- `show ip route` — complete routing table\n- `show ip route 192.168.10.0` — specific route details\n- `show ip route ospf` — OSPF routes lang\n- `show ip route connected` — directly connected routes\n- `show ip route static` — static routes\n\nOSPF Verification:\n- `show ip ospf neighbor` — neighbor state (Full, 2-Way, Init, Down)\n- `show ip ospf interface` — OSPF settings per interface\n- `show ip ospf database` — LSDB contents\n- `show ip protocols` — routing protocol summary\n\nCommon OSPF Issues:\n- Mismatched area → Area IDs dapat pareho\n- Mismatched subnet mask → OSPF will not form adjacency\n- Passive interface → hindi nagse-send ng hello packets\n- MTU mismatch → Exchange state stuck\n- OSPF network type mismatch → e.g., broadcast vs point-to-point\n- Authentication mismatch → password/key must match\n\nEIGRP Verification:\n- `show ip eigrp neighbors` — neighbor table\n- `show ip eigrp topology` — topology table\n- `show ip eigrp traffic` — EIGRP packet stats\n\nPing & Traceroute:\n- `ping 192.168.1.1` — ICMP echo\n- `ping 192.168.1.1 source 10.0.0.1` — specify source\n- `traceroute 8.8.8.8` — path to destination' },
+      { title: 'Packet Capture & Analysis', text: 'Ang packet capture ay ang process ng pag-capture at pagsusuri ng network traffic.\n\ntcpdump (Linux/CLI):\n- `tcpdump -i gigabitethernet0/0` — capture sa interface\n- `tcpdump -i any host 192.168.1.10` — filter by host\n- `tcpdump -i gi0/0 port 443` — filter by port (HTTPS)\n- `tcpdump -w capture.pcap` — save to file\n- `tcpdump -r capture.pcap` — read pcap file\n\nWireshark:\n- Graphical packet analyzer\n- Powerful filtering: `ip.addr == 192.168.1.1`, `tcp.port == 80`, `arp`, `icmp`\n- Follow TCP Stream — makita ang buong conversation\n- Statistics → Protocol Hierarchy — breakdown ng traffic types\n\nCisco Embedded Packet Capture (EPC):\n- Built-in packet capture sa IOS/IOS XE\n- `monitor capture CAP interface gi0/0 both`\n- `monitor capture CAP match ipv4 protocol tcp any any`\n- `monitor capture CAP start`\n- `monitor capture CAP stop`\n- `monitor capture CAP export tftp://10.10.10.5/capture.pcap`\n\nWhat to Look For:\n- TCP retransmissions — packet loss\n- TCP window size — congestion\n- Duplicate ACKs — reordering or loss\n- ARP requests/responses — Layer 2 issues\n- DNS query/response time — DNS performance' },
+      { title: 'Syslog & SNMP for Troubleshooting', text: 'Ang Syslog at SNMP ay essential para sa proactive network monitoring.\n\nSyslog Messages:\n- Format: timestamp + facility + severity + MNEMONIC + description\n- `*Mar 1 12:34:56.789: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/1, changed state to down`\n\nSeverity Levels:\n- 0 — Emergency (system unusable)\n- 1 — Alert (immediate action needed)\n- 2 — Critical (critical condition)\n- 3 — Error (error condition)\n- 4 — Warning (warning condition)\n- 5 — Notification (normal but significant)\n- 6 — Informational (normal messages)\n- 7 — Debugging (debug messages)\n\nConfiguration:\n`logging host 10.10.10.5` — syslog server\n`logging trap 4` — send levels 0-4\n`logging source-interface loopback0` — source IP\n`logging on` — enable logging\n`show logging` — view log buffer\n\nSNMP Traps:\n- Device-initiated notifications\n- `snmp-server enable traps` — enable all traps\n- `snmp-server enable traps snmp linkdown linkup` — interface traps\n- `snmp-server host 10.10.10.5 traps version 2c public`\n\nSNMP Monitoring Tools:\n- SolarWinds, PRTG, Zabbix, LibreNMS, Cacti\n- Nagma-monitor ng CPU, memory, interface utilization, errors\n\nDebug:\n- `debug ip ospf adj` — OSPF adjacency events (use with caution!)\n- `debug ip packet` — IP packets (high CPU usage)\n- `no debug all` or `undebug all` — i-off ang debugging' },
+      { title: 'Common Network Issues & Resolution', text: 'Mga madalas na network issues at ang tamang diagnostic approach.\n\nIssue 1: Cannot Ping Default Gateway\n1. `ipconfig` / `show ip interface brief` — may IP address ba?\n2. Check physical connection (link light)\n3. Check VLAN assignment\n4. Check switch port (not err-disabled)\n5. Ping gateway from switch/router itself\n\nIssue 2: Slow Network Performance\n1. Check interface utilization (show interfaces, SNMP graphs)\n2. Check for errors (CRC, collisions, drops)\n3. Check duplex mismatch (show interfaces status)\n4. Check STP topology (show spanning-tree)\n5. Check QoS configuration\n\nIssue 3: Intermittent Connectivity\n1. Check cable (replace/test with known good cable)\n2. Check interface logs (show logging)\n3. Check for flapping ports\n4. Check power supply (show environment)\n5. Check for MAC flapping (show mac address-table)\n\nIssue 4: DHCP Not Working\n1. `show ip dhcp binding` — may active leases ba?\n2. `show ip dhcp conflict` — IP conflicts?\n3. Check DHCP pool configuration\n4. Check ip helper-address kung cross-subnet\n5. Check DHCP snooping (show ip dhcp snooping binding)\n\nIssue 5: Routing Issue\n1. `show ip route` — may route ba sa destination?\n2. `show ip ospf neighbor` — OSPF adjacencies established?\n3. Check ACL blocking traffic (show access-lists)\n4. `ping` at `traceroute` para i-verify ang path\n5. Check NAT translations (show ip nat translations)' }
+    ]
+  }
+};
+
+const moduleIds = ['network-access','ip-connectivity','ip-services','security-fundamentals','automation','troubleshooting-ccna'];
+const moduleIcons = ['ti ti-network','ti ti-route','ti ti-server','ti ti-shield','ti ti-terminal-2','ti ti-wrench'];
+const moduleColors = ['#e94560','#0f3460','#1d4ed8','#7c3aed','#1d9e75','#ef9f27'];
+const moduleDesc = ['VLANs, trunking, STP, EtherChannel at switch security','Routing, OSPF, inter-VLAN routing at path selection','NAT, DHCP, DNS, NTP at QoS','ACLs, port security, DHCP snooping at device hardening','SDN, REST APIs, Ansible, Python at JSON/XML','Methodology, show commands, packet capture at common issues'];
+
+const quizData = {
+  'network-access': [
+    { q: 'Anong protocol ang ginagamit para magtag ng VLAN information sa trunk link?', options: ['ISL', '802.1Q', 'VTP', 'DTP'], answer: 1 },
+    { q: 'Ano ang default native VLAN sa Cisco switches?', options: ['VLAN 0', 'VLAN 1', 'VLAN 99', 'VLAN 1002'], answer: 1 },
+    { q: 'Anong STP variant ang default sa Cisco switches?', options: ['STP', 'RSTP', 'PVST+', 'MSTP'], answer: 2 },
+    { q: 'Ano ang LACP?', options: ['Cisco proprietary link aggregation', 'Open standard EtherChannel protocol', 'Spanning Tree variant', 'VLAN trunking protocol'], answer: 1 },
+    { q: 'Anong violation mode ng port security ang nagdi-drop ng traffic nang walang log?', options: ['Shutdown', 'Restrict', 'Protect', 'Disabled'], answer: 2 }
+  ],
+  'ip-connectivity': [
+    { q: 'Ilang usable host addresses ang nasa /26 subnet?', options: ['30', '62', '126', '254'], answer: 1 },
+    { q: 'Ano ang administrative distance ng OSPF?', options: ['90', '110', '120', '170'], answer: 1 },
+    { q: 'Anong OSPF neighbor state ang nag-iindicate na fully established na ang adjacency?', options: ['2-Way', 'ExStart', 'Loading', 'Full'], answer: 3 },
+    { q: 'Anong IPv6 address type ang katumbas ng private IPv4?', options: ['Link-Local', 'Unique Local', 'Global Unicast', 'Multicast'], answer: 1 },
+    { q: 'Ano ang ginagamit ng HSRP para ma-determine kung aling router ang active?', options: ['IP address', 'Priority', 'MAC address', 'Router ID'], answer: 1 }
+  ],
+  'ip-services': [
+    { q: 'Anong uri ng NAT ang gumagamit ng unique port numbers para mag-share ng iisang public IP?', options: ['Static NAT', 'Dynamic NAT', 'PAT', 'NAT Pool'], answer: 2 },
+    { q: 'Ano ang tamang sequence ng DHCP process?', options: ['Offer-Discover-Request-Ack', 'Discover-Offer-Request-Ack', 'Request-Discover-Offer-Ack', 'Discover-Request-Offer-Ack'], answer: 1 },
+    { q: 'Anong command ang nag-a-allow ng DHCP relay sa Cisco router?', options: ['ip dhcp relay', 'ip helper-address', 'dhcp relay agent', 'ip dhcp forwarder'], answer: 1 },
+    { q: 'Anong NTP stratum ang pinaka-malapit sa authoritative time source?', options: ['Stratum 0', 'Stratum 1', 'Stratum 15', 'Stratum 16'], answer: 0 },
+    { q: 'Anong DSCP value ang ginagamit para sa VOIP traffic (EF)?', options: ['0', '46', '78', '63'], answer: 1 }
+  ],
+  'security-fundamentals': [
+    { q: 'Anong ACL number range ang para sa extended ACL?', options: ['1-99', '100-199', '200-299', '1300-1999'], answer: 1 },
+    { q: 'Ano ang default na violation mode ng port security?', options: ['Protect', 'Restrict', 'Shutdown', 'Disable'], answer: 2 },
+    { q: 'Anong protocol ang pumoprotekta laban sa rogue DHCP servers?', options: ['DAI', 'DHCP Snooping', 'Port Security', 'IP Source Guard'], answer: 1 },
+    { q: 'Anong port ang ginagamit ng SSH?', options: ['22', '23', '443', '3389'], answer: 0 },
+    { q: 'Anong command ang ginagamit para mag-generate ng RSA key para sa SSH?', options: ['crypto key generate rsa', 'ssh key generate', 'ip ssh key', 'crypto key create rsa'], answer: 0 }
+  ],
+  automation: [
+    { q: 'Sa SDN architecture, saang plane nagfo-forward ng packets?', options: ['Control Plane', 'Management Plane', 'Data Plane', 'Application Plane'], answer: 2 },
+    { q: 'Anong HTTP method ang ginagamit para mag-update ng existing resource sa REST API?', options: ['GET', 'POST', 'PUT', 'DELETE'], answer: 2 },
+    { q: 'Anong automation tool ang agentless at gumagamit ng SSH?', options: ['Puppet', 'Chef', 'Ansible', 'SaltStack'], answer: 2 },
+    { q: 'Anong Python library ang ginagamit para sa multi-vendor SSH network automation?', options: ['requests', 'paramiko', 'Netmiko', 'ncclient'], answer: 2 },
+    { q: 'Anong protocol ang XML-based at transactional para sa network configuration?', options: ['SNMP', 'NETCONF', 'RESTCONF', 'HTTP'], answer: 1 }
+  ],
+  'troubleshooting-ccna': [
+    { q: 'Anong show command ang nagpapakita ng summary ng lahat ng interfaces at kanilang IP/status?', options: ['show interfaces', 'show ip interface brief', 'show running-config', 'show vlan brief'], answer: 1 },
+    { q: 'Anong ibig sabihin kapag ang interface status ay "up" at protocol ay "down"?', options: ['Layer 1 issue', 'Layer 2 issue', 'Layer 3 issue', 'Normal operation'], answer: 1 },
+    { q: 'Anong command ang ginagamit para makita ang OSPF neighbor status?', options: ['show ip ospf database', 'show ip ospf neighbor', 'show ip route ospf', 'show ip protocols'], answer: 1 },
+    { q: 'Anong syslog severity level ang "Critical"?', options: ['0', '1', '2', '3'], answer: 2 },
+    { q: 'Anong tool ang ginagamit para mag-capture at mag-analyze ng network packets?', options: ['tcpdump', 'ping', 'traceroute', 'show interfaces'], answer: 0 }
+  ]
+};
+
+const scenarioData = {
+  'vlan-mismatch': {
+    title: 'VLAN Mismatch / Connectivity Loss',
+    desc: 'Exercise: Nag-report ang mga users na hindi magka-ping ang mga hosts na nasa same VLAN. Ang network ay may dalawang switches na naka-trunk. Kailangan mong i-diagnose at i-resolve ang VLAN mismatch issue.',
+    steps: [
+      { text: 'I-verify ang VLAN configuration sa parehong switches: `show vlan brief`. I-check kung ang VLAN 10 ay present at may assigned ports sa parehong switches.' },
+      { text: 'I-check ang trunk link sa pagitan ng switches: `show interfaces trunk`. I-verify kung ang trunk ay established at kung ang VLAN 10 ay nasa allowed list.' },
+      { text: 'I-verify ang port assignments: `show interfaces gigabitethernet0/1 switchport`. I-check kung ang mga access ports ay naka-assign sa tamang VLAN.' },
+      { text: 'I-check ang STP port states: `show spanning-tree vlan 10`. I-verify na ang mga port ay nasa Forwarding state at hindi Blocking.' },
+      { text: 'I-test ang connectivity sa bawat hop: `ping` mula sa host papuntang switch, switch to switch, at switch to destination host. I-identify kung saan ang ping break.' },
+      { text: '✅ I-fix ang VLAN mismatch — parehong switches dapat may VLAN 10, ang trunk ay dapat nag-a-allow ng VLAN 10, at ang native VLAN ay dapat match. I-verify na ang mga hosts ay nagpi-ping na sa isa\'t isa.' }
+    ]
+  },
+  'ospf-neighbor': {
+    title: 'OSPF Neighbor Adjacency Issue',
+    desc: 'Exercise: Dalawang routers (R1 at R2) na direktang naka-konek ay hindi nagfo-form ng OSPF adjacency. Ang OSPF ay naka-configure pero ang neighbor state ay stuck sa INIT o EXSTART.',
+    steps: [
+      { text: 'I-verify ang interface IP addresses at subnet masks: `show ip interface brief`. I-check kung ang dalawang routers ay nasa parehong subnet.' },
+      { text: 'I-check ang OSPF network type: `show ip ospf interface`. I-verify kung ang network type ay pareho sa magkabilang dulo (broadcast, point-to-point, etc.).' },
+      { text: 'I-verify ang area configuration: `show ip ospf interface`. I-check kung ang parehong interfaces ay naka-assign sa parehong OSPF area.' },
+      { text: 'I-check ang MTU mismatch: `show interfaces`. I-compare ang MTU values — kung magkaiba, ang OSPF ay stuck sa EXSTART state.' },
+      { text: 'I-verify ang authentication settings: `show running-config interface`. I-check kung may OSPF authentication at kung pareho ang password/key sa magkabilang dulo.' },
+      { text: '✅ I-fix ang issue: i-match ang subnet, network type, area, MTU, at authentication sa parehong routers. I-verify na ang OSPF adjacency ay nasa FULL state gamit ang `show ip ospf neighbor`.' }
+    ]
+  },
+  'nat-exhaustion': {
+    title: 'NAT Pool Exhaustion',
+    desc: 'Exercise: Nagrereklamo ang users na hindi sila makapag-internet. Ang NAT pool ay na-exhaust — nauubusan ng public IP addresses para sa outbound translations.',
+    steps: [
+      { text: 'I-check ang NAT translations: `show ip nat translations`. Tingnan kung gaano karami ang active translations at kung may available pang public IPs sa pool.' },
+      { text: 'I-identify ang NAT pool usage: `show ip nat statistics`. I-check ang hit count, miss count, at kung ilan sa pool ang nagamit na.' },
+      { text: 'I-verify ang NAT pool size: `show running-config | section ip nat pool`. I-check kung gaano kalaki ang pool at kung sapat ito para sa dami ng users.' },
+      { text: 'I-check kung may DoS o scan na kumukonsumo ng translations: `show ip nat translations | count`. Kung may isang IP na libo-libong translations, investigate further.' },
+      { text: 'I-implement ang PAT (overload) o dagdagan ang pool size: `ip nat inside source list 1 interface gi0/0 overload`. Kung naka-PAT na, i-check ang NAT timeouts — `show ip nat translations timeout`.' },
+      { text: '✅ I-verify na ang internet access ay na-restore. I-test ang connectivity sa external sites. I-monitor ang NAT pool usage para sa future capacity planning.' }
+    ]
+  },
+  'stp-loop': {
+    title: 'STP Loop / Broadcast Storm',
+    desc: 'Exercise: Bumagal nang husto ang network. Ang switches ay nagpapakita ng high CPU utilization at may MAC flapping warnings. Posibleng may Layer 2 loop.',
+    steps: [
+      { text: 'I-identify ang loop symptoms: `show processes cpu` — high CPU usage. I-check ang `show logging` para sa %STP-LOOPGUARD o %MAC_FLAPPING messages.' },
+      { text: 'I-trace ang physical topology. I-verify ang cable connections — may redundant o maling pagkakakonek ba? I-check kung may bagong switch na na-add nang walang STP configuration.' },
+      { text: 'I-check ang STP port roles at states: `show spanning-tree`. I-identify kung aling ports ang dapat naka-blocking pero nasa Forwarding.' },
+      { text: 'I-identify ang rogue switch o loop: I-disable ang isang link at tingnan kung bumalik sa normal ang CPU. Kung oo, iyon ang may problemang link.' },
+      { text: 'I-disable ang offending port: `interface gi0/1`, `shutdown`. I-enable ang STP enhancement features: `spanning-tree guard loop`, `spanning-tree bpduguard enable`.' },
+      { text: '✅ I-verify ang STP convergence: `show spanning-tree` — dapat isang port ang Blocking (Alternate). I-check na ang CPU utilization ay bumaba na. I-verify ang connectivity sa lahat ng VLANs.' }
+    ]
+  }
+};
+
+function getProgress() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveProgress(key, subkey, value) {
+  const p = getProgress();
+  if (!p[key]) p[key] = {};
+  p[key][subkey] = value;
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  updateAllDisplays();
+}
+function getModuleProgress(id) {
+  const p = getProgress();
+  const m = p.modules && p.modules[id];
+  if (!m || !m.steps) return { completed: 0, total: lessons[id].steps.length, steps: [] };
+  return { completed: m.steps.filter(Boolean).length, total: lessons[id].steps.length, steps: m.steps };
+}
+function addActivity(text) {
+  const p = getProgress();
+  if (!p.activity) p.activity = [];
+  p.activity.unshift({ text: text, time: Date.now() });
+  if (p.activity.length > 50) p.activity = p.activity.slice(0, 50);
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  updateAllDisplays();
+}
+const achievementDefs = [
+  { id: 'first-module', label: 'Cisco Fundamentals', desc: 'Complete your first training module', icon: 'ti ti-star' },
+  { id: 'all-modules', label: 'CCNA Scholar', desc: 'Complete all 6 training modules', icon: 'ti ti-books' },
+  { id: 'first-quiz', label: 'Quiz Novice', desc: 'Pass your first quiz (80%+)', icon: 'ti ti-checklist' },
+  { id: 'all-quizzes', label: 'CCNA Quiz Master', desc: 'Pass all 6 quizzes (80%+)', icon: 'ti ti-award' },
+  { id: 'first-scenario', label: 'Network Engineer', desc: 'Complete your first scenario', icon: 'ti ti-tasks' },
+  { id: 'all-scenarios', label: 'Cisco Expert', desc: 'Complete all 4 scenarios', icon: 'ti ti-medal' },
+  { id: 'perfect-quiz', label: 'Perfect Score', desc: 'Get 100% on any quiz', icon: 'ti ti-crown' },
+  { id: 'half-progress', label: 'Halfway There', desc: 'Reach 50% overall progress', icon: 'ti ti-flag' }
+];
+function checkAchievements() {
+  const p = getProgress();
+  if (!p.achievements) p.achievements = {};
+  const mods = p.modules || {};
+  const quizzes = p.quizzes || {};
+  const scen = p.scenarios || {};
+  const modDone = moduleIds.filter(id => { const mp = getModuleProgress(id); return mp.completed === mp.total; }).length;
+  const quizPassed = moduleIds.filter(id => { const q = quizzes[id]; return q && q.correct / q.total >= 0.8; }).length;
+  const scenDone = Object.keys(scenarioData).filter(k => scen[k] && scen[k].completed).length;
+  const totalSteps = moduleIds.reduce((s,id) => s + lessons[id].steps.length, 0);
+  const doneSteps = moduleIds.reduce((s,id) => s + getModuleProgress(id).completed, 0);
+  const pct = totalSteps ? Math.round(doneSteps / totalSteps * 100) : 0;
+  if (!p.achievements['first-module'] && modDone >= 1) unlockAchievement('first-module');
+  if (!p.achievements['all-modules'] && modDone === moduleIds.length) unlockAchievement('all-modules');
+  if (!p.achievements['first-quiz'] && quizPassed >= 1) unlockAchievement('first-quiz');
+  if (!p.achievements['all-quizzes'] && quizPassed === moduleIds.length) unlockAchievement('all-quizzes');
+  if (!p.achievements['first-scenario'] && scenDone >= 1) unlockAchievement('first-scenario');
+  if (!p.achievements['all-scenarios'] && scenDone === Object.keys(scenarioData).length) unlockAchievement('all-scenarios');
+  if (!p.achievements['half-progress'] && pct >= 50) unlockAchievement('half-progress');
+  Object.keys(quizzes).forEach(k => { const q = quizzes[k]; if (!p.achievements['perfect-quiz'] && q && q.total > 0 && q.correct === q.total) unlockAchievement('perfect-quiz'); });
+}
+function unlockAchievement(id) {
+  const p = getProgress();
+  if (!p.achievements) p.achievements = {};
+  if (p.achievements[id]) return;
+  p.achievements[id] = { unlockedAt: Date.now() };
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  addActivity('🏆 Achieved: ' + achievementDefs.find(a => a.id === id).label);
+  showToast('🏆 Achievement unlocked: ' + achievementDefs.find(a => a.id === id).label);
+}
+function showToast(msg, isError) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, 3000);
+}
+function switchPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  document.getElementById('breadcrumb').innerHTML = '<strong>' + ({ home:'Home', training:'Training Center', progress:'My Progress' }[id] || 'Home') + '</strong>';
+  if (id === 'training') updateTrainingDisplays();
+  if (id === 'progress') updateProgressPage();
+}
+function switchTab(tab, el) {
+  document.querySelectorAll('#panel-training .tab-content').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('#panel-training .tab-btn').forEach(function(t) { t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  updateTrainingDisplays();
+}
+function updateAllDisplays() {
+  const p = getProgress();
+  const mods = p.modules || {};
+  const quizzes = p.quizzes || {};
+  const scen = p.scenarios || {};
+  const modDone = moduleIds.filter(function(id) { const mp = getModuleProgress(id); return mp.completed === mp.total; }).length;
+  const quizPassed = moduleIds.filter(function(id) { const q = quizzes[id]; return q && q.correct / q.total >= 0.8; }).length;
+  const scenDone = Object.keys(scenarioData).filter(function(k) { return scen[k] && scen[k].completed; }).length;
+  const totalSteps = moduleIds.reduce(function(s,id) { return s + lessons[id].steps.length; }, 0);
+  const doneSteps = moduleIds.reduce(function(s,id) { return s + getModuleProgress(id).completed; }, 0);
+  const pct = totalSteps ? Math.round(doneSteps / totalSteps * 100) : 0;
+  document.getElementById('homeModulesDone').textContent = modDone + '/' + moduleIds.length;
+  document.getElementById('homeQuizzesDone').textContent = quizPassed + '/' + moduleIds.length;
+  document.getElementById('homeScenariosDone').textContent = scenDone + '/' + Object.keys(scenarioData).length;
+  document.getElementById('homeProgressPct').textContent = pct + '%';
+  document.getElementById('homeProgressBar').style.width = pct + '%';
+  var trainingBadge = document.getElementById('trainingNavBadge');
+  if (trainingBadge) { trainingBadge.textContent = pct > 0 ? pct + '%' : 'NEW'; }
+  var html = '';
+  moduleIds.forEach(function(id) {
+    const mp = getModuleProgress(id);
+    const pct2 = mp.total ? Math.round(mp.completed / mp.total * 100) : 0;
+    const status = mp.completed === 0 ? 'Not started' : mp.completed === mp.total ? '✅ Complete' : mp.completed + '/' + mp.total + ' done';
+    html += '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6;font-size:13px;"><span style="width:90px;font-weight:500;color:#1a2332">' + lessons[id].title + '</span><div style="flex:1"><div class="progress-bar"><div class="progress-fill" style="width:' + pct2 + '%"></div></div></div><span style="color:#6b7a8d;font-size:12px;min-width:90px;text-align:right">' + status + '</span></div>';
+  });
+  document.getElementById('homeModuleProgress').innerHTML = html;
+  var acts = p.activity || [];
+  if (acts.length === 0) { document.getElementById('homeActivityLog').innerHTML = '<div style="color:#9aa3ad;text-align:center;padding:10px">No activity yet.</div>'; } else { document.getElementById('homeActivityLog').innerHTML = acts.slice(0, 10).map(function(a) { return '<div class="activity-item">' + a.text + '</div>'; }).join(''); }
+}
+function updateTrainingDisplays() { renderModuleGrid(); renderQuizGrid(); renderScenarioGrid(); }
+function renderModuleGrid() {
+  const el = document.getElementById('moduleGrid');
+  el.innerHTML = moduleIds.map(function(id, i) {
+    const mp = getModuleProgress(id);
+    const pct = mp.total ? Math.round(mp.completed / mp.total * 100) : 0;
+    const cls = mp.completed === mp.total ? 'completed' : mp.completed > 0 ? 'in-progress' : '';
+    const status = mp.completed === 0 ? 'Not started' : mp.completed === mp.total ? '✅ Completed (' + mp.total + '/' + mp.total + ')' : mp.completed + '/' + mp.total + ' steps';
+    return '<div class="module-card ' + cls + '" onclick="startLesson(\'' + id + '\')"><div class="module-card-title"><i class="' + moduleIcons[i] + '" style="color:' + moduleColors[i] + '"></i> ' + lessons[id].title + '</div><div class="module-card-desc">' + moduleDesc[i] + '</div><div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div><div style="margin-top:6px"><span class="module-card-status">' + status + '</span></div></div>';
+  }).join('');
+}
+function renderQuizGrid() {
+  const el = document.getElementById('quizGrid');
+  const p = getProgress();
+  const quizzes = p.quizzes || {};
+  el.innerHTML = moduleIds.map(function(id, i) {
+    const q = quizzes[id];
+    const score = q ? q.correct + '/' + q.total : null;
+    const passed = q && q.correct / q.total >= 0.8;
+    const badgeCls = passed ? 'badge-green' : q ? 'badge-red' : 'badge-gray';
+    const label = passed ? '✅ Passed (' + score + ')' : q ? '❌ ' + score : 'Not taken';
+    return '<div class="module-card" onclick="startQuiz(\'' + id + '\')"><div class="module-card-title"><i class="' + moduleIcons[i] + '" style="color:' + moduleColors[i] + '"></i> ' + lessons[id].title + ' Quiz</div><div class="module-card-desc">5 questions — ' + moduleDesc[i].substring(0, 40) + '...</div><div style="margin-top:8px"><span class="badge ' + badgeCls + '">' + label + '</span></div></div>';
+  }).join('');
+}
+function renderScenarioGrid() {
+  const el = document.getElementById('scenarioGrid');
+  const p = getProgress();
+  const scen = p.scenarios || {};
+  el.innerHTML = Object.keys(scenarioData).map(function(k) {
+    const s = scenarioData[k];
+    const done = scen[k] && scen[k].completed;
+    const cls = done ? 'completed' : '';
+    return '<div class="module-card ' + cls + '" onclick="startScenario(\'' + k + '\')"><div class="module-card-title"><i class="ti ti-tasks" style="color:#7c3aed"></i> ' + s.title + '</div><div class="module-card-desc">' + s.desc.substring(0, 80) + '...</div><div style="margin-top:8px"><span class="module-card-status">' + (done ? '✅ Completed' : 'Not started') + '</span></div></div>';
+  }).join('');
+}
+function updateProgressPage() {
+  const p = getProgress();
+  const quizzes = p.quizzes || {};
+  const scen = p.scenarios || {};
+  const modDone = moduleIds.filter(function(id) { const mp = getModuleProgress(id); return mp.completed === mp.total; }).length;
+  const quizPassed = moduleIds.filter(function(id) { const q = quizzes[id]; return q && q.correct / q.total >= 0.8; }).length;
+  const scenDone = Object.keys(scenarioData).filter(function(k) { return scen[k] && scen[k].completed; }).length;
+  document.getElementById('progressModules').textContent = modDone + '/' + moduleIds.length;
+  document.getElementById('progressQuizzes').textContent = quizPassed + '/' + moduleIds.length;
+  document.getElementById('progressScenarios').textContent = scenDone + '/' + Object.keys(scenarioData).length;
+  document.getElementById('progressModulesPill').textContent = modDone === 0 ? 'Not started' : modDone === moduleIds.length ? '✅ All complete' : modDone + ' done';
+  document.getElementById('progressModulesPill').className = 'pill ' + (modDone === 0 ? 'pill-gray' : modDone === moduleIds.length ? 'pill-green' : 'pill-blue');
+  document.getElementById('progressQuizzesPill').textContent = quizPassed === 0 ? 'Not started' : quizPassed === moduleIds.length ? '✅ All passed' : quizPassed + ' passed';
+  document.getElementById('progressQuizzesPill').className = 'pill ' + (quizPassed === 0 ? 'pill-gray' : quizPassed === moduleIds.length ? 'pill-green' : 'pill-amber');
+  document.getElementById('progressScenariosPill').textContent = scenDone === 0 ? 'Not started' : scenDone === Object.keys(scenarioData).length ? '✅ All complete' : scenDone + ' done';
+  document.getElementById('progressScenariosPill').className = 'pill ' + (scenDone === 0 ? 'pill-gray' : scenDone === Object.keys(scenarioData).length ? 'pill-green' : 'pill-blue');
+  var achHtml = achievementDefs.map(function(a) { const unlocked = p.achievements && p.achievements[a.id]; return '<div class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '"><i class="' + a.icon + '"></i> ' + a.label + '</div>'; }).join('');
+  document.getElementById('achievementsList').innerHTML = achHtml || '<div style="color:#9aa3ad;text-align:center">No achievements yet.</div>';
+  var acts = p.activity || [];
+  document.getElementById('progressActivityLog').innerHTML = acts.length === 0 ? '<div style="color:#9aa3ad;text-align:center">No activity yet.</div>' : acts.slice(0, 30).map(function(a) { return '<div class="activity-item">' + a.text + '</div>'; }).join('');
+}
+
+var activeLesson = null, lessonStepIdx = 0;
+function startLesson(id) {
+  activeLesson = id; lessonStepIdx = 0;
+  document.getElementById('lessonTitle').textContent = lessons[id].title;
+  document.getElementById('lessonNextBtn').textContent = 'Next →';
+  showLessonStep();
+  document.getElementById('lessonOverlay').classList.add('open');
+}
+function showLessonStep() {
+  var lesson = lessons[activeLesson];
+  var steps = lesson.steps;
+  var idx = lessonStepIdx;
+  var mp = getModuleProgress(activeLesson);
+  var done = mp.steps && mp.steps[idx];
+  var html = '<div class="quiz-progress">Step ' + (idx + 1) + ' of ' + steps.length + '</div>';
+  var st = steps[idx];
+  html += '<div class="scenario-step" style="margin-bottom:16px"><div class="scenario-step-content"><div><span class="scenario-step-num">' + (idx + 1) + '</span></div><div class="scenario-step-text">';
+  if (done) { html += '<span style="color:#1d9e75;font-weight:600">✓ Completed</span>'; } else { html += '<strong>' + st.title + '</strong><p style="margin-top:6px;white-space:pre-line">' + st.text + '</p>'; }
+  html += '</div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">';
+  if (!done) { html += '<button class="btn btn-success" onclick="completeLessonStep(' + idx + ')"><i class="ti ti-check"></i> Mark as complete</button>'; }
+  if (idx > 0) { html += '<button class="btn btn-ghost" onclick="prevLessonStep()"><i class="ti ti-arrow-left"></i> Previous</button>'; }
+  html += '</div>';
+  document.getElementById('lessonBody').innerHTML = html;
+  document.getElementById('lessonNextBtn').style.display = idx < steps.length - 1 ? 'inline-flex' : 'none';
+  var closeBtn = document.querySelector('#lessonActions .btn-ghost');
+  if (closeBtn) closeBtn.textContent = 'Close';
+}
+function completeLessonStep(idx) {
+  if (!activeLesson) return;
+  var p = getProgress();
+  if (!p.modules) p.modules = {};
+  if (!p.modules[activeLesson]) p.modules[activeLesson] = { steps: [] };
+  if (!p.modules[activeLesson].steps) p.modules[activeLesson].steps = [];
+  p.modules[activeLesson].steps[idx] = true;
+  p.modules[activeLesson]._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  addActivity('📖 Completed: ' + lessons[activeLesson].steps[idx].title + ' (' + lessons[activeLesson].title + ')');
+  checkAchievements();
+  showLessonStep(); updateAllDisplays();
+}
+function nextLessonStep() { if (activeLesson && lessonStepIdx < lessons[activeLesson].steps.length - 1) { lessonStepIdx++; showLessonStep(); } }
+function prevLessonStep() { if (lessonStepIdx > 0) { lessonStepIdx--; showLessonStep(); } }
+
+var activeQuiz = null, quizQuestionIdx = 0, quizAnswers = [];
+function startQuiz(id) {
+  activeQuiz = id; quizQuestionIdx = 0; quizAnswers = [];
+  document.getElementById('quizTitle').textContent = lessons[id].title + ' Quiz';
+  document.getElementById('quizResult').style.display = 'none';
+  document.getElementById('quizNextBtn').style.display = 'inline-flex';
+  document.getElementById('quizNextBtn').disabled = true;
+  document.getElementById('quizNextBtn').textContent = 'Next →';
+  showQuizQuestion();
+  document.getElementById('quizOverlay').classList.add('open');
+}
+function showQuizQuestion() {
+  var qs = quizData[activeQuiz];
+  var idx = quizQuestionIdx;
+  var q = qs[idx];
+  document.getElementById('quizProgress').textContent = 'Question ' + (idx + 1) + ' of ' + qs.length;
+  document.getElementById('quizQuestion').textContent = q.q;
+  var answered = quizAnswers[idx] !== undefined;
+  var html = q.options.map(function(o, i) {
+    var cls = 'quiz-option';
+    if (answered) {
+      if (i === q.answer) cls += ' correct';
+      else if (i === quizAnswers[idx]) cls += ' wrong';
+    } else if (i === quizAnswers[idx]) { cls += ' selected'; }
+    return '<button class="' + cls + '" onclick="answerQuiz(' + i + ')"' + (answered ? ' disabled' : '') + '>' + o + '</button>';
+  }).join('');
+  document.getElementById('quizOptions').innerHTML = html;
+  document.getElementById('quizNextBtn').disabled = quizAnswers[idx] === undefined;
+}
+function answerQuiz(idx) { if (activeQuiz === null) return; quizAnswers[quizQuestionIdx] = idx; showQuizQuestion(); }
+function nextQuizQuestion() {
+  if (activeQuiz === null) return;
+  var qs = quizData[activeQuiz];
+  if (quizQuestionIdx < qs.length - 1) { quizQuestionIdx++; document.getElementById('quizNextBtn').disabled = true; showQuizQuestion(); } else { finishQuiz(); }
+}
+function finishQuiz() {
+  var qs = quizData[activeQuiz];
+  var correct = 0;
+  qs.forEach(function(q, i) { if (quizAnswers[i] === q.answer) correct++; });
+  var total = qs.length;
+  var pct = Math.round(correct / total * 100);
+  var passed = pct >= 80;
+  document.getElementById('quizScoreDisplay').textContent = correct + '/' + total;
+  document.getElementById('quizScoreDisplay').style.color = passed ? '#1d9e75' : pct >= 50 ? '#ef9f27' : '#e94560';
+  document.getElementById('quizResultLabel').textContent = passed ? '✅ Passed! Mahusay!' : pct >= 50 ? 'Kailangan pang mag-aral. Try again!' : 'Need more practice. I-review ang module at subukan ulit.';
+  document.getElementById('quizResult').style.display = 'block';
+  document.getElementById('quizNextBtn').style.display = 'none';
+  var p = getProgress();
+  if (!p.quizzes) p.quizzes = {};
+  if (!p.quizzes[activeQuiz] || p.quizzes[activeQuiz].correct < correct) {
+    p.quizzes[activeQuiz] = { correct: correct, total: total };
+    p._updated = Date.now();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+    addActivity('📝 Quiz "' + lessons[activeQuiz].title + '": ' + correct + '/' + total + ' (' + pct + '%)' + (passed ? ' ✅ PASSED' : ''));
+    checkAchievements(); updateAllDisplays();
+  }
+}
+
+var activeScenarioKey = null, scenarioStepIdx = 0;
+function startScenario(k) {
+  activeScenarioKey = k; scenarioStepIdx = 0;
+  document.getElementById('scenarioTitle').textContent = scenarioData[k].title;
+  showScenarioStep();
+  document.getElementById('scenarioOverlay').classList.add('open');
+}
+function showScenarioStep() {
+  var k = activeScenarioKey; if (!k) return;
+  var s = scenarioData[k]; var steps = s.steps;
+  var idx = scenarioStepIdx;
+  var p = getProgress();
+  var done = p.scenarios && p.scenarios[k] && p.scenarios[k].completed;
+  var html = '<div style="margin-bottom:12px;font-size:13px;color:#6b7a8d">' + s.desc + '</div>' +
+    steps.map(function(st, i) {
+      var isDone = done || (p.scenarios && p.scenarios[k] && p.scenarios[k].steps && p.scenarios[k].steps[i]);
+      return '<div class="scenario-step ' + (isDone ? 'completed' : '') + '" id="ss-' + i + '"><div class="scenario-step-content"><div><span class="scenario-step-num">' + (i + 1) + '</span></div><div class="scenario-step-text">' +
+        (isDone ? '<span style="color:#1d9e75;font-weight:600">✓ Completed</span>' : '<strong>Step ' + (i + 1) + ':</strong><p style="margin-top:4px;white-space:pre-line">' + st.text + '</p>' + (i <= idx ? '<button class="btn btn-success btn-sm" style="margin-top:8px" onclick="completeScenarioStep(' + i + ')"><i class="ti ti-check"></i> Mark done</button>' : '')) +
+        '</div></div></div>';
+    }).join('');
+  document.getElementById('scenarioBody').innerHTML = html;
+  if (done) { document.getElementById('scenarioNextBtn').style.display = 'none'; }
+  else { document.getElementById('scenarioNextBtn').textContent = idx < steps.length - 1 ? 'Next Step →' : 'Complete Scenario'; document.getElementById('scenarioNextBtn').style.display = 'inline-flex'; }
+}
+function completeScenarioStep(idx) {
+  if (!activeScenarioKey) return;
+  var p = getProgress();
+  if (!p.scenarios) p.scenarios = {};
+  if (!p.scenarios[activeScenarioKey]) p.scenarios[activeScenarioKey] = { steps: [] };
+  if (!p.scenarios[activeScenarioKey].steps) p.scenarios[activeScenarioKey].steps = [];
+  p.scenarios[activeScenarioKey].steps[idx] = true;
+  if (idx === scenarioData[activeScenarioKey].steps.length - 1) {
+    p.scenarios[activeScenarioKey].completed = true;
+    p.scenarios[activeScenarioKey].completedAt = Date.now();
+    addActivity('🏁 Completed scenario: ' + scenarioData[activeScenarioKey].title);
+  } else {
+    addActivity('📋 Scenario step ' + (idx + 1) + ': ' + scenarioData[activeScenarioKey].title);
+  }
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  checkAchievements();
+  if (idx < scenarioData[activeScenarioKey].steps.length - 1) { scenarioStepIdx++; }
+  showScenarioStep(); updateAllDisplays();
+}
+function nextScenarioStep() {
+  if (activeScenarioKey) { if (scenarioStepIdx < scenarioData[activeScenarioKey].steps.length - 1) { scenarioStepIdx++; showScenarioStep(); } }
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'lessonOverlay') { activeLesson = null; }
+  if (id === 'quizOverlay') { activeQuiz = null; }
+  if (id === 'scenarioOverlay') { activeScenarioKey = null; }
+}
+function doLogin() {
+  var user = document.getElementById('loginUser').value.trim();
+  var pass = document.getElementById('loginName').value.trim();
+  if (user !== 'ccna' || pass !== 'password') {
+    document.getElementById('loginError').textContent = 'Invalid credentials. Use demo: ccna / password';
+    document.getElementById('loginError').style.display = 'block';
+    return;
+  }
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('appMain').style.display = 'flex';
+  document.getElementById('userName').textContent = 'CCNA Student';
+  document.getElementById('userAvatar').textContent = 'C';
+  updateAllDisplays();
+  addActivity('🔐 Started CCNA Training');
+}
+document.addEventListener('DOMContentLoaded', function() { updateAllDisplays(); });
+</script>
+<div style="text-align:center;padding:10px 20px;font-size:11px;color:#8a9aaa;border-top:1px solid rgba(255,255,255,0.08);background:#1a1a2e;">Independent training simulation. Hindi affiliated sa Cisco Systems o sa kahit anong kumpanya.</div>
+<script>
+(function(){function p(e){e.preventDefault()}document.addEventListener('contextmenu',p);document.addEventListener('keydown',function(e){if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(e.key.toLowerCase()))||(e.ctrlKey&&['u','c','x'].includes(e.key.toLowerCase()))){e.preventDefault();return false}});document.addEventListener('copy',p);document.addEventListener('cut',p)})();
+</script>
+</body>
+</html>

@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CompTIA Security+ — Training Simulator</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f5f7;min-height:100vh;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+.login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 40%,#0f3460 100%);}
+.login-card{background:#fff;border-radius:12px;padding:40px 44px;width:360px;box-shadow:0 8px 40px rgba(0,0,0,0.25);}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:24px;justify-content:center;}
+.login-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#e94560,#0f3460);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.login-logo-icon i{font-size:20px;color:#fff;}
+.login-logo-text{font-size:20px;font-weight:600;color:#1a1a2e;}
+.login-subtitle{font-size:13px;color:#6b7a8d;text-align:center;margin-bottom:28px;margin-top:-18px;}
+.login-label{font-size:12px;font-weight:500;color:#3d4a5a;margin-bottom:5px;display:block;}
+.login-input{width:100%;border:1px solid #d1d5db;border-radius:7px;padding:9px 12px;font-size:14px;color:#1a2332;outline:none;transition:border 0.15s;}
+.login-input:focus{border-color:#e94560;box-shadow:0 0 0 3px rgba(233,69,96,0.12);}
+.login-group{margin-bottom:16px;}
+.login-btn{width:100%;background:linear-gradient(135deg,#e94560,#0f3460);color:#fff;border:none;border-radius:7px;padding:11px;font-size:15px;font-weight:600;cursor:pointer;transition:background 0.15s;}
+.login-btn:hover{background:linear-gradient(135deg,#c73b3a,#a42e2d);}
+.login-hint{font-size:12px;color:#9aa3ad;text-align:center;margin-top:18px;}
+.login-error{background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:8px 12px;font-size:13px;color:#dc2626;margin-bottom:14px;display:none;}
+.app{display:none;flex-direction:column;height:100vh;}
+.topnav{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;display:flex;align-items:center;gap:0;height:46px;flex-shrink:0;}
+.topnav-brand{display:flex;align-items:center;gap:9px;padding:0 16px;border-right:1px solid rgba(255,255,255,0.08);height:100%;}
+.topnav-brand-icon{width:26px;height:26px;background:linear-gradient(135deg,#e94560,#0f3460);border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.topnav-brand-icon i{font-size:15px;color:#fff;}
+.topnav-brand-text{font-size:14px;font-weight:600;color:#fff;}
+.topnav-right{margin-left:auto;display:flex;align-items:center;gap:2px;padding-right:12px;}
+.topnav-btn{background:none;border:none;color:#aab4c0;cursor:pointer;padding:7px 8px;border-radius:5px;font-size:15px;display:flex;align-items:center;gap:5px;}
+.topnav-btn:hover{background:rgba(255,255,255,0.08);color:#fff;}
+.topnav-user{font-size:12px;color:#aab4c0;padding:0 10px;border-left:1px solid rgba(255,255,255,0.08);height:100%;display:flex;align-items:center;gap:7px;cursor:pointer;}
+.avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#e94560,#0f3460);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;}
+.shell{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:210px;background:#1a1a2e;color:#fff;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;}
+.nav-section{padding:4px 0;}
+.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:#5a6a7a;padding:6px 18px 3px;font-weight:600;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:7px 18px;font-size:13px;color:#8a9aaa;cursor:pointer;border-left:3px solid transparent;transition:all 0.12s;}
+.nav-item:hover{background:rgba(233,69,96,0.06);color:#d0d8e0;}
+.nav-item.active{background:rgba(233,69,96,0.1);color:#e94560;border-left-color:#e94560;font-weight:500;}
+.nav-item i{font-size:15px;}
+.nav-item .nav-badge{margin-left:auto;background:#ffb900;color:#1a1a2e;font-size:9px;padding:1px 6px;border-radius:8px;font-weight:700;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.panels{flex:1;overflow-y:auto;padding:16px 20px;}
+.panel{display:none;animation:fadeIn 0.2s ease;}
+.panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+@keyframes toastIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.breadcrumb{font-size:13px;color:#8a9aaa;margin-bottom:8px;}
+.page-title{font-size:22px;font-weight:700;color:#1a1a2e;margin-bottom:4px;}
+.page-sub{font-size:14px;color:#6b7a8d;margin-bottom:16px;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.stats-row-3{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));}
+.stat-card{background:#fff;border-radius:10px;border:1px solid #e1dfdd;padding:16px;text-align:center;}
+.stat-label{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#8a9aaa;margin-bottom:4px;}
+.stat-value{font-size:28px;font-weight:700;color:#1a1a2e;}
+.stat-sub{font-size:12px;color:#6b7a8d;margin-top:2px;}
+.module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
+.module-card{background:#fff;border:1px solid #e1dfdd;border-radius:10px;padding:16px;cursor:pointer;transition:all 0.15s;}
+.module-card:hover{border-color:#e94560;box-shadow:0 2px 12px rgba(233,69,96,0.08);}
+.module-card.completed{border-color:#1d9e75;background:#f6fff6;}
+.module-card-title{font-size:14px;font-weight:600;color:#201f1e;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.module-card-desc{font-size:12px;color:#605e5c;margin-bottom:10px;line-height:1.5;}
+.module-card-status{font-size:11px;color:#1d9e75;font-weight:600;}
+.progress-bar{height:6px;background:#e1dfdd;border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:#e94560;border-radius:3px;transition:width 0.3s;}
+.progress-fill.green{background:#1d9e75;}
+.tab-bar{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid #e1dfdd;padding-bottom:0;}
+.tab-btn{padding:8px 16px;font-size:13px;font-weight:500;color:#6b7a8d;cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:all 0.12s;}
+.tab-btn:hover{color:#1a2332;}
+.tab-btn.active{color:#e94560;border-bottom-color:#e94560;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+.info-box{background:#f0f6fc;border:1px solid #dce5f5;border-radius:8px;padding:14px 16px;font-size:13px;color:#1a2332;line-height:1.6;margin-bottom:12px;}
+.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#fff;border-radius:10px;width:500px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.2);padding:20px;}
+.modal-box.wide{width:640px;}
+.modal-title{font-size:16px;font-weight:600;color:#1a2332;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:12px;border-top:1px solid #e1dfdd;}
+.quiz-progress{font-size:12px;color:#605e5c;margin-bottom:12px;}
+.quiz-question{font-size:15px;font-weight:600;color:#1a2332;margin-bottom:12px;}
+.quiz-option{display:block;width:100%;text-align:left;padding:10px 14px;border:1px solid #d1d5db;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;margin-bottom:6px;font-family:inherit;transition:all 0.12s;}
+.quiz-option:hover{border-color:#e94560;background:#fef2f2;}
+.quiz-option.selected{border-color:#e94560;background:#fef2f2;font-weight:500;}
+.quiz-option.correct{border-color:#107c10;background:#dff6dd;}
+.quiz-option.correct::after{content:' ✓';color:#107c10;font-weight:700;}
+.quiz-option.wrong{border-color:#a4262c;background:#fde7e9;}
+.quiz-option.wrong::after{content:' ✗';color:#a4262c;font-weight:700;}
+.quiz-option:disabled{cursor:default;opacity:0.8;}
+.quiz-result-score{font-size:48px;font-weight:700;text-align:center;padding:20px 0;}
+.quiz-result-label{font-size:14px;text-align:center;color:#605e5c;margin-bottom:16px;}
+.scenario-step{margin-bottom:16px;}
+.scenario-step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#e94560;color:#fff;font-size:13px;font-weight:700;margin-right:10px;flex-shrink:0;}
+.scenario-step.completed .scenario-step-num{background:#1d9e75;}
+.scenario-step-content{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:6px;border:1px solid #e1dfdd;}
+.scenario-step.completed .scenario-step-content{border-color:#1d9e75;background:#f6fff6;}
+.scenario-step-text{flex:1;font-size:13px;line-height:1.6;}
+.scenario-step-text strong{display:block;margin-bottom:4px;font-size:14px;}
+.toast{position:fixed;bottom:24px;right:24px;background:#1d9e75;color:#fff;padding:12px 20px;border-radius:6px;font-size:13px;font-weight:500;z-index:200;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:toastIn 0.3s ease;}
+.toast.error{background:#e94560;}
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6;font-size:12px;color:#6b7a8d;}
+.activity-item:last-child{border-bottom:none;}
+.achievement{display:inline-flex;align-items:center;gap:6px;padding:4px 12px 4px 8px;border-radius:20px;font-size:12px;font-weight:600;}
+.achievement.unlocked{background:#fff4ce;color:#7a5008;}
+.achievement.locked{background:#f3f2f1;color:#c8c6c4;}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;}
+.badge-green{background:#dff6dd;color:#107c10;}
+.badge-red{background:#fde7e9;color:#a4262c;}
+.badge-gray{background:#f3f2f1;color:#8a9aaa;}
+.pill{display:inline-block;padding:2px 12px;border-radius:12px;font-size:11px;font-weight:600;}
+.pill-green{background:#dff6dd;color:#107c10;}
+.pill-blue{background:#e0edfc;color:#1d4ed8;}
+.pill-amber{background:#fff4ce;color:#7a5008;}
+.pill-gray{background:#f3f2f1;color:#8a9aaa;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.12s;}
+.btn-primary{background:#e94560;color:#fff;}
+.btn-primary:hover{background:#c73b3a;}
+.btn-success{background:#1d9e75;color:#fff;}
+.btn-success:hover{background:#16805e;}
+.btn-ghost{background:transparent;color:#6b7a8d;border:1px solid #d1d5db;}
+.btn-ghost:hover{background:#f3f2f1;}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn:disabled{opacity:0.5;cursor:default;}
+@media(max-width:640px){
+  .sidebar{width:48px;}
+  .nav-item span,.nav-label,.topnav-user span{display:none;}
+  .nav-item{justify-content:center;padding:10px;}
+  .nav-item i{font-size:20px;}
+  .module-grid{grid-template-columns:1fr;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon"><i class="ti ti-shield"></i></div>
+      <div class="login-logo-text">Security+ Academy</div>
+    </div>
+    <div class="login-subtitle">CompTIA Security+ Training Simulator (SY0-701)</div>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-group">
+      <label class="login-label">Employee ID / Username</label>
+      <input class="login-input" id="loginUser" placeholder="e.g., jdelacruz" autocomplete="off">
+    </div>
+    <div class="login-group">
+      <label class="login-label">Full Name</label>
+      <input class="login-input" id="loginName" placeholder="e.g., Juan Dela Cruz">
+    </div>
+    <button class="login-btn" onclick="doLogin()"><i class="ti ti-shield"></i> Start Training</button>
+    <div class="login-hint">Demo: security / password. Libre ang training na ito.</div>
+  </div>
+</div>
+
+<div class="app" id="appMain">
+  <div class="topnav">
+    <div class="topnav-brand">
+      <div class="topnav-brand-icon"><i class="ti ti-shield"></i></div>
+      <div class="topnav-brand-text">Security+ Academy</div>
+    </div>
+    <div class="topnav-right">
+      <div class="topnav-user" id="userDisplay"><div class="avatar" id="userAvatar">U</div><span id="userName">User</span></div>
+    </div>
+  </div>
+  <div class="shell">
+    <div class="sidebar">
+      <div class="nav-section">
+        <div class="nav-label">Navigation</div>
+        <div class="nav-item active" onclick="switchPanel('home',this)"><i class="ti ti-layout-dashboard"></i> <span>Home</span></div>
+        <div class="nav-item" onclick="switchPanel('training',this)"><i class="ti ti-school"></i> <span>Training</span> <span class="nav-badge" id="trainingNavBadge">NEW</span></div>
+        <div class="nav-item" onclick="switchPanel('progress',this)"><i class="ti ti-trending-up"></i> <span>My Progress</span></div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="panels">
+
+        <!-- ===== BREADCRUMB ===== -->
+        <div class="breadcrumb" id="breadcrumb"><strong>Home</strong></div>
+
+        <!-- ===== HOME ===== -->
+        <div class="panel active" id="panel-home">
+          <div class="page-title">CompTIA Security+ Training</div>
+          <div class="page-sub">Maging certified cybersecurity professional. Alamin ang threats, architecture, implementation, operations, governance, at cryptography.</div>
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-label">Modules</div><div class="stat-value" id="homeModulesDone">0/6</div><div class="stat-sub">Completed</div></div>
+            <div class="stat-card"><div class="stat-label">Quizzes</div><div class="stat-value" id="homeQuizzesDone">0/6</div><div class="stat-sub">Passed (80%+)</div></div>
+            <div class="stat-card"><div class="stat-label">Scenarios</div><div class="stat-value" id="homeScenariosDone">0/4</div><div class="stat-sub">Completed</div></div>
+            <div class="stat-card"><div class="stat-label">Progress</div><div class="stat-value" id="homeProgressPct">0%</div><div class="progress-bar" style="margin-top:8px"><div class="progress-fill" id="homeProgressBar" style="width:0%"></div></div></div>
+          </div>
+          <div class="panel" style="margin-bottom:12px">
+            <div class="panel-head"><span><i class="ti ti-activity-heartbeat"></i> Recent Activity</span></div>
+            <div class="panel-body" id="homeActivityLog" style="padding:8px 0"><div style="color:#9aa3ad;text-align:center;padding:20px">No activity yet. Start your training!</div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><span><i class="ti ti-trending-up"></i> Module Progress</span></div>
+            <div class="panel-body" id="homeModuleProgress" style="padding:8px 0"></div>
+          </div>
+        </div>
+
+        <!-- ===== TRAINING ===== -->
+        <div class="panel" id="panel-training">
+          <div class="page-title">Training Center</div>
+          <div class="page-sub">6 modules, quizzes, at practical scenarios para sa CompTIA Security+ certification</div>
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('modules',this)">Modules</button>
+            <button class="tab-btn" onclick="switchTab('quizzes',this)">Quizzes</button>
+            <button class="tab-btn" onclick="switchTab('scenarios',this)">Scenarios</button>
+          </div>
+          <div class="tab-content active" id="tab-modules"><div class="module-grid" id="moduleGrid"></div></div>
+          <div class="tab-content" id="tab-quizzes"><div class="module-grid" id="quizGrid"></div></div>
+          <div class="tab-content" id="tab-scenarios"><div class="module-grid" id="scenarioGrid"></div></div>
+        </div>
+
+        <!-- ===== PROGRESS ===== -->
+        <div class="panel" id="panel-progress">
+          <div class="page-title">My Progress</div>
+          <div class="page-sub">Detailed breakdown ng iyong training accomplishments</div>
+          <div class="stats-row stats-row-3">
+            <div class="stat-card"><div class="stat-label">Modules</div><div class="stat-value" id="progressModules">0/6</div><div class="pill" id="progressModulesPill">Not started</div></div>
+            <div class="stat-card"><div class="stat-label">Quizzes</div><div class="stat-value" id="progressQuizzes">0/6</div><div class="pill" id="progressQuizzesPill">Not started</div></div>
+            <div class="stat-card"><div class="stat-label">Scenarios</div><div class="stat-value" id="progressScenarios">0/4</div><div class="pill" id="progressScenariosPill">Not started</div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><span><i class="ti ti-star"></i> Achievements</span></div>
+            <div class="panel-body" id="achievementsList"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><span><i class="ti ti-activity-heartbeat"></i> Activity Log</span></div>
+            <div class="panel-body" id="progressActivityLog"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quiz modal -->
+<div class="modal-overlay" id="quizOverlay">
+  <div class="modal-box wide">
+    <div class="modal-title"><i class="ti ti-checklist"></i> <span id="quizTitle">Quiz</span></div>
+    <div id="quizBody">
+      <div class="quiz-progress" id="quizProgress">Question 1 of 5</div>
+      <div class="quiz-question" id="quizQuestion"></div>
+      <div id="quizOptions"></div>
+      <div id="quizResult" style="display:none">
+        <div class="quiz-result-score" id="quizScoreDisplay">0/5</div>
+        <div class="quiz-result-label" id="quizResultLabel"></div>
+      </div>
+    </div>
+    <div class="modal-actions" id="quizActions">
+      <button class="btn btn-ghost" onclick="closeModal('quizOverlay')">Cancel</button>
+      <button class="btn" id="quizNextBtn" onclick="nextQuizQuestion()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scenario modal -->
+<div class="modal-overlay" id="scenarioOverlay">
+  <div class="modal-box wide">
+    <div class="modal-title"><i class="ti ti-tasks"></i> <span id="scenarioTitle">Scenario</span></div>
+    <div id="scenarioBody"></div>
+    <div class="modal-actions" id="scenarioActions">
+      <button class="btn btn-ghost" onclick="closeModal('scenarioOverlay')">Close</button>
+      <button class="btn" id="scenarioNextBtn" onclick="nextScenarioStep()">Start →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lesson modal -->
+<div class="modal-overlay" id="lessonOverlay">
+  <div class="modal-box wide">
+    <div class="modal-title"><i class="ti ti-book"></i> <span id="lessonTitle">Lesson</span></div>
+    <div id="lessonBody"></div>
+    <div class="modal-actions" id="lessonActions">
+      <button class="btn btn-ghost" onclick="closeModal('lessonOverlay')">Close</button>
+      <button class="btn" id="lessonNextBtn" onclick="nextLessonStep()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'comptia_securityplus_trainer';
+
+const lessons = {
+  threats: {
+    title: 'Threats, Attacks & Vulnerabilities',
+    steps: [
+      { title: 'Malware Types', text: 'Ang malware ay malicious software na dinisenyo para makapinsala o makakuha ng unauthorized access.\n\nTypes ng Malware:\n- Virus: Naka-attach sa legitimate files at kumakalat kapag na-execute ang infected file\n- Worm: Self-replicating, hindi nangangailangan ng host file — kumakalat sa network\n- Trojan: Nagpapanggap na legitimate software pero may hidden malicious functionality\n- Ransomware: Nag-e-encrypt ng files at humihingi ng ransom para ma-decrypt\n- Spyware: Nagmo-monitor ng user activity at nagnanakaw ng sensitive info\n- Adware: Nagdi-display ng unwanted advertisements\n- Rootkit: Nagtatago sa OS para mapanatili ang access (hard to detect)\n- Keylogger: Nagre-record ng keystrokes para makuha ang passwords\n- Botnet: Infected devices na ginagamit para sa coordinated attacks (DDoS)\n\nIndicators: Mabagal na performance, pop-ups, unknown processes, unusual network activity.' },
+      { title: 'Social Engineering', text: 'Ang social engineering ay ang psychological manipulation ng tao para magbigay ng confidential info o access.\n\nCommon Techniques:\n- Phishing: Fraudulent emails na nagpapanggap na legitimate organization\n- Spear Phishing: Targeted phishing — personalized para sa specific na tao o group\n- Whaling: Phishing na naka-target sa executives o high-profile individuals\n- Vishing: Voice phishing — tawag sa telepono\n- Smishing: SMS phishing — text messages\n- Tailgating: Pagsunod sa authorized person papasok sa restricted area\n- Baiting: Nag-aalok ng free items (USB drive na may malware)\n- Pretexting: Gumagawa ng fabricated scenario para makakuha ng info\n- Quid Pro Quo: Nag-aalok ng service kapalit ng info\n- Impersonation: Nagpapanggap na IT support, janitor, o ibang authorized person\n\nPrevention: Security awareness training, verification protocols, multi-factor authentication.' },
+      { title: 'Application Attacks', text: 'Mga atake na naka-target sa web applications at software.\n\nSQL Injection: Nagsa-submit ng malicious SQL code sa input fields para i-manipulate ang database. Prevention: Input validation, parameterized queries, prepared statements.\n\nCross-Site Scripting (XSS): Nag-i-inject ng malicious scripts sa web pages. Types: Stored (persistent), Reflected (non-persistent), DOM-based. Prevention: Output encoding, Content Security Policy.\n\nCross-Site Request Forgery (CSRF): Pinipilit ang user na mag-execute ng unwanted actions sa naka-authenticate na site. Prevention: Anti-CSRF tokens, SameSite cookies.\n\nBuffer Overflow: Sumusulat ng data beyond buffer boundaries para ma-execute ang malicious code. Prevention: Bounds checking, ASLR, DEP.\n\nPrivilege Escalation: Horizontal (same level access) o Vertical (higher privileges). Prevention: Least privilege, regular patching.\n\nDirectory Traversal: Pag-access sa files outside web root directory. Prevention: Input validation, proper file permissions.' },
+      { title: 'Network Attacks', text: 'Mga atake sa network infrastructure.\n\nDDoS (Distributed Denial of Service): Maraming compromised devices ang nagfa-flood ng target ng traffic para maging unavailable. Types: Volumetric (malaking traffic), Protocol (SYN flood), Application Layer (HTTP flood).\n\nMan-in-the-Middle (MITM): Interception ng communication sa pagitan ng two parties. Types: ARP poisoning, DNS spoofing, session hijacking.\n\nDNS Attacks: DNS spoofing/cache poisoning (i-redirect sa malicious site), DNS tunneling (exfiltrate data via DNS queries), Domain hijacking.\n\nVLAN Hopping: Pag-access sa VLAN na hindi naka-assign. Prevention: Disable dynamic trunking, use dedicated VLAN IDs.\n\nPort Scanning: Pag-scan ng open ports at services. Tools: Nmap, Netcat. Prevention: Firewall rules, disable unnecessary ports.\n\nPacket Sniffing: Pag-capture ng network traffic para makuha ang sensitive data. Prevention: Encryption (HTTPS, VPN, TLS), switched networks.' },
+      { title: 'Threat Actors & Vectors', text: 'Sino ang mga threat actors at paano sila umaatake?\n\nTypes of Threat Actors:\n- Nation-State: Government-sponsored, highly sophisticated, APT groups\n- Organized Crime: Financial gain — ransomware, credit card theft\n- Hacktivist: Political/social motives — defacement, DDoS, data leaks\n- Insider Threat: Malicious (disgruntled employee) o Accidental (unintentional)\n- Script Kiddie: Low skill, uses existing tools — vandals\n- Shadow IT: Employees using unauthorized devices/services\n\nAttack Vectors:\n- Email: Phishing, malicious attachments\n- Removable Media: USB drops (baiting)\n- Network: Direct attacks, MITM\n- Wireless: Rogue AP, evil twin, deauth attacks\n- Cloud: Misconfigured S3 buckets, weak APIs\n- Supply Chain: Compromised third-party software/hardware\n- Social Media: Spear phishing via LinkedIn/Facebook\n\nMotivations: Financial, espionage, revenge, ideology, challenge/bragging rights.' },
+      { title: 'Vulnerability Types', text: 'Ano ang mga vulnerabilities at paano ito na-mi-manage?\n\nVulnerability Categories:\n- Software: Bugs, coding errors, outdated versions\n- Configuration: Default passwords, open ports, misconfigured permissions\n- Hardware: Firmware vulnerabilities, design flaws\n- Network: Weak encryption, open wireless networks\n- Physical: Unsecured server rooms, lack of access control\n- Human: Lack of training, social engineering susceptibility\n\nVulnerability Management Process:\n1. Discovery: Asset inventory, network scanning\n2. Assessment: Vulnerability scanning (Nessus, Qualys, OpenVAS)\n3. Prioritization: CVSS scoring (Critical 9.0-10.0, High 7.0-8.9, Medium 4.0-6.9, Low 0.1-3.9)\n4. Remediation: Patch, mitigate, accept risk\n5. Verification: Re-scan para ma-confirm na na-fix\n\nCommon Vulnerabilities:\n- Zero-Day: Unknown sa vendor, walang patch\n- Legacy Systems: Hindi na supported, walang security updates\n- Weak Passwords: Madaling ma-brute force o ma-guess\n- Unpatched Systems: Known vulnerabilities na may available patch' }
+    ]
+  },
+  architecture: {
+    title: 'Architecture & Design',
+    steps: [
+      { title: 'Network Architecture & Segmentation', text: 'Ang secure network design ay pundasyon ng enterprise security.\n\nNetwork Segmentation: Paghahati ng network sa mas maliliit na segments para limitahan ang impact ng breach.\n- VLANs: Logical segmentation gamit ang switches\n- DMZ: Demilitarized Zone — public-facing servers (web, email, DNS)\n- NAC (Network Access Control): I-verify ang devices bago payagan sa network\n- Microsegmentation: Fine-grained isolation (Zero Trust approach)\n\nKey Security Devices:\n- Firewall: Stateful (track connections), Next-Gen (application awareness, IPS)\n- IDS/IPS: Intrusion Detection System (monitor/alert) vs Intrusion Prevention System (block in real-time)\n- WAF: Web Application Firewall — proteksyon sa web apps\n- Proxy: Forward proxy (users to internet), Reverse proxy (internet to servers)\n- VPN Concentrator: Remote access via encrypted tunnels\n\nDefense in Depth: Multiple layers of security — "castle approach". If one layer fails, may iba pang layers.' },
+      { title: 'Cloud & Virtualization Security', text: 'Cloud security ay shared responsibility sa pagitan ng provider at customer.\n\nCloud Service Models:\n- SaaS (Software as a Service): User responsible for data and access management\n- PaaS (Platform as a Service): User manages apps and data\n- IaaS (Infrastructure as a Service): User manages OS, apps, data\n\nCloud Deployment:\n- Public: Shared infrastructure — cost-effective pero less control\n- Private: Dedicated — full control, higher cost\n- Hybrid: Combination — best of both worlds\n- Community: Shared by organizations with common goals\n\nVirtualization Security:\n- Hypervisor Hardening: I-minimize ang attack surface\n- VM Escape: Malicious VM breaks out to host — rare pero critical\n- VM Sprawl: Uncontrolled VM creation — dapat may governance\n- Snapshots: Regular backups pero i-protect ang snapshot files\n- Container Security: Docker, Kubernetes — image scanning, network policies\n\nCASB (Cloud Access Security Broker): Policy enforcement point sa pagitan ng users at cloud providers.' },
+      { title: 'Resilience & Redundancy', text: 'Ang resilience ay ang kakayahan ng system na mag-continue operating despite failures.\n\nHigh Availability (HA):\n- Active/Active: Both servers active, load balanced\n- Active/Passive: One active, one standby\n- Failover Cluster: Automatic switch sa standby system\n\nRedundancy:\n- Storage: RAID 1, 5, 6, 10\n- Network: Multiple paths, redundant switches, NIC teaming\n- Power: UPS (uninterruptible power supply), generator\n- Server: Load balancer, clustering\n- Geographic: Multiple data centers (DR site)\n\nBackup Types:\n- Full: Complete backup — longest, largest\n- Incremental: Changes since last backup (any type)\n- Differential: Changes since last full backup\n\n3-2-1 Rule: 3 copies, 2 different media, 1 off-site\n\nRTO (Recovery Time Objective): Maximum acceptable downtime\nRPO (Recovery Point Objective): Maximum acceptable data loss\nMTTR (Mean Time to Repair): Average time to fix\nMTBF (Mean Time Between Failures): Average time between failures' },
+      { title: 'Secure Systems Design', text: 'Mga prinsipyo at best practices sa pag-design ng secure systems.\n\nSecure Design Principles:\n- Least Privilege: Minimum access kailangan lang para mag-function\n- Defense in Depth: Multiple security layers\n- Fail Secure: Pag nag-fail ang system, dapat secure state (lock, hindi unlock)\n- Separation of Duties: Hindi pwedeng isang tao lang ang may complete control\n- Need to Know: Access based on job requirements\n- Secure by Default: Tight security out of the box\n- Privacy by Design: Data protection integrated sa system design\n\nTrust Models:\n- Zero Trust: "Never trust, always verify" — microsegmentation, continuous validation\n- Trust but Verify: Traditional approach\n- Least Trust: Minimal trust assumptions\n\nSecure Boot & Measured Boot: Verify integrity ng boot process\nTPM (Trusted Platform Module): Hardware security chip para sa key storage at attestation\nHSM (Hardware Security Module): Dedicated hardware para sa cryptographic operations' },
+      { title: 'Embedded & IoT Security', text: 'Security challenges ng embedded systems at IoT devices.\n\nIoT (Internet of Things):\n- Smart devices: Thermostats, cameras, appliances, wearables\n- SCADA/ICS: Industrial control systems — power plants, manufacturing\n- Medical Devices: Insulin pumps, pacemakers, MRI machines\n\nIoT Security Challenges:\n- Limited processing power (can\'t run traditional security)\n- Default passwords (madalas hindi pinalitan)\n- Lack of update mechanism\n- Diverse protocols (Zigbee, Z-Wave, Bluetooth, MQTT)\n- Long device lifespan (legacy devices na hindi na supported)\n\nSecurity Controls:\n- Network segmentation (IoT sa dedicated VLAN)\n- Device authentication\n- Regular firmware updates\n- Disable unnecessary features\n- Monitor for unusual behavior\n\nEmbedded System Hardening:\n- Remove unnecessary services\n- Enable secure boot\n- Use encrypted storage\n- Implement hardware security features\n- Regular vulnerability assessment' },
+      { title: 'Physical Security Controls', text: 'Physical security ay ang unang line of defense.\n\nAccess Control:\n- Badge/Card Readers: Proximity, smart cards\n- Biometrics: Fingerprint, facial recognition, iris scan, retinal scan\n- PIN/Codes: Keypads (dapat may audit log)\n- Multi-factor: Card + PIN = mas secure\n\nPerimeter Security:\n- Fencing, bollards, gates\n- Security guards\n- CCTV/IP cameras\n- Motion sensors\n- Lighting\n\nEnvironmental Controls:\n- HVAC: Temperature at humidity control\n- Fire Suppression: Sprinklers (wet pipe), FM-200/Inergen (server rooms)\n- Water Detection: Sensors sa floor\n- EMI/EMP Shielding: Faraday cages\n\nSecure Facilities:\n- Server room: Access control, raised floor, redundant power, fire suppression\n- Wiring closets: Locked, ventilated\n- Secure areas: Man-traps, mantraps, access logs\n\nAsset Tracking: Inventory management, asset tags, RFI tags\nData Destruction: Physical destruction, degaussing, secure wipe' }
+    ]
+  },
+  implementation: {
+    title: 'Implementation',
+    steps: [
+      { title: 'Identity & Access Management', text: 'Ang IAM ay ang framework para sa pag-manage ng digital identities at access.\n\nAuthentication Methods:\n- Something you KNOW: Password, PIN, security question\n- Something you HAVE: Smart card, token, phone (OTP)\n- Something you ARE: Biometrics (fingerprint, face, iris)\n- Somewhere you ARE: Geolocation, IP address\n- Something you DO: Keystroke dynamics, signature\n\nMFA (Multi-Factor Authentication): Dalawa o higit pang factors — mas secure\n\nSSO (Single Sign-On): Isang login para sa multiple applications\n- SAML: Security Assertion Markup Language\n- OAuth/OpenID Connect: Modern authorization/authentication protocols\n\nKerberos: Network authentication protocol (Windows Active Directory)\n- Ticket-based system: TGT (Ticket Granting Ticket), service tickets\n- Port 88\n\nRADIUS: Remote Authentication Dial-In User Service — centralized AAA (Authentication, Authorization, Accounting)\nPort 1812 (auth), 1813 (accounting)\n\nLDAP: Lightweight Directory Access Protocol — directory services (Active Directory, OpenLDAP)\nPort 389 (plain), 636 (LDAPS)' },
+      { title: 'Authentication Protocols', text: 'Mga protocol para sa secure authentication.\n\nPassword Security:\n- Complexity: 12+ characters, mix of uppercase, lowercase, numbers, symbols\n- Password Managers: Store at generate strong passwords\n- Salting: Random data added bago mag-hash para iwas rainbow table attacks\n- Pepper: Secret key na idinadagdag sa hash process\n\nPassword Attacks:\n- Brute Force: Subukan lahat ng possible combinations\n- Dictionary Attack: Common words at phrases\n- Rainbow Table: Pre-computed hash table\n- Password Spraying: Common passwords sa maraming accounts\n\nAccount Management:\n- Account Lockout: After N failed attempts\n- Time-based Access: Limitahan ang access hours\n- Geofencing: I-restrict sa specific locations\n- User Provisioning/Deprovisioning: Create at delete accounts\n- Privileged Access Management (PAM): Special controls para sa admin accounts\n\nPasswordless Authentication:\n- FIDO2/WebAuthn: Biometrics o hardware token\n- Windows Hello: PIN o biometrics na naka-TPM\n- Magic Links: One-time login links via email' },
+      { title: 'PKI & Certificate Management', text: 'Public Key Infrastructure — ang framework para sa digital certificates.\n\nPKI Components:\n- CA (Certificate Authority): Nag-i-issue at nagva-validate ng certificates (trusted third party)\n- RA (Registration Authority): Nagve-verify ng identity bago mag-request ng certificate\n- CRL (Certificate Revocation List): List ng mga revoked certificates\n- OCSP (Online Certificate Status Protocol): Real-time certificate status check (faster than CRL)\n\nCertificate Types:\n- SSL/TLS: Web server authentication (HTTPS)\n- Code Signing: Verify software publisher\n- Email (S/MIME): Encrypt at sign emails\n- Client Authentication: Client certificates\n- Wildcard: *.example.com — isang certificate for all subdomains\n- EV (Extended Validation): Green bar sa browser — highest level\n\nCertificate Lifecycle:\n1. Generation (key pair creation)\n2. Registration/Validation (identity verification)\n3. Issuance (CA signs the certificate)\n4. Distribution (install sa server/device)\n5. Revocation (kung compromised)\n6. Expiration (certificates may validity period)' },
+      { title: 'Cryptography Concepts', text: 'Ang cryptography ay ang science ng secure communication.\n\nSymmetric Encryption:\n- Iisang key para sa encryption at decryption\n- Mabilis pero may key distribution problem\n- Examples: AES (Advanced Encryption Standard — 128/192/256 bit), DES (legacy), 3DES, ChaCha20\n\nAsymmetric Encryption:\n- Key pair: Public key (ibinabahagi) at Private key (secret)\n- Mas mabagal pero walang key distribution problem\n- Examples: RSA (Rivest-Shamir-Adleman), ECC (Elliptic Curve Cryptography), Diffie-Hellman (key exchange)\n\nHashing:\n- One-way function — hindi pwedeng i-reverse\n- Fixed-length output regardless ng input size\n- Examples: SHA-1 (deprecated), SHA-256/384/512, MD5 (broken)\n- Uses: Password storage, data integrity, digital signatures\n\nDigital Signatures:\n- Non-repudiation: Hindi maitatanggi ng sender na siya ang nagpadala\n- Integrity: Hindi nabago ang message\n- Authentication: Verified sender\n- Process: Hash → Encrypt hash with private key → Send message + encrypted hash\n\nKey Management: Key generation, distribution, storage, rotation, destruction' },
+      { title: 'Secure Protocols', text: 'Mga network protocol na may built-in security.\n\nSecure Versions ng Common Protocols:\n- HTTP → HTTPS (TLS 1.2/1.3, port 443)\n- FTP → FTPS (FTP over SSL/TLS, port 990) o SFTP (SSH File Transfer Protocol, port 22)\n- SMTP → SMTPS (port 465/587)\n- DNS → DNSSEC (DNS Security Extensions) o DNS over HTTPS/TLS\n- LDAP → LDAPS (port 636)\n- RDP → RDP with NLA (Network Level Authentication, port 3389)\n\nVPN Protocols:\n- IPsec: Network layer encryption — IKE key exchange, AH/ESP protocols\n- OpenVPN: Open-source, SSL/TLS-based, highly configurable\n- WireGuard: Modern, simpler, faster than IPsec/OpenVPN\n- SSTP: Microsoft, SSL-based\n\nWireless Security:\n- WPA2: AES-CCMP, minimum standard\n- WPA3: SAE (Simultaneous Authentication of Equals), mas secure\n- EAP (Extensible Authentication Protocol): Enterprise authentication framework\n- PEAP: Protected EAP — tunnel para sa inner authentication\n\nSSH (Secure Shell, port 22): Secure remote administration\nTLS/SSL: Transport Layer Security — encryption para sa application layer' },
+      { title: 'Secure Mobile & Wireless Implementation', text: 'Pag-secure ng mobile devices at wireless networks.\n\nMobile Device Management (MDM):\n- Enforce passcode policies\n- Remote wipe (kung nawala o nanakaw)\n- Application whitelisting/blacklisting\n- Containerization (separate work/personal data)\n- Geofencing (restrict features based on location)\n\nMobile Security:\n- BYOD (Bring Your Own Device): May policy at MDM\n- COPE (Corporate Owned, Personally Enabled): Company device na may personal use\n- CYOD (Choose Your Own Device): Pumili sa approved list\n\nWireless Security Implementation:\n- WPA3-Enterprise: Best security (192-bit suite)\n- 802.1X: Port-based authentication with RADIUS\n- Rogue AP Detection: Scan for unauthorized access points\n- Evil Twin: Fake AP na may same SSID — prevention: VPN, certificate validation\n- Deauth Attack: Force disconnect from AP — prevention: 802.11w (Management Frame Protection)\n\nBluetooth Security:\n- Bluetooth v4.2+: LE Secure Connections\n- Disable discoverable mode pag hindi ginagamit\n- Pair in private, use strong PIN\n\nNFC Security: Limit sa 4cm range, use secure elements (Apple Pay/Google Pay)' }
+    ]
+  },
+  operations: {
+    title: 'Operations & Incident Response',
+    steps: [
+      { title: 'Incident Response Process', text: 'Ang incident response ay ang structured approach sa pag-handle ng security incidents.\n\nNIST Incident Response Lifecycle:\n1. Preparation: Tools, IR team, playbooks, communication plan\n2. Detection & Analysis: Identify at validate ang incident (SIEM alerts, user reports)\n3. Containment, Eradication & Recovery: Stop ang spread, remove threat, restore operations\n4. Post-Incident Activity: Lessons learned, report, improve security\n\nIncident Response Team:\n- CIRT (Computer Incident Response Team)\n- CSIRT (Computer Security Incident Response Team)\n- Members: Security analysts, forensics, legal, PR, management\n\nContainment Strategies:\n- Isolation: I-disconnect affected system sa network\n- Segmentation: I-move sa isolated VLAN\n- Eradication: Remove malware, patch vulnerabilities\n- Recovery: Restore from clean backups\n\nCommunication: I-coordinate with stakeholders (internal, customers, regulators, law enforcement). Chain of custody para sa evidence.' },
+      { title: 'Digital Forensics', text: 'Ang digital forensics ay ang collection at analysis ng digital evidence.\n\nForensic Process:\n1. Identification: Alamin kung saan ang potential evidence\n2. Collection: Gather data (nang walang modification)\n3. Preservation: Protect integrity ng evidence (write blockers, hashing)\n4. Analysis: Investigate ang data\n5. Documentation: Detailed report\n6. Presentation: Expert testimony kung kailangan\n\nEvidence Types:\n- Volatile: RAM, network connections, running processes (nawawala pag naka-off)\n- Non-Volatile: Hard drive, SSD, logs, backups\n- Order of Volatility: CPU registers > RAM > Network > Storage\n\nChain of Custody: Document kung sino ang humawak ng evidence — kailangan para sa court admissibility\n\nTools:\n- FTK Imager, dd, Guymager (imaging)\n- Autopsy, Sleuth Kit (analysis)\n- Wireshark (network forensics)\n- Volatility (memory forensics)\n\nForensic Imaging: Bit-for-bit copy (write blocker required). Verify gamit ang hash (MD5/SHA-256).' },
+      { title: 'Monitoring & Detection', text: 'Ang security monitoring ay ang continuous observation ng environment para sa threats.\n\nSIEM (Security Information & Event Management):\n- Collect logs mula sa multiple sources\n- Correlation at analysis ng events\n- Alerting at reporting\n- Examples: Splunk, ELK Stack, ArcSight, QRadar\n\nLog Sources:\n- Firewall logs\n- IDS/IPS alerts\n- Server logs (Windows Event Log, syslog)\n- Application logs\n- DNS logs\n- DHCP logs\n- Authentication logs\n\nKey Metrics:\n- Mean Time to Detect (MTTD): Gaano kabilis ma-detect ang incident\n- Mean Time to Respond (MTTR): Gaano kabilis ma-resolve\n- False Positive vs True Positive: Balance accuracy ng alerts\n\nDetection Techniques:\n- Signature-based: Known patterns (antivirus, IDS)\n- Anomaly-based: Deviations from baseline\n- Behavior-based: Suspicious activities\n- Heuristic: Rule-based detection\n\nHoneypot/Honeynet: Decoy systems para maka-trap ng attackers' },
+      { title: 'Automation & Orchestration', text: 'Ang automation ay nagpapabilis ng security operations.\n\nSOAR (Security Orchestration, Automation & Response):\n- Playbooks: Automated response sequences\n- Orchestration: Coordinate multiple tools\n- Automation: Auto-execution ng repetitive tasks\n- Benefits: Faster response, reduced human error, 24/7 coverage\n\nAutomation Use Cases:\n- Threat Intelligence Integration: Auto-update ng IOCs\n- Malware Analysis: Automated sandbox analysis\n- Incident Triage: Auto-categorize at prioritize alerts\n- Phishing Response: Auto-remove malicious emails\n- Patch Management: Auto-deploy patches\n\nScripting:\n- PowerShell: Windows automation\n- Python: Cross-platform, malawak ang libraries\n- Bash: Linux automation\n\nAPI Integration: I-connect ang different security tools (firewall, EDR, SIEM)\n\nOrchestration Benefits: Consistent response, reduced alert fatigue, faster containment\n\nLimitations: Can\'t replace human judgment sa complex incidents. Dapat may oversight at review.' },
+      { title: 'Data Recovery & Business Continuity', text: 'Ang Business Continuity (BC) at Disaster Recovery (DR) ay mahalaga para sa organizational resilience.\n\nBusiness Continuity Plan (BCP):\n- Strategic: Paano i-continue ang business operations during disruption\n- Risk Assessment: Identify threats at impacts\n- Business Impact Analysis (BIA): Identify critical functions at dependencies\n- Plan Development: Strategies para sa continuity\n- Testing & Training: Regular drills at updates\n\nDisaster Recovery Plan (DRP):\n- Tactical: I-restore ang IT systems pagkatapos ng disaster\n- DR Sites: Hot (fully ready), Warm (partially ready), Cold (empty but ready)\n- Failover/Failback: Switch to DR site at bumalik sa primary\n\nKey Metrics:\n- RTO (Recovery Time Objective): Max downtime allowed\n- RPO (Recovery Point Objective): Max data loss allowed\n- MTBF (Mean Time Between Failures): Reliability measure\n- MTTR (Mean Time to Repair): Time to fix\n\nBackup Strategies:\n- Off-site backups (separate location)\n- Cloud backups (AWS, Azure, Backblaze)\n- Tape backups (air-gapped)\n- Snapshot-based backups' },
+      { title: 'Security Operations Center (SOC)', text: 'Ang SOC ay ang centralized team na responsible sa cybersecurity monitoring at incident response.\n\nSOC Tiers:\n- Tier 1 (Triage): Initial alert review, filter false positives, escalate\n- Tier 2 (Investigation): Deep dive sa confirmed incidents, containment\n- Tier 3 (Advanced Analysis): Threat hunting, malware analysis, forensics\n- Tier 4 (Management): SOC manager, processes, reporting\n\nSOC Services:\n- 24/7 monitoring\n- Threat intelligence\n- Vulnerability management\n- Incident response\n- Forensic analysis\n- Compliance reporting\n\nMSSP (Managed Security Service Provider): External SOC service\n\nThreat Intelligence:\n- OSINT: Open-source intelligence\n- Commercial: Vendor feeds (Recorded Future, VirusTotal, AlienVault)\n- ISAC: Information Sharing and Analysis Center (industry-specific)\n\nIOC (Indicators of Compromise): IPs, domains, file hashes, registry keys, patterns\nTTP (Tactics, Techniques & Procedures): How attackers operate — MITRE ATT&CK framework\n\nPlaybooks: Step-by-step IR procedures para sa iba\'t ibang incident types' }
+    ]
+  },
+  governance: {
+    title: 'Governance, Risk & Compliance',
+    steps: [
+      { title: 'Security Policies & Governance', text: 'Ang security governance ay ang framework na gumagabay sa security decisions.\n\nSecurity Policies:\n- Acceptable Use Policy (AUP): Paano gagamitin ang company resources\n- Password Policy: Requirements para sa passwords\n- Data Classification Policy: Confidential, Internal, Public\n- Incident Response Policy: IR process at responsibilities\n- BYOD Policy: Personal device usage rules\n- Remote Access Policy: VPN at remote work guidelines\n\nGovernance Documents (Hierarchy):\n1. Policy: High-level requirements (mandatory)\n2. Standard: Specific technical requirements\n3. Procedure: Step-by-step instructions\n4. Guideline: Recommendations (not mandatory)\n\nGovernance Structures:\n- Board of Directors: Oversight\n- CISO: Chief Information Security Officer\n- Security Committee: Cross-department coordination\n- Data Privacy Officer (DPO): Data protection compliance\n\nDue Diligence: Research at risk assessment bago gumawa ng action\nDue Care: Implementing controls para i-protect ang assets\n\nNIST Cybersecurity Framework: Identify, Protect, Detect, Respond, Recover' },
+      { title: 'Risk Management', text: 'Ang risk management ay ang process ng identifying, assessing, at mitigating risks.\n\nRisk Components:\n- Asset: Something of value\n- Threat: Potential cause of harm\n- Vulnerability: Weakness na pwede i-exploit\n- Likelihood: Probability na mangyari\n- Impact: Damage kung mangyari\n- Risk Formula: Risk = Likelihood × Impact\n\nRisk Assessment Types:\n- Quantitative: Numerical values — SLE (Single Loss Expectancy), ARO (Annual Rate of Occurrence), ALE (Annual Loss Expectancy) = SLE × ARO\n- Qualitative: Subjective — High, Medium, Low (based on expert judgment)\n\nRisk Responses:\n- Avoid: I-eliminate ang risk (i-stop ang activity)\n- Transfer: I-shift sa third party (insurance, outsourcing)\n- Mitigate: I-reduce ang risk (implement controls)\n- Accept: Tanggapin ang risk (cost of mitigation > potential loss)\n\nRisk Register: Document ng identified risks, assessment, at response plan\n\nRAID: Residual Risk = Inherent Risk - Controls\n\nOSINT (Open-Source Intelligence): Passive information gathering\nPenetration Testing: Simulated attack para i-test ang security' },
+      { title: 'Compliance & Regulatory', text: 'Ang compliance ay ang pagsunod sa mga legal at regulatory requirements.\n\nMajor Regulations:\n- GDPR (General Data Protection Regulation — EU): Data privacy at protection. Key: Right to be forgotten, breach notification within 72 hours\n- HIPAA (Health Insurance Portability and Accountability Act — US): Healthcare data privacy at security. Protected Health Information (PHI)\n- PCI DSS (Payment Card Industry Data Security Standard): Credit card data protection. 12 requirements\n- SOX (Sarbanes-Oxley Act — US): Financial reporting integrity. IT controls for financial systems\n- FISMA (Federal Information Security Management Act — US): Federal agency security\n- GLBA (Gramm-Leach-Bliley Act — US): Financial institution customer data\n- CCPA (California Consumer Privacy Act): State-level data privacy\n\nCompliance Frameworks:\n- ISO 27001: International information security standard\n- NIST SP 800-53: US government security controls\n- CIS Controls: Prioritized set of security actions\n- COBIT: IT governance framework\n\nCompliance Audits: Internal (self-assessment) o External (third-party auditor). Regular reviews para maintain certification.' },
+      { title: 'Privacy & Data Protection', text: 'Ang privacy ay ang karapatan ng indibidwal na kontrolin ang kanilang personal data.\n\nData Classification:\n- Public: Anyone can access\n- Internal: Employees only\n- Confidential: Specific authorized personnel\n- Restricted: Highly sensitive — limited access\n- PII (Personally Identifiable Information): Name, SSN, address, phone, email\n- PHI (Protected Health Information): Medical records\n\nData Lifecycle:\n1. Create/Collect\n2. Store\n3. Use\n4. Share/Transmit\n5. Archive\n6. Destroy\n\nData Protection Controls:\n- Encryption: At rest (database, disk) at in transit (TLS)\n- Masking: Hide sensitive data (xxxx-xx-1234)\n- Tokenization: Replace sensitive data with tokens\n- Anonymization: Remove PII\n- DLP (Data Loss Prevention): Monitor at prevent data exfiltration\n\nPrivacy Impact Assessment (PIA): Evaluate privacy risks ng new system/process\n\nData Retention Policies: How long to keep data (legal requirements + business needs)\nData Disposal: Secure deletion, degaussing, physical destruction' },
+      { title: 'Third-Party Risk', text: 'Ang third-party risk ay ang risk na nagmumula sa vendors, suppliers, at partners.\n\nVendor Risk Management:\n- Due Diligence: Background check ng vendor bago mag-partner\n- Contracts: SLAs (Service Level Agreements), security requirements, data protection clauses\n- Assessments: Security questionnaires, audits\n- Ongoing Monitoring: Continuous evaluation ng vendor security posture\n\nSupply Chain Security:\n- Hardware: Counterfeit components sa manufacturing\n- Software: Compromised libraries/dependencies sa development\n- Services: Third-party support access\n- Cloud: Shared responsibility model sa cloud providers\n\nThird-Party Access:\n- B2B connections: VPN, dedicated links\n- Remote support: Limited access, time-bound\n- API integrations: Secure authentication at rate limiting\n\nVendor Types:\n- Cloud providers (AWS, Azure, GCP)\n- SaaS providers (Office 365, Salesforce)\n- Managed service providers (MSSP, MSP)\n- Hardware suppliers\n- Software vendors\n- Contractors/consultants' },
+      { title: 'Audit & Assessment', text: 'Ang audit ay systematic evaluation ng security controls at compliance.\n\nAudit Types:\n- Internal Audit: Self-assessment ng internal team\n- External Audit: Independent third-party auditor\n- Compliance Audit: Specific regulation (PCI DSS, HIPAA, SOX)\n- Penetration Test: Simulated attack\n- Vulnerability Assessment: Scan for vulnerabilities\n\nAssessment Techniques:\n- Interviews: I-interview ang staff\n- Document Review: I-review ang policies at procedures\n- Technical Testing: Scan, penetration test, configuration review\n- Observation: Observe physical at operational security\n\nAudit Process:\n1. Scope Definition\n2. Planning\n3. Evidence Collection\n4. Analysis\n5. Report Generation\n6. Remediation Plan\n7. Follow-up\n\nCommon Findings:\n- Weak passwords\n- Missing patches\n- Unnecessary services\n- Lack of logging\n- Poor access control\n\nRemediation: I-prioritize base sa risk severity. Develop corrective action plan. Regular re-assessment para ma-verify.' }
+    ]
+  },
+  'crypto-pki': {
+    title: 'Cryptography & PKI',
+    steps: [
+      { title: 'Symmetric Encryption', text: 'Ang symmetric encryption ay gumagamit ng iisang key para sa parehong encryption at decryption.\n\nKey Characteristics:\n- Same key for encrypt and decrypt\n- Fast at efficient (ideal for bulk data encryption)\n- Key distribution problem (paano ibabahagi ang key nang secure?)\n- Key size: 128-256 bits\n\nAlgorithms:\n- AES (Advanced Encryption Standard): Current standard — 128-bit, 192-bit, 256-bit keys. Block cipher (128-bit blocks)\n- DES (Data Encryption Standard): 56-bit key — obsolete, mabagal at madaling i-break\n- 3DES (Triple DES): DES applied three times — may 168-bit effective strength pero slower\n- ChaCha20: Stream cipher — modern, fast, ginagamit sa TLS at mobile devices\n- Blowfish/Twofish: Older pero maganda ang reputation\n\nModes of Operation:\n- ECB (Electronic Codebook): Simplest pero may pattern issues (not recommended)\n- CBC (Cipher Block Chaining): Each block XOR-encrypted with previous block\n- GCM (Galois/Counter Mode): Authenticated encryption — encryption + integrity\n- CTR (Counter): Stream cipher mode — parallelizable\n\nUses: Disk encryption (BitLocker, FileVault), database encryption, VPN encryption' },
+      { title: 'Asymmetric Encryption', text: 'Ang asymmetric encryption ay gumagamit ng key pair — public at private key.\n\nKey Concepts:\n- Public Key: Ibinabahagi sa lahat — ginagamit para mag-encrypt\n- Private Key: Secret — ginagamit para mag-decrypt\n- Hindi pwedeng i-compute ang private key mula sa public key (one-way mathematical function)\n- Mas mabagal kaysa symmetric encryption (10-100x slower)\n\nAlgorithms:\n- RSA (Rivest-Shamir-Adleman): Most common — key sizes 2048-bit (minimum), 3072-bit, 4096-bit\n- ECC (Elliptic Curve Cryptography): Mas maliit na key size pero same security level (256-bit ECC = 3072-bit RSA)\n- Diffie-Hellman (DH): Key exchange protocol — secure key agreement over insecure channel\n- ElGamal: Based on Diffie-Hellman\n\nUse Cases:\n- TLS/SSL handshake (key exchange at authentication)\n- Digital signatures\n- Email encryption (S/MIME, PGP)\n- SSH authentication\n- Blockchain/cryptocurrency\n\nKey Exchange:\n- Diffie-Hellman: Traditional\n- ECDH: Elliptic Curve Diffie-Hellman\n- Ephemeral variants (DHE, ECDHE): Perfect Forward Secrecy — kahit ma-compromise ang key, hindi ma-decrypt ang past sessions' },
+      { title: 'Hashing & Digital Signatures', text: 'Ang hashing ay one-way cryptographic function para sa integrity at authentication.\n\nHash Properties:\n- Deterministic: Same input = same output\n- Fixed Length: Regardless ng input size (SHA-256 = 256 bits)\n- Pre-image Resistant: Hindi pwedeng ma-reverse ang hash\n- Collision Resistant: Walang dalawang inputs na same hash\n- Avalanche Effect: Small change sa input = completely different hash\n\nHash Algorithms:\n- MD5: 128-bit — COLLISION BROKEN (hindi na safe)\n- SHA-1: 160-bit — COLLISION BROKEN (hindi na safe)\n- SHA-2: SHA-224, 256, 384, 512 — current standard\n- SHA-3: Latest — different design from SHA-2\n\nUses ng Hashing:\n- Password storage (with salt)\n- Data integrity verification\n- Digital signatures\n- File identification (VirusTotal)\n- Blockchain (proof of work)\n\nDigital Signatures:\n- Provides: Authentication, Integrity, Non-Repudiation\n- Process:\n  1. Hash ang message\n  2. Encrypt hash gamit ang sender\'s PRIVATE key (= signature)\n  3. Send message + signature\n  4. Recipient decrypts hash gamit ang sender\'s PUBLIC key\n  5. Recipient computes hash ng message at i-compare\n\nNon-Repudiation: Hindi maitatanggi ng sender na siya ang nagpadala (pinirmahan niya gamit ang private key niya)' },
+      { title: 'PKI Components', text: 'Ang PKI (Public Key Infrastructure) ay ang system na nagma-manage ng digital certificates at public-key encryption.\n\nPKI Components:\n- CA (Certificate Authority): Ang trusted entity na nag-i-issue at nagsi-sign ng certificates\n  - Public CAs: DigiCert, Let\'s Encrypt, Sectigo, GlobalSign\n  - Private CAs: Internal organization CA (Enterprise PKI)\n\n- RA (Registration Authority): Nagve-verify ng identity ng certificate requester bago i-approve sa CA\n\n- CRL (Certificate Revocation List): List ng certificates na na-revoke bago mag-expire\n  - Periodic publication\n  - Laging lumalaki ang file\n  - May delay sa propagation\n\n- OCSP (Online Certificate Status Protocol): Real-time certificate status checking\n  - Query: "Is this certificate valid?"\n  - Response: Good, Revoked, Unknown\n  - OCSP Stapling: Server gets OCSP response at ipinapasa sa client (faster)\n\nCertificate Types:\n- Domain Validation (DV): Basic — verify domain ownership lang\n- Organization Validation (OV): Verify organization identity\n- Extended Validation (EV): Highest — rigorous verification (green bar)\n- Wildcard: *.domain.com\n- Subject Alternative Name (SAN): Multiple domains sa isang certificate' },
+      { title: 'Certificate Lifecycle', text: 'Ang lifecycle ng isang digital certificate mula creation hanggang expiration o revocation.\n\n1. Certificate Signing Request (CSR): Generated sa server — contains public key at identity info\n2. Validation: CA/RA verifies ang identity ng requester\n3. Issuance: CA signs ang CSR at nag-create ng certificate\n4. Distribution: I-install ang certificate sa server/device\n5. Usage: Certificate ay ginagamit para sa authentication/encryption\n6. Renewal: Bago mag-expire, i-renew ang certificate\n7. Expiration: Certificate becomes invalid after expiration date\n8. Revocation: Pwedeng i-revoke bago mag-expire kung:\n   - Compromised private key\n   - Employee left the company\n   - Domain/entity changes\n   - Certificate was incorrectly issued\n\nCertificate Pinning: I-associate ang certificate sa specific server — risk kung mag-expire\nCertificate Transparency: Public log ng issued certificates (detect fraudulent CAs)\n\nKey Management:\n- Secure key storage: HSM, TPM, smart cards\n- Key rotation: Regular na palitan ang keys\n- Key escrow: Backup ng keys sa secure location\n- Key destruction: Secure deletion ng keys pag hindi na kailangan' },
+      { title: 'Cryptographic Attacks & Weaknesses', text: 'Mga atake at kahinaan sa cryptographic systems.\n\nAttack Types:\n- Brute Force: Subukan lahat ng keys — prevention: sapat na key length\n- Rainbow Table: Pre-computed hash table — prevention: salting\n- Known-Plaintext Attack: May sample ng plaintext at ciphertext — prevention: proper encryption modes\n- Chosen-Plaintext Attack: Attacker chooses plaintext to encrypt — prevention: secure algorithms\n- Birthday Attack: Find collision sa hash — prevention: use SHA-256+\n- Downgrade Attack: Force weaker protocol — prevention: disable outdated protocols\n- Side-Channel Attack: Timing, power consumption, electromagnetic leaks—prevention: constant-time implementations\n\nWeak/Deprecated Algorithms:\n- DES: 56-bit key — madaling i-brute force\n- MD5: Collision attacks demonstrated\n- SHA-1: Collision attacks (SHAttered)\n- RC4: Stream cipher — maraming vulnerabilities\n- SSL 2.0/3.0: Deprecated (POODLE, BEAST)\n- WEP: Wireless — madaling i-crack\n\nBest Practices:\n- Use AES-256 for symmetric\n- Use RSA-2048+ or ECC-256+ for asymmetric\n- Use SHA-256/SHA-3 for hashing\n- Use TLS 1.2+ (prefer 1.3)\n- Implement Perfect Forward Secrecy\n- Regular key rotation\n- Use proven libraries (OpenSSL, Bouncy Castle)\n- Follow NIST guidelines' }
+    ]
+  }
+};
+
+const moduleIds = ['threats','architecture','implementation','operations','governance','crypto-pki'];
+const moduleIcons = ['ti ti-bug','ti ti-building-arch','ti ti-tool','ti ti-shield-check','ti ti-scale','ti ti-key'];
+const moduleColors = ['#e94560','#0f3460','#1d4ed8','#7c3aed','#ef9f27','#1d9e75'];
+const moduleDesc = ['Malware, social engineering, attacks at threat actors','Secure network design, cloud, virtualization at resilience','Identity/access mgmt, PKI, cryptography at secure protocols','Monitoring, forensics, incident response at automation','Security policies, risk management, compliance at privacy','Encryption, hashing, digital signatures at certificate management'];
+
+const quizData = {
+  threats: [
+    { q: 'Anong uri ng malware ang nag-e-encrypt ng files at humihingi ng ransom?', options: ['Virus', 'Worm', 'Ransomware', 'Spyware'], answer: 2 },
+    { q: 'Anong social engineering technique ang gumagamit ng phone calls?', options: ['Phishing', 'Vishing', 'Smishing', 'Baiting'], answer: 1 },
+    { q: 'Anong attack ang nag-i-inject ng malicious SQL code sa input fields?', options: ['XSS', 'SQL Injection', 'CSRF', 'Buffer Overflow'], answer: 1 },
+    { q: 'Ano ang tawag sa DDoS attack na nagfa-flood ng server ng maraming connection requests?', options: ['Volumetric', 'Protocol (SYN flood)', 'Application Layer', 'Amplification'], answer: 1 },
+    { q: 'Anong threat actor type ang may pinakamataas na sophistication?', options: ['Script Kiddie', 'Organized Crime', 'Nation-State', 'Hacktivist'], answer: 2 }
+  ],
+  architecture: [
+    { q: 'Ano ang tawag sa network zone para sa public-facing servers?', options: ['LAN', 'VLAN', 'DMZ', 'VPN'], answer: 2 },
+    { q: 'Sa cloud shared responsibility model, sino ang responsible sa physical security ng data center?', options: ['Customer', 'Cloud Provider', 'Both', 'Third-party auditor'], answer: 1 },
+    { q: 'Ano ang RTO?', options: ['Recovery Time Objective', 'Return on Investment', 'Risk Tolerance Outline', 'Response Time Optimization'], answer: 0 },
+    { q: 'Anong security model ang "never trust, always verify"?', options: ['Defense in Depth', 'Zero Trust', 'Least Privilege', 'Need to Know'], answer: 1 },
+    { q: 'Anong device ang gumagamit ng thermal imaging para sa physical access control?', options: ['CCTV', 'Motion sensor', 'Biometric scanner', 'Mantrap'], answer: 2 }
+  ],
+  implementation: [
+    { q: 'Ano ang tamang combination para sa MFA?', options: ['Password + PIN', 'Password + SMS code', 'Password + Security question', 'Fingerprint + Face ID'], answer: 1 },
+    { q: 'Anong authentication protocol ang ginagamit ng Active Directory?', options: ['RADIUS', 'LDAP', 'Kerberos', 'SAML'], answer: 2 },
+    { q: 'Ano ang PKI component na nagve-verify ng identity bago mag-issue ng certificate?', options: ['CA', 'RA', 'CRL', 'OCSP'], answer: 1 },
+    { q: 'Anong symmetric encryption ang current standard?', options: ['DES', '3DES', 'AES', 'RC4'], answer: 2 },
+    { q: 'Anong wireless security protocol ang pinakasecure?', options: ['WEP', 'WPA', 'WPA2', 'WPA3'], answer: 3 }
+  ],
+  operations: [
+    { q: 'Ano ang UNANG step sa NIST incident response lifecycle?', options: ['Detection', 'Containment', 'Preparation', 'Recovery'], answer: 2 },
+    { q: 'Ano ang tamang order of volatility sa forensics (pinaka-volatile hanggang least)?', options: ['HDD → RAM → CPU registers → Network', 'CPU registers → RAM → Network → HDD', 'RAM → CPU registers → HDD → Network', 'Network → RAM → CPU registers → HDD'], answer: 1 },
+    { q: 'Anong tool ang ginagamit para mag-collect at mag-correlate ng logs?', options: ['Wireshark', 'Nmap', 'SIEM', 'Metasploit'], answer: 2 },
+    { q: 'Ano ang tawag sa automated incident response system?', options: ['SOAR', 'SIEM', 'EDR', 'DLP'], answer: 0 },
+    { q: 'Anong metric ang nagsasabi kung gaano kabilis dapat ma-restore ang operations?', options: ['RPO', 'RTO', 'MTBF', 'MTTR'], answer: 1 }
+  ],
+  governance: [
+    { q: 'Ano ang tamang hierarchy ng governance documents (highest to lowest)?', options: ['Procedure → Policy → Standard → Guideline', 'Policy → Standard → Procedure → Guideline', 'Guideline → Policy → Standard → Procedure', 'Standard → Policy → Guideline → Procedure'], answer: 1 },
+    { q: 'Ano ang formula para sa ALE (Annual Loss Expectancy)?', options: ['SLE × ARO', 'SLE + ARO', 'SLE / ARO', 'SLE - ARO'], answer: 0 },
+    { q: 'Anong regulation ang nagpoprotekta sa healthcare data sa US?', options: ['GDPR', 'HIPAA', 'PCI DSS', 'SOX'], answer: 1 },
+    { q: 'Anong data protection technique ang nagpapalit ng sensitive data ng non-sensitive placeholder?', options: ['Encryption', 'Masking', 'Tokenization', 'Anonymization'], answer: 2 },
+    { q: 'Ano ang tawag sa risk response kung saan binibili ng insurance?', options: ['Avoid', 'Transfer', 'Mitigate', 'Accept'], answer: 1 }
+  ],
+  'crypto-pki': [
+    { q: 'Anong key size ng RSA ang itinuturing na minimum secure?', options: ['1024-bit', '2048-bit', '3072-bit', '4096-bit'], answer: 1 },
+    { q: 'Anong hash algorithm ang itinuturing na broken (collision found)?', options: ['SHA-256', 'SHA-1', 'SHA-3', 'SHA-512'], answer: 1 },
+    { q: 'Ano ang ginagamit para ma-check ang real-time status ng certificate?', options: ['CRL', 'CSR', 'OCSP', 'CA'], answer: 2 },
+    { q: 'Ano ang tamang process ng digital signature creation?', options: ['Encrypt message → Hash', 'Hash message → Encrypt hash with private key', 'Encrypt message with public key → Hash', 'Hash message → Encrypt hash with public key'], answer: 1 },
+    { q: 'Anong elliptic curve algorithm ang pinakamoderno?', options: ['RSA', 'Diffie-Hellman', 'ECDHE', 'ElGamal'], answer: 2 }
+  ]
+};
+
+const scenarioData = {
+  'ransomware-attack': {
+    title: 'Ransomware Outbreak',
+    desc: 'Exercise: Isang user ang nag-report na may pop-up sa screen na nagsasabing "Your files have been encrypted." Lahat ng files ay may .encrypted extension. Ang ransom note ay humihingi ng $5,000 na Bitcoin para ma-decrypt.',
+    steps: [
+      { text: 'I-isolate ang affected system: I-disconnect agad ang network cable at i-disable ang WiFi. Huwag i-shutdown (bawas ang volatile evidence).' },
+      { text: 'I-identify ang ransomware strain: I-check ang ransom note filename at extension. I-search sa threat intel platforms (VirusTotal, ID Ransomware) kung known strain ito.' },
+      { text: 'I-assess ang damage scope: Alamin kung anong files ang na-encrypt (local drives, network shares, mapped drives). I-check kung may ibang systems na compromised.' },
+      { text: 'I-contain ang spread: I-block ang ransomware indicators sa firewall (C2 IPs/domains). I-disable ang SMB at RDP kung hindi kailangan. I-scan ang network para sa ibang infected systems.' },
+      { text: 'I-restore mula sa backup: Kung may clean backup (bago ang infection), i-restore ang files. I-verify na walang ransomware sa backup. Huwag mag-bayad ng ransom walang guarantee.' },
+      { text: '✅ Post-incident review: I-document ang incident — timeline, IOC, actions taken. I-update ang security controls (email filtering, EDR, backup procedures). I-conduct ng lessons learned session.' }
+    ]
+  },
+  'phishing-campaign': {
+    title: 'Suspicious Phishing Campaign',
+    desc: 'Exercise: Multiple users ang nag-report na nakatanggap sila ng email mula sa "IT Support" na may subject na "Urgent: Password Expiration Notice". Ang email ay may link para i-update ang password. May kakaibang sender address at grammar errors.',
+    steps: [
+      { text: 'I-analyze ang email headers: I-check ang "Received from" path at SPF/DKIM/DMARC results. I-verify ang actual sender IP at domain — hindi tugma sa legitimate IT department.' },
+      { text: 'I-check ang URLs at attachments: Huwag i-click! I-hover ang link para makita ang actual URL (observe ang domain). I-submit ang URL sa VirusTotal. I-scan ang attachments sa sandbox.' },
+      { text: 'I-identify ang phishing indicators: Check sender email (spoofed domain), grammar errors sa body, generic greeting, urgency sa message, mismatched link URLs.' },
+      { text: 'I-block ang malicious domains: I-add sa firewall/web filter ang phishing URLs. I-block sa email gateway ang sender domain at similar patterns. I-update ang threat intel feeds.' },
+      { text: 'I-notify ang affected users: I-send ng company-wide alert para i-warn ang lahat. I-instruct na huwag i-click ang link at i-forward ang suspicious emails sa security team.' },
+      { text: '✅ Implement email security rules: I-configure ang anti-phishing policies (DMARC enforcement, URL scanning, attachment sandboxing). I-conduct ng security awareness training. I-implement ng reporting button sa email client.' }
+    ]
+  },
+  'data-breach': {
+    title: 'Data Breach Investigation',
+    desc: 'Exercise: Na-detect ng SIEM ang unusual database activity — maraming records ang na-download ng isang service account ng 3:00 AM. Ang database ay naglalaman ng customer PII (names, addresses, credit card numbers).',
+    steps: [
+      { text: 'I-identify ang affected systems: Alamin kung anong database servers ang involved. I-check ang audit logs para sa unauthorized queries. I-trace ang source IP ng unusual activity.' },
+      { text: 'I-determine ang breach vector: I-investigate kung paano na-compromise ang service account. I-check kung compromised credentials (phishing?), vulnerability sa app, o misconfigured access.' },
+      { text: 'I-contain ang breach: I-disable ang compromised service account agad. I-restrict database access. I-patch ang vulnerability kung natukoy. I-isolate ang affected systems kung kailangan.' },
+      { text: 'I-preserve ang evidence: I-create forensic images ng affected systems. I-document ang chain of custody. I-save ang logs bago mag-clear. I-secure ang original media.' },
+      { text: 'I-notify ang stakeholders: I-inform ang management, legal team, at PR. I-check ang regulatory notification requirements (GDPR — 72 hours, PCI DSS). I-prepare ang breach notification sa affected customers.' },
+      { text: '✅ Implement remediation: I-change lahat ng service account credentials. I-implement ng MFA sa database access. I-add ng alerting para sa unusual access patterns. I-conduct ng security audit at penetration test.' }
+    ]
+  },
+  'insider-threat': {
+    title: 'Insider Threat Detection',
+    desc: 'Exercise: Na-notice ng security team na ang isang employee (John, Finance department) ay nag-a-access ng HR files at executive documents na hindi naman kailangan sa kanyang trabaho. Ang activity ay nangyayari during off-hours.',
+    steps: [
+      { text: 'I-review ang access logs: I-check ang exact files na in-access, timestamp, frequency, at source device. I-compare sa normal pattern ng employee at ng department.' },
+      { text: 'I-identify ang pattern of behavior: I-check kung may data exfiltration (large file transfers, USB activity, printing sensitive docs, emailing to personal address).' },
+      { text: 'I-interview ang manager: Kunin ang feedback ng direct supervisor tungkol sa performance at behavior ni John. Alamin kung may recent issues (disciplinary action, resignation notice, performance problems).' },
+      { text: 'I-disable ang excess permissions: I-revoke access sa HR at executive files. I-implement ng least privilege. Kung may access siya dahil sa role, i-verify kung justified.' },
+      { text: 'I-escalate sa HR kung kinakailangan: Kung may evidence ng malicious intent o policy violation, i-escalate sa HR para sa investigation at disciplinary action. I-preserve ang evidence.' },
+      { text: '✅ Implement DLP controls: I-deploy ng Data Loss Prevention (DLP) solution para ma-monitor at ma-block ang unauthorized data transfers. I-implement ng user behavior analytics (UBA). I-review at i-update ang access control policies.' }
+    ]
+  }
+};
+
+function getProgress() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveProgress(key, subkey, value) {
+  const p = getProgress();
+  if (!p[key]) p[key] = {};
+  p[key][subkey] = value;
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  updateAllDisplays();
+}
+function getModuleProgress(id) {
+  const p = getProgress();
+  const m = p.modules && p.modules[id];
+  if (!m || !m.steps) return { completed: 0, total: lessons[id].steps.length, steps: [] };
+  return { completed: m.steps.filter(Boolean).length, total: lessons[id].steps.length, steps: m.steps };
+}
+function addActivity(text) {
+  const p = getProgress();
+  if (!p.activity) p.activity = [];
+  p.activity.unshift({ text: text, time: Date.now() });
+  if (p.activity.length > 50) p.activity = p.activity.slice(0, 50);
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  updateAllDisplays();
+}
+const achievementDefs = [
+  { id: 'first-module', label: 'Security Fundamentals', desc: 'Complete your first training module', icon: 'ti ti-star' },
+  { id: 'all-modules', label: 'Security Scholar', desc: 'Complete all 6 training modules', icon: 'ti ti-books' },
+  { id: 'first-quiz', label: 'Quiz Novice', desc: 'Pass your first quiz (80%+)', icon: 'ti ti-checklist' },
+  { id: 'all-quizzes', label: 'Security Quiz Master', desc: 'Pass all 6 quizzes (80%+)', icon: 'ti ti-award' },
+  { id: 'first-scenario', label: 'Incident Responder', desc: 'Complete your first scenario', icon: 'ti ti-tasks' },
+  { id: 'all-scenarios', label: 'Security Expert', desc: 'Complete all 4 scenarios', icon: 'ti ti-medal' },
+  { id: 'perfect-quiz', label: 'Perfect Score', desc: 'Get 100% on any quiz', icon: 'ti ti-crown' },
+  { id: 'half-progress', label: 'Halfway There', desc: 'Reach 50% overall progress', icon: 'ti ti-flag' }
+];
+function checkAchievements() {
+  const p = getProgress();
+  if (!p.achievements) p.achievements = {};
+  const mods = p.modules || {};
+  const quizzes = p.quizzes || {};
+  const scen = p.scenarios || {};
+  const modDone = moduleIds.filter(id => { const mp = getModuleProgress(id); return mp.completed === mp.total; }).length;
+  const quizPassed = moduleIds.filter(id => { const q = quizzes[id]; return q && q.correct / q.total >= 0.8; }).length;
+  const scenDone = Object.keys(scenarioData).filter(k => scen[k] && scen[k].completed).length;
+  const totalSteps = moduleIds.reduce((s,id) => s + lessons[id].steps.length, 0);
+  const doneSteps = moduleIds.reduce((s,id) => s + getModuleProgress(id).completed, 0);
+  const pct = totalSteps ? Math.round(doneSteps / totalSteps * 100) : 0;
+  if (!p.achievements['first-module'] && modDone >= 1) unlockAchievement('first-module');
+  if (!p.achievements['all-modules'] && modDone === moduleIds.length) unlockAchievement('all-modules');
+  if (!p.achievements['first-quiz'] && quizPassed >= 1) unlockAchievement('first-quiz');
+  if (!p.achievements['all-quizzes'] && quizPassed === moduleIds.length) unlockAchievement('all-quizzes');
+  if (!p.achievements['first-scenario'] && scenDone >= 1) unlockAchievement('first-scenario');
+  if (!p.achievements['all-scenarios'] && scenDone === Object.keys(scenarioData).length) unlockAchievement('all-scenarios');
+  if (!p.achievements['half-progress'] && pct >= 50) unlockAchievement('half-progress');
+  Object.keys(quizzes).forEach(k => { const q = quizzes[k]; if (!p.achievements['perfect-quiz'] && q && q.total > 0 && q.correct === q.total) unlockAchievement('perfect-quiz'); });
+}
+function unlockAchievement(id) {
+  const p = getProgress();
+  if (!p.achievements) p.achievements = {};
+  if (p.achievements[id]) return;
+  p.achievements[id] = { unlockedAt: Date.now() };
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  addActivity('🏆 Achieved: ' + achievementDefs.find(a => a.id === id).label);
+  showToast('🏆 Achievement unlocked: ' + achievementDefs.find(a => a.id === id).label);
+}
+function showToast(msg, isError) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, 3000);
+}
+function switchPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  document.getElementById('breadcrumb').innerHTML = '<strong>' + ({ home:'Home', training:'Training Center', progress:'My Progress' }[id] || 'Home') + '</strong>';
+  if (id === 'training') updateTrainingDisplays();
+  if (id === 'progress') updateProgressPage();
+}
+function switchTab(tab, el) {
+  document.querySelectorAll('#panel-training .tab-content').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('#panel-training .tab-btn').forEach(function(t) { t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  updateTrainingDisplays();
+}
+function updateAllDisplays() {
+  const p = getProgress();
+  const mods = p.modules || {};
+  const quizzes = p.quizzes || {};
+  const scen = p.scenarios || {};
+  const modDone = moduleIds.filter(function(id) { const mp = getModuleProgress(id); return mp.completed === mp.total; }).length;
+  const quizPassed = moduleIds.filter(function(id) { const q = quizzes[id]; return q && q.correct / q.total >= 0.8; }).length;
+  const scenDone = Object.keys(scenarioData).filter(function(k) { return scen[k] && scen[k].completed; }).length;
+  const totalSteps = moduleIds.reduce(function(s,id) { return s + lessons[id].steps.length; }, 0);
+  const doneSteps = moduleIds.reduce(function(s,id) { return s + getModuleProgress(id).completed; }, 0);
+  const pct = totalSteps ? Math.round(doneSteps / totalSteps * 100) : 0;
+  document.getElementById('homeModulesDone').textContent = modDone + '/' + moduleIds.length;
+  document.getElementById('homeQuizzesDone').textContent = quizPassed + '/' + moduleIds.length;
+  document.getElementById('homeScenariosDone').textContent = scenDone + '/' + Object.keys(scenarioData).length;
+  document.getElementById('homeProgressPct').textContent = pct + '%';
+  document.getElementById('homeProgressBar').style.width = pct + '%';
+  var trainingBadge = document.getElementById('trainingNavBadge');
+  if (trainingBadge) { trainingBadge.textContent = pct > 0 ? pct + '%' : 'NEW'; }
+  var html = '';
+  moduleIds.forEach(function(id) {
+    const mp = getModuleProgress(id);
+    const pct2 = mp.total ? Math.round(mp.completed / mp.total * 100) : 0;
+    const status = mp.completed === 0 ? 'Not started' : mp.completed === mp.total ? '✅ Complete' : mp.completed + '/' + mp.total + ' done';
+    html += '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6;font-size:13px;"><span style="width:90px;font-weight:500;color:#1a2332">' + lessons[id].title + '</span><div style="flex:1"><div class="progress-bar"><div class="progress-fill" style="width:' + pct2 + '%"></div></div></div><span style="color:#6b7a8d;font-size:12px;min-width:90px;text-align:right">' + status + '</span></div>';
+  });
+  document.getElementById('homeModuleProgress').innerHTML = html;
+  var acts = p.activity || [];
+  if (acts.length === 0) { document.getElementById('homeActivityLog').innerHTML = '<div style="color:#9aa3ad;text-align:center;padding:10px">No activity yet.</div>'; } else { document.getElementById('homeActivityLog').innerHTML = acts.slice(0, 10).map(function(a) { return '<div class="activity-item">' + a.text + '</div>'; }).join(''); }
+}
+function updateTrainingDisplays() { renderModuleGrid(); renderQuizGrid(); renderScenarioGrid(); }
+function renderModuleGrid() {
+  const el = document.getElementById('moduleGrid');
+  el.innerHTML = moduleIds.map(function(id, i) {
+    const mp = getModuleProgress(id);
+    const pct = mp.total ? Math.round(mp.completed / mp.total * 100) : 0;
+    const cls = mp.completed === mp.total ? 'completed' : mp.completed > 0 ? 'in-progress' : '';
+    const status = mp.completed === 0 ? 'Not started' : mp.completed === mp.total ? '✅ Completed (' + mp.total + '/' + mp.total + ')' : mp.completed + '/' + mp.total + ' steps';
+    return '<div class="module-card ' + cls + '" onclick="startLesson(\'' + id + '\')"><div class="module-card-title"><i class="' + moduleIcons[i] + '" style="color:' + moduleColors[i] + '"></i> ' + lessons[id].title + '</div><div class="module-card-desc">' + moduleDesc[i] + '</div><div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div><div style="margin-top:6px"><span class="module-card-status">' + status + '</span></div></div>';
+  }).join('');
+}
+function renderQuizGrid() {
+  const el = document.getElementById('quizGrid');
+  const p = getProgress();
+  const quizzes = p.quizzes || {};
+  el.innerHTML = moduleIds.map(function(id, i) {
+    const q = quizzes[id];
+    const score = q ? q.correct + '/' + q.total : null;
+    const passed = q && q.correct / q.total >= 0.8;
+    const badgeCls = passed ? 'badge-green' : q ? 'badge-red' : 'badge-gray';
+    const label = passed ? '✅ Passed (' + score + ')' : q ? '❌ ' + score : 'Not taken';
+    return '<div class="module-card" onclick="startQuiz(\'' + id + '\')"><div class="module-card-title"><i class="' + moduleIcons[i] + '" style="color:' + moduleColors[i] + '"></i> ' + lessons[id].title + ' Quiz</div><div class="module-card-desc">5 questions — ' + moduleDesc[i].substring(0, 40) + '...</div><div style="margin-top:8px"><span class="badge ' + badgeCls + '">' + label + '</span></div></div>';
+  }).join('');
+}
+function renderScenarioGrid() {
+  const el = document.getElementById('scenarioGrid');
+  const p = getProgress();
+  const scen = p.scenarios || {};
+  el.innerHTML = Object.keys(scenarioData).map(function(k) {
+    const s = scenarioData[k];
+    const done = scen[k] && scen[k].completed;
+    const cls = done ? 'completed' : '';
+    return '<div class="module-card ' + cls + '" onclick="startScenario(\'' + k + '\')"><div class="module-card-title"><i class="ti ti-tasks" style="color:#7c3aed"></i> ' + s.title + '</div><div class="module-card-desc">' + s.desc.substring(0, 80) + '...</div><div style="margin-top:8px"><span class="module-card-status">' + (done ? '✅ Completed' : 'Not started') + '</span></div></div>';
+  }).join('');
+}
+function updateProgressPage() {
+  const p = getProgress();
+  const quizzes = p.quizzes || {};
+  const scen = p.scenarios || {};
+  const modDone = moduleIds.filter(function(id) { const mp = getModuleProgress(id); return mp.completed === mp.total; }).length;
+  const quizPassed = moduleIds.filter(function(id) { const q = quizzes[id]; return q && q.correct / q.total >= 0.8; }).length;
+  const scenDone = Object.keys(scenarioData).filter(function(k) { return scen[k] && scen[k].completed; }).length;
+  document.getElementById('progressModules').textContent = modDone + '/' + moduleIds.length;
+  document.getElementById('progressQuizzes').textContent = quizPassed + '/' + moduleIds.length;
+  document.getElementById('progressScenarios').textContent = scenDone + '/' + Object.keys(scenarioData).length;
+  document.getElementById('progressModulesPill').textContent = modDone === 0 ? 'Not started' : modDone === moduleIds.length ? '✅ All complete' : modDone + ' done';
+  document.getElementById('progressModulesPill').className = 'pill ' + (modDone === 0 ? 'pill-gray' : modDone === moduleIds.length ? 'pill-green' : 'pill-blue');
+  document.getElementById('progressQuizzesPill').textContent = quizPassed === 0 ? 'Not started' : quizPassed === moduleIds.length ? '✅ All passed' : quizPassed + ' passed';
+  document.getElementById('progressQuizzesPill').className = 'pill ' + (quizPassed === 0 ? 'pill-gray' : quizPassed === moduleIds.length ? 'pill-green' : 'pill-amber');
+  document.getElementById('progressScenariosPill').textContent = scenDone === 0 ? 'Not started' : scenDone === Object.keys(scenarioData).length ? '✅ All complete' : scenDone + ' done';
+  document.getElementById('progressScenariosPill').className = 'pill ' + (scenDone === 0 ? 'pill-gray' : scenDone === Object.keys(scenarioData).length ? 'pill-green' : 'pill-blue');
+  var achHtml = achievementDefs.map(function(a) { const unlocked = p.achievements && p.achievements[a.id]; return '<div class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '"><i class="' + a.icon + '"></i> ' + a.label + '</div>'; }).join('');
+  document.getElementById('achievementsList').innerHTML = achHtml || '<div style="color:#9aa3ad;text-align:center">No achievements yet.</div>';
+  var acts = p.activity || [];
+  document.getElementById('progressActivityLog').innerHTML = acts.length === 0 ? '<div style="color:#9aa3ad;text-align:center">No activity yet.</div>' : acts.slice(0, 30).map(function(a) { return '<div class="activity-item">' + a.text + '</div>'; }).join('');
+}
+
+var activeLesson = null, lessonStepIdx = 0;
+function startLesson(id) {
+  activeLesson = id; lessonStepIdx = 0;
+  document.getElementById('lessonTitle').textContent = lessons[id].title;
+  document.getElementById('lessonNextBtn').textContent = 'Next →';
+  showLessonStep();
+  document.getElementById('lessonOverlay').classList.add('open');
+}
+function showLessonStep() {
+  var lesson = lessons[activeLesson];
+  var steps = lesson.steps;
+  var idx = lessonStepIdx;
+  var mp = getModuleProgress(activeLesson);
+  var done = mp.steps && mp.steps[idx];
+  var html = '<div class="quiz-progress">Step ' + (idx + 1) + ' of ' + steps.length + '</div>';
+  var st = steps[idx];
+  html += '<div class="scenario-step" style="margin-bottom:16px"><div class="scenario-step-content"><div><span class="scenario-step-num">' + (idx + 1) + '</span></div><div class="scenario-step-text">';
+  if (done) { html += '<span style="color:#1d9e75;font-weight:600">✓ Completed</span>'; } else { html += '<strong>' + st.title + '</strong><p style="margin-top:6px;white-space:pre-line">' + st.text + '</p>'; }
+  html += '</div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">';
+  if (!done) { html += '<button class="btn btn-success" onclick="completeLessonStep(' + idx + ')"><i class="ti ti-check"></i> Mark as complete</button>'; }
+  if (idx > 0) { html += '<button class="btn btn-ghost" onclick="prevLessonStep()"><i class="ti ti-arrow-left"></i> Previous</button>'; }
+  html += '</div>';
+  document.getElementById('lessonBody').innerHTML = html;
+  document.getElementById('lessonNextBtn').style.display = idx < steps.length - 1 ? 'inline-flex' : 'none';
+  var closeBtn = document.querySelector('#lessonActions .btn-ghost');
+  if (closeBtn) closeBtn.textContent = 'Close';
+}
+function completeLessonStep(idx) {
+  if (!activeLesson) return;
+  var p = getProgress();
+  if (!p.modules) p.modules = {};
+  if (!p.modules[activeLesson]) p.modules[activeLesson] = { steps: [] };
+  if (!p.modules[activeLesson].steps) p.modules[activeLesson].steps = [];
+  p.modules[activeLesson].steps[idx] = true;
+  p.modules[activeLesson]._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  addActivity('📖 Completed: ' + lessons[activeLesson].steps[idx].title + ' (' + lessons[activeLesson].title + ')');
+  checkAchievements();
+  showLessonStep(); updateAllDisplays();
+}
+function nextLessonStep() { if (activeLesson && lessonStepIdx < lessons[activeLesson].steps.length - 1) { lessonStepIdx++; showLessonStep(); } }
+function prevLessonStep() { if (lessonStepIdx > 0) { lessonStepIdx--; showLessonStep(); } }
+
+var activeQuiz = null, quizQuestionIdx = 0, quizAnswers = [];
+function startQuiz(id) {
+  activeQuiz = id; quizQuestionIdx = 0; quizAnswers = [];
+  document.getElementById('quizTitle').textContent = lessons[id].title + ' Quiz';
+  document.getElementById('quizResult').style.display = 'none';
+  document.getElementById('quizNextBtn').style.display = 'inline-flex';
+  document.getElementById('quizNextBtn').disabled = true;
+  document.getElementById('quizNextBtn').textContent = 'Next →';
+  showQuizQuestion();
+  document.getElementById('quizOverlay').classList.add('open');
+}
+function showQuizQuestion() {
+  var qs = quizData[activeQuiz];
+  var idx = quizQuestionIdx;
+  var q = qs[idx];
+  document.getElementById('quizProgress').textContent = 'Question ' + (idx + 1) + ' of ' + qs.length;
+  document.getElementById('quizQuestion').textContent = q.q;
+  var answered = quizAnswers[idx] !== undefined;
+  var html = q.options.map(function(o, i) {
+    var cls = 'quiz-option';
+    if (answered) {
+      if (i === q.answer) cls += ' correct';
+      else if (i === quizAnswers[idx]) cls += ' wrong';
+    } else if (i === quizAnswers[idx]) { cls += ' selected'; }
+    return '<button class="' + cls + '" onclick="answerQuiz(' + i + ')"' + (answered ? ' disabled' : '') + '>' + o + '</button>';
+  }).join('');
+  document.getElementById('quizOptions').innerHTML = html;
+  document.getElementById('quizNextBtn').disabled = quizAnswers[idx] === undefined;
+}
+function answerQuiz(idx) { if (activeQuiz === null) return; quizAnswers[quizQuestionIdx] = idx; showQuizQuestion(); }
+function nextQuizQuestion() {
+  if (activeQuiz === null) return;
+  var qs = quizData[activeQuiz];
+  if (quizQuestionIdx < qs.length - 1) { quizQuestionIdx++; document.getElementById('quizNextBtn').disabled = true; showQuizQuestion(); } else { finishQuiz(); }
+}
+function finishQuiz() {
+  var qs = quizData[activeQuiz];
+  var correct = 0;
+  qs.forEach(function(q, i) { if (quizAnswers[i] === q.answer) correct++; });
+  var total = qs.length;
+  var pct = Math.round(correct / total * 100);
+  var passed = pct >= 80;
+  document.getElementById('quizScoreDisplay').textContent = correct + '/' + total;
+  document.getElementById('quizScoreDisplay').style.color = passed ? '#1d9e75' : pct >= 50 ? '#ef9f27' : '#e94560';
+  document.getElementById('quizResultLabel').textContent = passed ? '✅ Passed! Mahusay!' : pct >= 50 ? 'Kailangan pang mag-aral. Try again!' : 'Need more practice. I-review ang module at subukan ulit.';
+  document.getElementById('quizResult').style.display = 'block';
+  document.getElementById('quizNextBtn').style.display = 'none';
+  var p = getProgress();
+  if (!p.quizzes) p.quizzes = {};
+  if (!p.quizzes[activeQuiz] || p.quizzes[activeQuiz].correct < correct) {
+    p.quizzes[activeQuiz] = { correct: correct, total: total };
+    p._updated = Date.now();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+    addActivity('📝 Quiz "' + lessons[activeQuiz].title + '": ' + correct + '/' + total + ' (' + pct + '%)' + (passed ? ' ✅ PASSED' : ''));
+    checkAchievements(); updateAllDisplays();
+  }
+}
+
+var activeScenarioKey = null, scenarioStepIdx = 0;
+function startScenario(k) {
+  activeScenarioKey = k; scenarioStepIdx = 0;
+  document.getElementById('scenarioTitle').textContent = scenarioData[k].title;
+  showScenarioStep();
+  document.getElementById('scenarioOverlay').classList.add('open');
+}
+function showScenarioStep() {
+  var k = activeScenarioKey; if (!k) return;
+  var s = scenarioData[k]; var steps = s.steps;
+  var idx = scenarioStepIdx;
+  var p = getProgress();
+  var done = p.scenarios && p.scenarios[k] && p.scenarios[k].completed;
+  var html = '<div style="margin-bottom:12px;font-size:13px;color:#6b7a8d">' + s.desc + '</div>' +
+    steps.map(function(st, i) {
+      var isDone = done || (p.scenarios && p.scenarios[k] && p.scenarios[k].steps && p.scenarios[k].steps[i]);
+      return '<div class="scenario-step ' + (isDone ? 'completed' : '') + '" id="ss-' + i + '"><div class="scenario-step-content"><div><span class="scenario-step-num">' + (i + 1) + '</span></div><div class="scenario-step-text">' +
+        (isDone ? '<span style="color:#1d9e75;font-weight:600">✓ Completed</span>' : '<strong>Step ' + (i + 1) + ':</strong><p style="margin-top:4px;white-space:pre-line">' + st.text + '</p>' + (i <= idx ? '<button class="btn btn-success btn-sm" style="margin-top:8px" onclick="completeScenarioStep(' + i + ')"><i class="ti ti-check"></i> Mark done</button>' : '')) +
+        '</div></div></div>';
+    }).join('');
+  document.getElementById('scenarioBody').innerHTML = html;
+  if (done) { document.getElementById('scenarioNextBtn').style.display = 'none'; }
+  else { document.getElementById('scenarioNextBtn').textContent = idx < steps.length - 1 ? 'Next Step →' : 'Complete Scenario'; document.getElementById('scenarioNextBtn').style.display = 'inline-flex'; }
+}
+function completeScenarioStep(idx) {
+  if (!activeScenarioKey) return;
+  var p = getProgress();
+  if (!p.scenarios) p.scenarios = {};
+  if (!p.scenarios[activeScenarioKey]) p.scenarios[activeScenarioKey] = { steps: [] };
+  if (!p.scenarios[activeScenarioKey].steps) p.scenarios[activeScenarioKey].steps = [];
+  p.scenarios[activeScenarioKey].steps[idx] = true;
+  if (idx === scenarioData[activeScenarioKey].steps.length - 1) {
+    p.scenarios[activeScenarioKey].completed = true;
+    p.scenarios[activeScenarioKey].completedAt = Date.now();
+    addActivity('🏁 Completed scenario: ' + scenarioData[activeScenarioKey].title);
+  } else {
+    addActivity('📋 Scenario step ' + (idx + 1) + ': ' + scenarioData[activeScenarioKey].title);
+  }
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  checkAchievements();
+  if (idx < scenarioData[activeScenarioKey].steps.length - 1) { scenarioStepIdx++; }
+  showScenarioStep(); updateAllDisplays();
+}
+function nextScenarioStep() {
+  if (activeScenarioKey) { if (scenarioStepIdx < scenarioData[activeScenarioKey].steps.length - 1) { scenarioStepIdx++; showScenarioStep(); } }
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'lessonOverlay') { activeLesson = null; }
+  if (id === 'quizOverlay') { activeQuiz = null; }
+  if (id === 'scenarioOverlay') { activeScenarioKey = null; }
+}
+function doLogin() {
+  var user = document.getElementById('loginUser').value.trim();
+  var name = document.getElementById('loginName').value.trim();
+  if (!user) { document.getElementById('loginError').textContent = 'Please enter your Employee ID / Username.'; document.getElementById('loginError').style.display = 'block'; return; }
+  if (!name) { document.getElementById('loginError').textContent = 'Please enter your Full Name.'; document.getElementById('loginError').style.display = 'block'; return; }
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('appMain').style.display = 'flex';
+  document.getElementById('userName').textContent = name;
+  document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+  updateAllDisplays();
+  addActivity('🔐 Started CompTIA Security+ Training');
+}
+document.addEventListener('DOMContentLoaded', function() { updateAllDisplays(); });
+</script>
+<div style="text-align:center;padding:10px 20px;font-size:11px;color:#8a9aaa;border-top:1px solid rgba(255,255,255,0.08);background:#1a1a2e;">Independent training simulation. Hindi affiliated sa CompTIA o sa kahit anong kumpanya.</div>
+<script>
+(function(){function p(e){e.preventDefault()}document.addEventListener('contextmenu',p);document.addEventListener('keydown',function(e){if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(e.key.toLowerCase()))||(e.ctrlKey&&['u','c','x'].includes(e.key.toLowerCase()))){e.preventDefault();return false}});document.addEventListener('copy',p);document.addEventListener('cut',p)})();
+</script>
+</body>
+</html>

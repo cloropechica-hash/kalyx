@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CompTIA Network+ — Training Simulator</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4f5f7;min-height:100vh;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+.login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 40%,#0f3460 100%);}
+.login-card{background:#fff;border-radius:12px;padding:40px 44px;width:360px;box-shadow:0 8px 40px rgba(0,0,0,0.25);}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:24px;justify-content:center;}
+.login-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#e94560,#0f3460);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.login-logo-icon i{font-size:20px;color:#fff;}
+.login-logo-text{font-size:20px;font-weight:600;color:#1a1a2e;}
+.login-subtitle{font-size:13px;color:#6b7a8d;text-align:center;margin-bottom:28px;margin-top:-18px;}
+.login-label{font-size:12px;font-weight:500;color:#3d4a5a;margin-bottom:5px;display:block;}
+.login-input{width:100%;border:1px solid #d1d5db;border-radius:7px;padding:9px 12px;font-size:14px;color:#1a2332;outline:none;transition:border 0.15s;}
+.login-input:focus{border-color:#e94560;box-shadow:0 0 0 3px rgba(233,69,96,0.12);}
+.login-group{margin-bottom:16px;}
+.login-btn{width:100%;background:linear-gradient(135deg,#e94560,#0f3460);color:#fff;border:none;border-radius:7px;padding:11px;font-size:15px;font-weight:600;cursor:pointer;transition:background 0.15s;}
+.login-btn:hover{background:linear-gradient(135deg,#c73b3a,#a42e2d);}
+.login-hint{font-size:12px;color:#9aa3ad;text-align:center;margin-top:18px;}
+.login-error{background:#fef2f2;border:1px solid #fca5a5;border-radius:6px;padding:8px 12px;font-size:13px;color:#dc2626;margin-bottom:14px;display:none;}
+.app{display:none;flex-direction:column;height:100vh;}
+.topnav{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;display:flex;align-items:center;gap:0;height:46px;flex-shrink:0;}
+.topnav-brand{display:flex;align-items:center;gap:9px;padding:0 16px;border-right:1px solid rgba(255,255,255,0.08);height:100%;}
+.topnav-brand-icon{width:26px;height:26px;background:linear-gradient(135deg,#e94560,#0f3460);border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.topnav-brand-icon i{font-size:15px;color:#fff;}
+.topnav-brand-text{font-size:14px;font-weight:600;color:#fff;}
+.topnav-right{margin-left:auto;display:flex;align-items:center;gap:2px;padding-right:12px;}
+.topnav-btn{background:none;border:none;color:#aab4c0;cursor:pointer;padding:7px 8px;border-radius:5px;font-size:15px;display:flex;align-items:center;gap:5px;}
+.topnav-btn:hover{background:rgba(255,255,255,0.08);color:#fff;}
+.topnav-user{font-size:12px;color:#aab4c0;padding:0 10px;border-left:1px solid rgba(255,255,255,0.08);height:100%;display:flex;align-items:center;gap:7px;cursor:pointer;}
+.avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#e94560,#0f3460);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;}
+.shell{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:210px;background:#1a1a2e;color:#fff;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;}
+.nav-section{padding:4px 0;}
+.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:#5a6a7a;padding:6px 18px 3px;font-weight:600;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:7px 18px;font-size:13px;color:#8a9aaa;cursor:pointer;border-left:3px solid transparent;transition:all 0.12s;}
+.nav-item:hover{background:rgba(233,69,96,0.06);color:#d0d8e0;}
+.nav-item.active{background:rgba(233,69,96,0.1);color:#e94560;border-left-color:#e94560;font-weight:500;}
+.nav-item i{font-size:15px;}
+.nav-item .nav-badge{margin-left:auto;background:#ffb900;color:#1a1a2e;font-size:9px;padding:1px 6px;border-radius:8px;font-weight:700;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.panels{flex:1;overflow-y:auto;padding:16px 20px;}
+.panel{display:none;animation:fadeIn 0.2s ease;}
+.panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+@keyframes toastIn{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.breadcrumb{font-size:13px;color:#8a9aaa;margin-bottom:8px;}
+.page-title{font-size:22px;font-weight:700;color:#1a1a2e;margin-bottom:4px;}
+.page-sub{font-size:14px;color:#6b7a8d;margin-bottom:16px;}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.stats-row-3{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));}
+.stat-card{background:#fff;border-radius:10px;border:1px solid #e1dfdd;padding:16px;text-align:center;}
+.stat-label{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#8a9aaa;margin-bottom:4px;}
+.stat-value{font-size:28px;font-weight:700;color:#1a1a2e;}
+.stat-sub{font-size:12px;color:#6b7a8d;margin-top:2px;}
+.module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
+.module-card{background:#fff;border:1px solid #e1dfdd;border-radius:10px;padding:16px;cursor:pointer;transition:all 0.15s;}
+.module-card:hover{border-color:#e94560;box-shadow:0 2px 12px rgba(233,69,96,0.08);}
+.module-card.completed{border-color:#1d9e75;background:#f6fff6;}
+.module-card-title{font-size:14px;font-weight:600;color:#201f1e;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.module-card-desc{font-size:12px;color:#605e5c;margin-bottom:10px;line-height:1.5;}
+.module-card-status{font-size:11px;color:#1d9e75;font-weight:600;}
+.progress-bar{height:6px;background:#e1dfdd;border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:#e94560;border-radius:3px;transition:width 0.3s;}
+.progress-fill.green{background:#1d9e75;}
+.tab-bar{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid #e1dfdd;padding-bottom:0;}
+.tab-btn{padding:8px 16px;font-size:13px;font-weight:500;color:#6b7a8d;cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;transition:all 0.12s;}
+.tab-btn:hover{color:#1a2332;}
+.tab-btn.active{color:#e94560;border-bottom-color:#e94560;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+.info-box{background:#f0f6fc;border:1px solid #dce5f5;border-radius:8px;padding:14px 16px;font-size:13px;color:#1a2332;line-height:1.6;margin-bottom:12px;}
+.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#fff;border-radius:10px;width:500px;max-width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.2);padding:20px;}
+.modal-box.wide{width:640px;}
+.modal-title{font-size:16px;font-weight:600;color:#1a2332;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:12px;border-top:1px solid #e1dfdd;}
+.quiz-progress{font-size:12px;color:#605e5c;margin-bottom:12px;}
+.quiz-question{font-size:15px;font-weight:600;color:#1a2332;margin-bottom:12px;}
+.quiz-option{display:block;width:100%;text-align:left;padding:10px 14px;border:1px solid #d1d5db;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;margin-bottom:6px;font-family:inherit;transition:all 0.12s;}
+.quiz-option:hover{border-color:#e94560;background:#fef2f2;}
+.quiz-option.selected{border-color:#e94560;background:#fef2f2;font-weight:500;}
+.quiz-option.correct{border-color:#107c10;background:#dff6dd;}
+.quiz-option.correct::after{content:' ✓';color:#107c10;font-weight:700;}
+.quiz-option.wrong{border-color:#a4262c;background:#fde7e9;}
+.quiz-option.wrong::after{content:' ✗';color:#a4262c;font-weight:700;}
+.quiz-option:disabled{cursor:default;opacity:0.8;}
+.quiz-result-score{font-size:48px;font-weight:700;text-align:center;padding:20px 0;}
+.quiz-result-label{font-size:14px;text-align:center;color:#605e5c;margin-bottom:16px;}
+.scenario-step{margin-bottom:16px;}
+.scenario-step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#e94560;color:#fff;font-size:13px;font-weight:700;margin-right:10px;flex-shrink:0;}
+.scenario-step.completed .scenario-step-num{background:#1d9e75;}
+.scenario-step-content{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:6px;border:1px solid #e1dfdd;}
+.scenario-step.completed .scenario-step-content{border-color:#1d9e75;background:#f6fff6;}
+.scenario-step-text{flex:1;font-size:13px;line-height:1.6;}
+.scenario-step-text strong{display:block;margin-bottom:4px;font-size:14px;}
+.toast{position:fixed;bottom:24px;right:24px;background:#1d9e75;color:#fff;padding:12px 20px;border-radius:6px;font-size:13px;font-weight:500;z-index:200;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:toastIn 0.3s ease;}
+.toast.error{background:#e94560;}
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6;font-size:12px;color:#6b7a8d;}
+.activity-item:last-child{border-bottom:none;}
+.achievement{display:inline-flex;align-items:center;gap:6px;padding:4px 12px 4px 8px;border-radius:20px;font-size:12px;font-weight:600;}
+.achievement.unlocked{background:#fff4ce;color:#7a5008;}
+.achievement.locked{background:#f3f2f1;color:#c8c6c4;}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;}
+.badge-green{background:#dff6dd;color:#107c10;}
+.badge-red{background:#fde7e9;color:#a4262c;}
+.badge-gray{background:#f3f2f1;color:#8a9aaa;}
+.pill{display:inline-block;padding:2px 12px;border-radius:12px;font-size:11px;font-weight:600;}
+.pill-green{background:#dff6dd;color:#107c10;}
+.pill-blue{background:#e0edfc;color:#1d4ed8;}
+.pill-amber{background:#fff4ce;color:#7a5008;}
+.pill-gray{background:#f3f2f1;color:#8a9aaa;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.12s;}
+.btn-primary{background:#e94560;color:#fff;}
+.btn-primary:hover{background:#c73b3a;}
+.btn-success{background:#1d9e75;color:#fff;}
+.btn-success:hover{background:#16805e;}
+.btn-ghost{background:transparent;color:#6b7a8d;border:1px solid #d1d5db;}
+.btn-ghost:hover{background:#f3f2f1;}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn:disabled{opacity:0.5;cursor:default;}
+@media(max-width:640px){
+  .sidebar{width:48px;}
+  .nav-item span,.nav-label,.topnav-user span{display:none;}
+  .nav-item{justify-content:center;padding:10px;}
+  .nav-item i{font-size:20px;}
+  .module-grid{grid-template-columns:1fr;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<div class="login-page" id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon"><i class="ti ti-network"></i></div>
+      <div class="login-logo-text">Network+ Academy</div>
+    </div>
+    <div class="login-subtitle">CompTIA Network+ Training Simulator (N10-008)</div>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-group">
+      <label class="login-label">Employee ID / Username</label>
+      <input class="login-input" id="loginUser" placeholder="e.g., network" autocomplete="off">
+    </div>
+    <div class="login-group">
+      <label class="login-label">Full Name</label>
+      <input class="login-input" id="loginName" placeholder="e.g., Juan Dela Cruz">
+    </div>
+    <button class="login-btn" onclick="doLogin()"><i class="ti ti-network"></i> Start Training</button>
+    <div class="login-hint">Default: network / password</div>
+  </div>
+</div>
+
+<div class="app" id="appMain">
+  <div class="topnav">
+    <div class="topnav-brand">
+      <div class="topnav-brand-icon"><i class="ti ti-network"></i></div>
+      <div class="topnav-brand-text">Network+ Academy</div>
+    </div>
+    <div class="topnav-right">
+      <div class="topnav-user" id="userDisplay"><div class="avatar" id="userAvatar">U</div><span id="userName">User</span></div>
+    </div>
+  </div>
+  <div class="shell">
+    <div class="sidebar">
+      <div class="nav-section">
+        <div class="nav-label">Navigation</div>
+        <div class="nav-item active" onclick="switchPanel('home',this)"><i class="ti ti-layout-dashboard"></i> <span>Home</span></div>
+        <div class="nav-item" onclick="switchPanel('training',this)"><i class="ti ti-school"></i> <span>Training</span> <span class="nav-badge" id="trainingNavBadge">NEW</span></div>
+        <div class="nav-item" onclick="switchPanel('progress',this)"><i class="ti ti-trending-up"></i> <span>My Progress</span></div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="panels">
+
+        <!-- ===== BREADCRUMB ===== -->
+        <div class="breadcrumb" id="breadcrumb"><strong>Home</strong></div>
+
+        <!-- ===== HOME ===== -->
+        <div class="panel active" id="panel-home">
+          <div class="page-title">CompTIA Network+ Training</div>
+          <div class="page-sub">Master networking concepts, infrastructure, operations, security, troubleshooting, and management.</div>
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-label">Modules</div><div class="stat-value" id="homeModulesDone">0/6</div><div class="stat-sub">Completed</div></div>
+            <div class="stat-card"><div class="stat-label">Quizzes</div><div class="stat-value" id="homeQuizzesDone">0/6</div><div class="stat-sub">Passed (80%+)</div></div>
+            <div class="stat-card"><div class="stat-label">Scenarios</div><div class="stat-value" id="homeScenariosDone">0/4</div><div class="stat-sub">Completed</div></div>
+            <div class="stat-card"><div class="stat-label">Progress</div><div class="stat-value" id="homeProgressPct">0%</div><div class="progress-bar" style="margin-top:8px"><div class="progress-fill" id="homeProgressBar" style="width:0%"></div></div></div>
+          </div>
+          <div class="panel" style="margin-bottom:12px">
+            <div class="panel-head"><span><i class="ti ti-activity-heartbeat"></i> Recent Activity</span></div>
+            <div class="panel-body" id="homeActivityLog" style="padding:8px 0"><div style="color:#9aa3ad;text-align:center;padding:20px">No activity yet. Start your training!</div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><span><i class="ti ti-trending-up"></i> Module Progress</span></div>
+            <div class="panel-body" id="homeModuleProgress" style="padding:8px 0"></div>
+          </div>
+        </div>
+
+        <!-- ===== TRAINING ===== -->
+        <div class="panel" id="panel-training">
+          <div class="page-title">Training Center</div>
+          <div class="page-sub">6 modules, quizzes, at practical scenarios para sa CompTIA Network+ certification</div>
+          <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('modules',this)">Modules</button>
+            <button class="tab-btn" onclick="switchTab('quizzes',this)">Quizzes</button>
+            <button class="tab-btn" onclick="switchTab('scenarios',this)">Scenarios</button>
+          </div>
+          <div class="tab-content active" id="tab-modules"><div class="module-grid" id="moduleGrid"></div></div>
+          <div class="tab-content" id="tab-quizzes"><div class="module-grid" id="quizGrid"></div></div>
+          <div class="tab-content" id="tab-scenarios"><div class="module-grid" id="scenarioGrid"></div></div>
+        </div>
+
+        <!-- ===== PROGRESS ===== -->
+        <div class="panel" id="panel-progress">
+          <div class="page-title">My Progress</div>
+          <div class="page-sub">Detailed breakdown ng iyong training accomplishments</div>
+          <div class="stats-row stats-row-3">
+            <div class="stat-card"><div class="stat-label">Modules</div><div class="stat-value" id="progressModules">0/6</div><div class="pill" id="progressModulesPill">Not started</div></div>
+            <div class="stat-card"><div class="stat-label">Quizzes</div><div class="stat-value" id="progressQuizzes">0/6</div><div class="pill" id="progressQuizzesPill">Not started</div></div>
+            <div class="stat-card"><div class="stat-label">Scenarios</div><div class="stat-value" id="progressScenarios">0/4</div><div class="pill" id="progressScenariosPill">Not started</div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><span><i class="ti ti-star"></i> Achievements</span></div>
+            <div class="panel-body" id="achievementsList"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><span><i class="ti ti-activity-heartbeat"></i> Activity Log</span></div>
+            <div class="panel-body" id="progressActivityLog"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quiz modal -->
+<div class="modal-overlay" id="quizOverlay">
+  <div class="modal-box wide">
+    <div class="modal-title"><i class="ti ti-checklist"></i> <span id="quizTitle">Quiz</span></div>
+    <div id="quizBody">
+      <div class="quiz-progress" id="quizProgress">Question 1 of 5</div>
+      <div class="quiz-question" id="quizQuestion"></div>
+      <div id="quizOptions"></div>
+      <div id="quizResult" style="display:none">
+        <div class="quiz-result-score" id="quizScoreDisplay">0/5</div>
+        <div class="quiz-result-label" id="quizResultLabel"></div>
+      </div>
+    </div>
+    <div class="modal-actions" id="quizActions">
+      <button class="btn btn-ghost" onclick="closeModal('quizOverlay')">Cancel</button>
+      <button class="btn" id="quizNextBtn" onclick="nextQuizQuestion()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scenario modal -->
+<div class="modal-overlay" id="scenarioOverlay">
+  <div class="modal-box wide">
+    <div class="modal-title"><i class="ti ti-tasks"></i> <span id="scenarioTitle">Scenario</span></div>
+    <div id="scenarioBody"></div>
+    <div class="modal-actions" id="scenarioActions">
+      <button class="btn btn-ghost" onclick="closeModal('scenarioOverlay')">Close</button>
+      <button class="btn" id="scenarioNextBtn" onclick="nextScenarioStep()">Start →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lesson modal -->
+<div class="modal-overlay" id="lessonOverlay">
+  <div class="modal-box wide">
+    <div class="modal-title"><i class="ti ti-book"></i> <span id="lessonTitle">Lesson</span></div>
+    <div id="lessonBody"></div>
+    <div class="modal-actions" id="lessonActions">
+      <button class="btn btn-ghost" onclick="closeModal('lessonOverlay')">Close</button>
+      <button class="btn" id="lessonNextBtn" onclick="nextLessonStep()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'comptia_networkplus_trainer';
+
+const lessons = {
+  'networking-concepts': {
+    title: 'Networking Concepts',
+    steps: [
+      { title: 'OSI Model Layers', text: 'Ang OSI (Open Systems Interconnection) model ay conceptual framework na nagpapaliwanag kung paano gumagana ang network communication sa 7 layers.\n\nLayer 7 — Application: User interface at application support (HTTP, FTP, SMTP, DNS)\nLayer 6 — Presentation: Data formatting, encryption, compression (SSL/TLS, JPEG, MPEG)\nLayer 5 — Session: Session management, authentication (NetBIOS, RPC, PPTP)\nLayer 4 — Transport: End-to-end communication, reliability (TCP, UDP)\nLayer 3 — Network: Logical addressing at routing (IP, ICMP, ARP, routing protocols)\nLayer 2 — Data Link: Physical addressing (MAC), error detection (Ethernet, PPP, Switch)\nLayer 1 — Physical: Bits, cables, connectors, signal (Ethernet cat5, fiber, radio waves)\n\nMnemonics: Please Do Not Throw Sausage Pizza Away (Physical to Application) o All People Seem To Need Data Processing (Application to Physical).\n\nAng TCP/IP model naman ay may 4 layers: Network Interface, Internet, Transport, Application.' },
+      { title: 'TCP/IP Suite', text: 'Ang TCP/IP protocol suite ang pundasyon ng internet at modernong networking.\n\nTransmission Control Protocol (TCP):\n- Connection-oriented — nagtatag ng connection bago magpadala ng data (three-way handshake: SYN, SYN-ACK, ACK)\n- Reliable — may acknowledgment (ACK), retransmission kung nawala ang packet\n- Sequencing — inaayos ang packets sa tamang order\n- Flow control — gamit ang window size\n- Ginagamit sa: HTTP/HTTPS, FTP, SSH, SMTP, Telnet\n\nUser Datagram Protocol (UDP):\n- Connectionless — walang handshake, send and pray\n- Unreliable — walang acknowledgment o retransmission\n- Mas mabilis kaysa TCP — mas mababa ang overhead\n- Ginagamit sa: DNS, DHCP, VoIP, streaming video, online gaming, SNMP\n\nInternet Protocol (IP):\n- IPv4: 32-bit address (4.3 billion addresses)\n- IPv6: 128-bit address (340 undecillion addresses)\n- Responsible para sa logical addressing at routing' },
+      { title: 'Ports and Protocols', text: 'Ang mga port numbers ay ginagamit para i-identify ang specific application o service sa isang device.\n\nWell-Known Ports (0-1023):\n- 20/21: FTP (File Transfer Protocol) — 20 para sa data, 21 para sa control\n- 22: SSH (Secure Shell) — secure remote administration\n- 23: Telnet — unencrypted remote access (hindi secure)\n- 25: SMTP (Simple Mail Transfer Protocol) — email sending\n- 53: DNS (Domain Name System) — domain name resolution\n- 67/68: DHCP (Dynamic Host Configuration Protocol) — 67 server, 68 client\n- 80: HTTP (Hypertext Transfer Protocol) — web traffic (unencrypted)\n- 110: POP3 (Post Office Protocol v3) — email receiving\n- 143: IMAP (Internet Message Access Protocol) — email receiving (mas moderno)\n- 443: HTTPS (HTTP Secure) — web traffic (encrypted via SSL/TLS)\n- 3389: RDP (Remote Desktop Protocol) — Windows remote desktop\n- 161/162: SNMP (Simple Network Management Protocol)\n- 389: LDAP (Lightweight Directory Access Protocol)\n- 514: Syslog — system logging\n\nRegistered Ports (1024-49151): Ginagamit ng mga application tulad ng SQL Server (1433), MySQL (3306).' },
+      { title: 'Network Standards Organizations', text: 'Ang mga sumusunod na organizations ang nagtatakda ng networking standards.\n\nIEEE (Institute of Electrical and Electronics Engineers):\n- 802.1: Higher Layer LAN Protocols (STP, VLANs, LLDP)\n- 802.3: Ethernet standards (10BASE-T, 100BASE-TX, 1000BASE-T)\n- 802.11: Wireless LAN (WiFi) standards\n- 802.15: Bluetooth, Zigbee (WPAN)\n- 802.16: WiMAX (broadband wireless)\n\nIETF (Internet Engineering Task Force):\n- Nag-develop at nagpo-promote ng internet standards (RFCs)\n- TCP/IP, HTTP, DNS, DHCP, at marami pang protocols\n\nISO (International Organization for Standardization):\n- OSI Model (ISO 7498)\n- ISO 27001 (Information Security Management)\n\nANSI (American National Standards Institute):\n- Fiber optic cabling standards (TIA/EIA)\n- TIA/EIA-568: Commercial Building Telecommunications Cabling Standard\n\nTIA (Telecommunications Industry Association):\n- TIA/EIA-568 series — structured cabling standards\n- TIA/EIA-606 — administration standard for cabling\n\nICANN: Internet domain name at IP address allocation management.' },
+      { title: 'Ethernet Standards', text: 'Ang Ethernet ay ang pinaka-common na wired networking technology.\n\nStandard Ethernet:\n- 10BASE-T: 10 Mbps, Cat3, 100m (legacy)\n- 100BASE-TX (Fast Ethernet): 100 Mbps, Cat5, 100m\n- 1000BASE-T (Gigabit Ethernet): 1 Gbps, Cat5e, 100m\n- 10GBASE-T (10 Gigabit Ethernet): 10 Gbps, Cat6a/Cat7, 100m (Cat6 hanggang 55m lang)\n- 40GBASE-T: 40 Gbps, Cat8, 30m (data center)\n\nFiber Ethernet:\n- 1000BASE-SX: Multi-mode fiber, 550m\n- 1000BASE-LX: Single-mode o multi-mode fiber, 5km (single-mode)\n- 10GBASE-SR: Multi-mode, 300m\n- 10GBASE-LR: Single-mode, 10km\n- 10GBASE-ER: Single-mode, 40km\n\nEthernet Frame:\n- Preamble (8 bytes), MAC Destination (6), MAC Source (6), VLAN Tag (optional, 4), EtherType (2), Payload (46-1500 bytes), FCS (4)\n\nMAC Address: 48-bit unique identifier (e.g., 00:1A:2B:3C:4D:5E). First 3 bytes = OUI (manufacturer), last 3 bytes = unique device.' },
+      { title: 'Network Topologies', text: 'Ang network topology ay ang physical at logical arrangement ng network devices.\n\nPhysical Topologies:\n- Star: Lahat ng devices konektado sa central switch. Pinaka-common. Madaling i-troubleshoot. Single point of failure ang switch.\n- Extended Star: Multiple switches connected in a star. Ginagamit sa malalaking networks.\n- Bus: Iisang backbone cable. Nagte-terminate sa magkabilang dulo. Prone sa failure — kapag nasira ang backbone, down ang buong network. Legacy topology.\n- Ring: Bawat device connected sa dalawang katabi. Data travels in one direction. Token Ring (IEEE 802.5) at FDDI. Hindi na masyadong ginagamit.\n- Mesh: Lahat ng devices ay interconnected. Full mesh = every device to every device. Partial mesh = may mga direktang koneksyon pero hindi lahat. High redundancy pero costly.\n- Hybrid: Combination ng dalawa o higit pang topologies.\n- Daisy Chain: Devices connected in series (isa-isa). Ginagamit minsan sa switches.\n\nLogical Topology: Kung paano dumadaloy ang data sa network (broadcast, token passing). Hindi laging pareho sa physical topology.\n\nPoint-to-Point vs Multipoint: Point-to-point = direct connection between 2 devices. Multipoint = maraming devices sa iisang connection.' },
+      { title: 'IPv4 vs IPv6', text: 'Ang paglipat mula IPv4 papuntang IPv6 ay mahalaga dahil sa esgot ng IPv4 addresses.\n\nIPv4:\n- 32-bit address (4,294,967,296 addresses — 4.3 billion)\n- Dotted decimal notation: 192.168.1.10\n- Classes: A (1-126, /8), B (128-191, /16), C (192-223, /24), D (224-239, multicast), E (240-255, reserved)\n- Private ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16\n- Loopback: 127.0.0.1\n- APIPA: 169.254.0.0/16 (kung walang DHCP)\n- Subnet mask: 255.255.255.0 o /24\n\nIPv6:\n- 128-bit address (340 undecillion addresses — 340,282,366,920,938,463,463,374,607,431,768,211,456)\n- Hexadecimal notation: 2001:0db8:85a3:0000:0000:8a2e:0370:7334\n- Leading zeros can be omitted: 2001:db8:85a3::8a2e:370:7334\n- Double colon (::) can replace one contiguous group of zeros\n- Types: Unicast (isa-isa), Multicast (isa-sa-marami), Anycast (isa-sa-pinakamalapit)\n- Link-local: fe80::/10 (equivalent ng APIPA)\n- Unique Local: fc00::/7 (equivalent ng private IPv4)\n- Global Unicast: 2000::/3 (internet-routable)\n- No NAT needed — direktang accessible ang IPv6 devices' }
+    ]
+  },
+  infrastructure: {
+    title: 'Network Infrastructure',
+    steps: [
+      { title: 'Routers and Switching', text: 'Ang routers at switches ang backbone ng network infrastructure.\n\nSwitch (Layer 2):\n- Nagde-decide kung saang port ipapadala ang data based sa MAC address\n- Nagma-maintain ng MAC address table (CAM table)\n- Nagre-require ng MAC learning: kapag may frame na dumating, nirerecord nito ang source MAC at port\n- Broadcast domain: Lahat ng ports ng switch ay nasa iisang broadcast domain (maliban kung naka-VLAN)\n- Collision domain: Bawat port ay hiwalay na collision domain (full duplex = walang collisions)\n- Managed vs Unmanaged: Managed switches support VLANs, QoS, STP, port security, SNMP\n\nRouter (Layer 3):\n- Nagde-decide ng path ng data based sa IP address\n- May routing table na naglalaman ng mga network routes\n- Nagko-connect ng iba\'t ibang networks (LAN to WAN)\n- Features: NAT, DHCP server, ACL, VPN, routing protocols\n- Bawat interface ng router ay hiwalay na broadcast domain\n\nLayer 3 Switch: Switch na may routing capabilities — mas mabilis kaysa router para sa LAN routing.\n\nMultilayer Switch: Pwedeng gumana sa Layer 2, 3, at minsan Layer 4.' },
+      { title: 'Wireless Networking', text: 'Ang wireless networking ay gumagamit ng radio waves (RF) para mag-transmit ng data.\n\nWiFi Standards (802.11):\n- 802.11a: 5 GHz, 54 Mbps, OFDM (legacy)\n- 802.11b: 2.4 GHz, 11 Mbps, DSSS (legacy)\n- 802.11g: 2.4 GHz, 54 Mbps, OFDM (legacy, backward compatible with b)\n- 802.11n (WiFi 4): 2.4/5 GHz, up to 600 Mbps, MIMO (multiple antennas)\n- 802.11ac (WiFi 5): 5 GHz, up to 3.5 Gbps, MU-MIMO (downlink)\n- 802.11ax (WiFi 6/6E): 2.4/5/6 GHz, up to 9.6 Gbps, OFDMA, MU-MIMO (uplink at downlink)\n- 802.11be (WiFi 7): 2.4/5/6 GHz, up to 46 Gbps, 320 MHz channels\n\nFrequency Bands:\n- 2.4 GHz: Longer range, better penetration, mas maraming interference (microwave, Bluetooth, cordless phones)\n- 5 GHz: Shorter range, faster speeds, less interference, more channels\n- 6 GHz (WiFi 6E/7): Newest, least congested, fastest\n\nMIMO (Multiple Input Multiple Output): Maraming antennas para sa mas magandang performance.\nAccess Point (AP): Nag-e-extend ng wired network sa wireless. Maaaring standalone o controller-based (fat vs thin AP).' },
+      { title: 'Network Cabling', text: 'Ang cable ang physical medium ng network. Mahalaga ang tamang pagpili at pag-install.\n\nTwisted Pair (UTP/STP):\n- UTP (Unshielded Twisted Pair): Pinaka-common, walang shielding\n- STP (Shielded Twisted Pair): May foil shielding, mas protektado sa EMI\n- Cat5: 100 MHz, 100 Mbps — legacy\n- Cat5e: 100 MHz, 1 Gbps — pinaka-common, enhanced\n- Cat6: 250 MHz, 1 Gbps (10 Gbps hanggang 55m)\n- Cat6a: 500 MHz, 10 Gbps (100m)\n- Cat7: 600 MHz, 10 Gbps (shielded, hindi TIA/EIA recognized)\n- Cat8: 2000 MHz, 25/40 Gbps (data center, 30m max)\nConnector: RJ45 (8P8C)\n\nFiber Optic:\n- Single-mode: 9 micron core, laser, 40+ km, mas mahal\n- Multi-mode: 50 o 62.5 micron core, LED/Laser, 550m max, mas mura\nConnectors: LC (small, most common), SC (standard), ST (bayonet), FC (screw), MPO/MTP (multi-fiber)\n\nCoaxial:\n- RG-6: Cable TV, cable internet (75 ohm)\n- RG-59: CCTV, legacy applications (75 ohm)\nConnector: F-type\n\nPlenum vs PVC: Plenum-rated cable ay fire-resistant at low-smoke — required sa ceiling air handling spaces.\n\nT568A vs T568B: Two wiring standards. T568B ang pinaka-common sa US. Straight-through = same standard both ends. Crossover = magkaiba (gumagamit na ng auto MDIX ang modern devices).' },
+      { title: 'Network Hardware', text: 'Iba\'t ibang hardware devices na bumubuo ng network infrastructure.\n\nHub: Layer 1 device. Nagpe-replicate ng signal sa lahat ng ports. Half duplex lang. Collision domain = lahat ng ports. Legacy na — replaced by switches.\n\nBridge: Layer 2 device. Nagdi-divide ng collision domains. Nagde-decide batay sa MAC address. Less common na ngayon.\n\nAccess Point: Connects wireless devices to wired network. Modes: Root (connected to wired), Repeater/Extender (repeats signal), Mesh (wireless backhaul).\n\nFirewall: Security device na nagfi-filter ng traffic based sa rules. Stateful (nagmo-monitor ng connection state) vs Stateless (per-packet lang). NGFW (Next-Gen Firewall) — may application awareness, IPS, SSL inspection.\n\nLoad Balancer: Nagdi-distribute ng traffic sa multiple servers. Algorithms: Round Robin, Least Connections, Source IP Hash.\n\nProxy Server: Kumikilos bilang intermediary sa pagitan ng client at internet. Gamit sa content filtering, caching, anonymity, access control.\n\nVPN Concentrator: Dedicated device para sa VPN connections. Nagha-handle ng encryption/decryption.\n\nIDS/IPS: Intrusion Detection System (monitors at alerts) vs Intrusion Prevention System (monitors at blocks). Signature-based vs Anomaly-based.' },
+      { title: 'Power over Ethernet (PoE)', text: 'Ang PoE ay technology na nagbibigay ng power at data sa iisang Ethernet cable.\n\nPoE Standards:\n- IEEE 802.3af (PoE): 15.4W DC (12.95W sa device). Ginagamit sa VoIP phones, basic APs, security cameras.\n- IEEE 802.3at (PoE+): 30W DC (25.5W sa device). Ginagamit sa PTZ cameras, video phones, APs na may maraming radios.\n- IEEE 802.3bt (PoE++): Type 3 = 60W, Type 4 = 100W. Ginagamit sa LED lighting, digital signage, high-performance APs.\n\nPower Budget: I-compute ang total power consumption ng lahat ng PoE devices. Halimbawa: 24-port PoE+ switch na may 370W budget = 24 devices x 15.4W max = 369.6W.\n\nComponents:\n- PSE (Power Sourcing Equipment): Ang nagbibigay ng power — PoE switch o PoE injector/midspan\n- PD (Powered Device): Ang tumatanggap ng power — AP, IP phone, camera\n\nPin Assignment (Mode A): Power sa data pairs (pins 1,2 at 3,6). Ginagamit sa 10/100 Mbps.\nPin Assignment (Mode B): Power sa unused pairs (pins 4,5 at 7,8). Ginagamit sa Gigabit (lahat ng pairs may data).\n\nAdvantages: Iwas power outlet per device, centralized UPS, madaling i-deploy at i-manage.' },
+      { title: 'Network Virtualization', text: 'Ang network virtualization ay nagpapahintulot na magkaroon ng multiple virtual networks sa iisang physical infrastructure.\n\nVirtual LAN (VLAN):\n- Nagse-segment ng network sa logical groups (hindi physical)\n- Bawat VLAN ay hiwalay na broadcast domain\n- 802.1Q: Standard VLAN tagging — may 4-byte VLAN tag sa Ethernet frame (12-bit VLAN ID, 1-4094)\n- Native VLAN: VLAN 1 (default), hindi naka-tag sa trunk port\n- Access port: Naka-assign sa iisang VLAN, walang tag\n- Trunk port: May dalang multiple VLANs, may 802.1Q tag\n\nVirtual Switching:\n- Virtual switch ay software-based switch na tumatakbo sa hypervisor\n- VMware vSwitch, Hyper-V Virtual Switch\n- Nagko-connect ng VMs sa isa\'t isa at sa physical network\n\nVirtual Router:\n- VyOS, pfSense, Cisco CSR 1000v\n- Nagbibigay ng routing, NAT, firewall sa virtual environment\n\nSDN (Software-Defined Networking):\n- Ihiwalay ang control plane at data plane\n- Centralized controller (e.g., OpenFlow, Cisco ACI, VMware NSX)\n- Mas flexible at programmable\n\nOverlay Networks: VXLAN (VLAN extension sa Layer 3 network), GRE tunnels, VPNs.' }
+    ]
+  },
+  operations: {
+    title: 'Network Operations',
+    steps: [
+      { title: 'Network Monitoring', text: 'Ang network monitoring ay mahalaga para sa proactive management at issue detection.\n\nMonitoring Protocols:\n- SNMP (Simple Network Management Protocol): Port 161/162. Ginagamit para i-monitor at i-manage ang network devices. SNMPv1 (basic), SNMPv2c (community string), SNMPv3 (authentication at encryption).\n- RMON (Remote Monitoring): Extension ng SNMP para sa remote network monitoring at statistics.\n- NetFlow (Cisco)/IPFIX (standard): Network traffic flow analysis — sino, ano, kailan, saan ng network traffic.\n- sFlow: Packet sampling technology para sa traffic monitoring.\n- Syslog: Port 514. System log collection mula sa devices.\n\nTools:\n- PRTG, Nagios, Zabbix, SolarWinds, Cacti — graphing at alerting\n- Wireshark — packet capture at analysis\n- MRTG/RRDtool — bandwidth utilization graphs\n\nElements to Monitor:\n- Bandwidth utilization (interface throughput)\n- CPU/Memory utilization ng devices\n- Interface errors (CRC, collisions, runts, giants)\n- Uptime/Downtime\n- Temperature (for devices with sensors)\n\nSNMP Management: Managed devices may MIB (Management Information Base) na naglalaman ng object IDs (OIDs).' },
+      { title: 'Network Documentation', text: 'Ang tamang documentation ay kritikal para sa efficient network management.\n\nTypes of Documentation:\n- Network Diagram: Physical (actual layout) at Logical (IP addressing, VLANs, routing)\n  - Tools: Visio, draw.io, LucidChart, yEd\n- Rack Diagram: Physical arrangement ng equipment sa server rack\n- IP Address Management (IPAM): Tracking ng IP allocations, subnets, DHCP scopes\n- Cable Labeling: Consistent labeling system para sa patch panels at ports (TIA/EIA-606)\n- SOP (Standard Operating Procedures): Step-by-step instructions para sa common tasks\n- Configuration Backup: Regular backup ng device configs (scripts, RANCID, Oxidized)\n- Inventory: Hardware models, serial numbers, warranty, location\n\nChange Management Documentation:\n- RFC (Request for Change): Proposed change, justification, risk assessment\n- Implementation plan: Steps, rollback plan, testing\n- Post-implementation review: Successful? Issues? Lessons learned?\n\nNetwork Baselining: Establishing normal performance metrics para makita ang anomalies.\n\nBusiness Documents:\n- SLA (Service Level Agreement): Guaranteed uptime, response times\n- MOU/MOA: Memorandum of Understanding/Agreement\n- AUP (Acceptable Use Policy): Ano ang allowed at hindi sa network' },
+      { title: 'Policies and Procedures', text: 'Network operations ay dapat guided ng malinaw na policies at procedures.\n\nSecurity Policies:\n- Acceptable Use Policy (AUP): Ano ang allowed sa network resources\n- Password Policy: Complexity, rotation, lockout requirements\n- Remote Access Policy: VPN, RDP, SSH usage rules\n- BYOD Policy: Personal devices sa company network\n\nOperational Policies:\n- Backup Policy: Frequency, retention, storage location, restore testing\n- Disaster Recovery Policy: RTO (Recovery Time Objective) at RPO (Recovery Point Objective)\n- Incident Response Policy: Steps kapag may security incident\n\nCompliance:\n- PCI DSS: Required for networks handling credit card data\n- HIPAA: Healthcare data protection\n- GDPR: Data privacy (European)\n- SOX: Financial data integrity\n- NIST: Cybersecurity framework\n\nProcedure Examples:\n- New device onboarding: Register, configure, test, monitor\n- Offboarding: Remove access, reclaim equipment\n- Patching: Test in staging, schedule maintenance window, deploy\n\nImportant: Policies ay dapat documented, communicated, at enforced. Regular review at updating.' },
+      { title: 'Business Continuity', text: 'Ang business continuity ay ang kakayahan ng organization na magpatuloy ng operations during at after ng disruption.\n\nKey Concepts:\n- RTO (Recovery Time Objective): Maximum acceptable downtime para ma-restore ang service\n- RPO (Recovery Point Objective): Maximum acceptable data loss (backup frequency)\n- MTBF (Mean Time Between Failures): Expected reliability ng device\n- MTTR (Mean Time To Repair): Expected time para maayos ang failed device\n\nContinuity Strategies:\n- Active-Active: Both sites are live, load balanced\n- Active-Passive: One site active, one standby (failover)\n- Cold Site: No equipment, just facility — cheapest, longest recovery\n- Warm Site: Some equipment, ready for activation\n- Hot Site: Fully redundant, real-time sync — most expensive, fastest recovery\n\nResilience Techniques:\n- Redundant hardware (power supplies, fans, NICs)\n- Link aggregation (LACP/802.3ad)\n- Spanning Tree Protocol (STP) — redundant paths without loops\n- HSRP/VRRP/GLBP — router redundancy\n- UPS at Generator — power backup\n\nBackup Types:\n- Full: Everything\n- Incremental: Changes since last backup (any type)\n- Differential: Changes since last full backup\n\nBackup Storage: On-site (fast restore), Off-site (disaster protection), Cloud (hybrid).' },
+      { title: 'High Availability', text: 'Ang high availability ay ang disenyo ng network na nagmi-minimize ng downtime.\n\nTarget: Five Nines (99.999% uptime) = ~5.26 minutes downtime per year.\n99.9% = ~8.76 hours/year; 99.99% = ~52.56 minutes/year.\n\nLink Redundancy:\n- LACP (Link Aggregation Control Protocol): Combine multiple physical links into one logical link (802.3ad). Increases bandwidth at provides redundancy.\n- Active/Passive: Isa lang ang active link hanggang mag-fail ang primary\n- Active/Active: Parehong active, may load sharing\n\nDevice Redundancy:\n- First Hop Redundancy Protocols: HSRP (Cisco proprietary), VRRP (open standard), GLBP (Cisco, load balancing)\n- Virtual IP address na-share ng multiple routers\n- Kapag nag-fail ang primary router, ang standby ang pumalit\n\nPath Redundancy:\n- STP (Spanning Tree Protocol): Prevents loops sa redundant switched network\n- RSTP (Rapid STP): Mas mabilis na convergence (seconds vs 30-50 seconds)\n- MSTP (Multiple STP): Multiple VLANs, multiple instances\n\nServer Redundancy:\n- Load balancers distribute traffic\n- Clustering (active-active or active-passive)\n- NIC Teaming: Multiple NICs acting as one\n\nPower Redundancy:\n- UPS (Uninterruptible Power Supply): Line-interactive vs Online (double conversion)\n- Generator: Para sa extended outages\n- Redundant PSUs (1+1, 2+2)' },
+      { title: 'Change Management', text: 'Ang change management ay structured process para mag-implement ng changes sa network nang ligtas at may minimal na disruption.\n\nChange Process:\n1. Request: I-submit ang RFC (Request for Change) — detalye ng proposed change, reason, scope\n2. Review: Change Advisory Board (CAB) nagre-review — risk assessment, impact analysis\n3. Approve/Reject: Based sa risk, urgency, impact\n4. Plan: Detailed implementation steps, rollback plan, testing strategy\n5. Implement: Execute during maintenance window, follow the plan\n6. Verify: Test na gumagana ang change at walang adverse effects\n7. Document: Update documentation, close the RFC\n\nTypes of Changes:\n- Standard Change: Pre-approved, low risk (e.g., password reset, adding new user VLAN)\n- Normal Change: Needs CAB approval (e.g., new switch deployment, routing config change)\n- Emergency Change: Urgent, may shortcut process (e.g., security vulnerability patch, outage fix)\n\nRollback Plan: Dapat laging may plan B — if something goes wrong, paano mag-revert?\n\nMaintenance Windows: Scheduled time para sa changes — typically outside business hours.\n\nBest Practices:\n- Test changes sa lab environment first\n- Have peer review ng configuration changes\n- Use configuration management tools (Ansible, Puppet, Chef)\n- Keep detailed records\n- Communicate with stakeholders' }
+    ]
+  },
+  security: {
+    title: 'Network Security',
+    steps: [
+      { title: 'Firewalls', text: 'Ang firewall ay isang security device na nagmo-monitor at nagco-control ng incoming at outgoing network traffic based sa predetermined security rules.\n\nTypes of Firewalls:\n- Packet Filtering: Nagche-check ng packet headers (source/dest IP, port, protocol). Stateless — bawat packet ay hiwalay na ni-check.\n- Stateful Inspection: Nagmo-monitor ng state ng active connections. Mas secure kaysa packet filtering.\n- Application Layer (Proxy): Nag-inspeksyon ng application layer data. Mas thorough pero slower.\n- Next-Generation Firewall (NGFW): Application awareness, IPS, SSL inspection, identity awareness, malware filtering.\n\nFirewall Deployments:\n- Network-based: Dedicated hardware appliance (Cisco ASA/Firepower, FortiGate, Palo Alto, pfSense)\n- Host-based: Software firewall sa individual device (Windows Defender Firewall, iptables)\n- Virtual Firewall: Runs as VM (VMware NSX, pfSense virtual)\n\nRules:\n- Implicit Deny: Default rule — lahat ng hindi explicitly allowed ay denied\n- Explicit Allow: Specific rules na nag-a-allow ng traffic\n- Rule Order: Rules are processed from top to bottom. First match applies.\n\nDMZ (Demilitarized Zone): Isolated network segment para sa public-facing servers (web server, email, DNS).\n\nNAT (Network Address Translation): Karaniwang feature ng firewall — mag-share ng isang public IP sa maraming internal devices.' },
+      { title: 'VPNs (Virtual Private Networks)', text: 'Ang VPN ay nagbibigay ng secure, encrypted connection sa pagitan ng dalawang networks o sa pagitan ng user at network sa pamamagitan ng public internet.\n\nVPN Types:\n- Site-to-Site VPN: Nagco-connect ng dalawang buong networks (e.g., branch office to main office). Usually using IPsec.\n- Remote Access VPN: Individual user nagco-connect sa corporate network (e.g., work from home). Client software needed.\n- Clientless VPN (SSL VPN): Gamit ang web browser lang (OpenVPN Connect, AnyConnect, FortiClient)\n\nVPN Protocols:\n- IPsec: Internet Protocol Security — strong encryption (ESP = Encapsulating Security Payload, AH = Authentication Header). Modes: Transport (end-to-end) at Tunnel (gateway-to-gateway).\n- SSL/TLS: Secure Sockets Layer / Transport Layer Security — karaniwang ginagamit ng SSL VPNs (port 443)\n- PPTP: Point-to-Point Tunneling Protocol — legacy, hindi na secure\n- L2TP/IPsec: Layer 2 Tunneling Protocol with IPsec — more secure than PPTP\n- OpenVPN: Open-source, flexible, uses SSL/TLS\n- WireGuard: Modern, simple, faster than IPsec/OpenVPN\n\nEncryption:\n- AES (Advanced Encryption Standard): 128-bit, 192-bit, 256-bit\n- 3DES: Legacy, hindi na secure\n- Diffie-Hellman: Key exchange protocol\n\nAuthentication:\n- Pre-shared Key (PSK)\n- Certificates (PKI)\n- RADIUS integration (username/password + MFA)' },
+      { title: 'Network Security Threats', text: 'Ang pag-alam sa common threats ay mahalaga para maprotektahan ang network.\n\nDenial of Service (DoS):\n- Nag-o-overload ng server/network resources para hindi ma-access ng legitimate users\n- SYN Flood: Nagpapadala ng maraming SYN packets (half-open connections)\n- UDP Flood: Nagpapadala ng maraming UDP packets sa random ports\n- ICMP Flood (Ping Flood): Nagpapadala ng maraming ping requests\n- Amplification Attack: Gumagamit ng vulnerable servers (DNS, NTP) para i-amplify ang traffic\n- DDoS (Distributed DoS): Maraming compromised devices (botnet) ang umaatake\n\nMalware:\n- Virus: Self-replicating, nangangailangan ng host program\n- Worm: Self-replicating, hindi nangangailangan ng host — kumakalat sa network (e.g., WannaCry)\n- Trojan: Nagpapanggap na legitimate software pero may malicious code\n- Ransomware: Ine-encrypt ang data at humihingi ng ransom\n\nSocial Engineering:\n- Phishing: Fake emails na humihingi ng sensitive information\n- Spear Phishing: Targeted phishing (specific person/company)\n- Whaling: Phishing na naka-target sa executives\n- Vishing: Voice phishing (phone calls)\n\nMan-in-the-Middle (MITM):\n- ARP Spoofing: Nagpapanggap na gateway para makuha ang traffic\n- DNS Spoofing: Nire-redirect ang DNS requests sa malicious site\n- Session Hijacking: Ninanakaw ang session cookie' },
+      { title: 'Network Hardening', text: 'Ang network hardening ay ang process ng pag-secure ng network devices at infrastructure.\n\nDevice Hardening:\n- Change default credentials (admin/admin o root/root)\n- Disable unused services (discovery protocols, HTTP config page, unnecessary servers)\n- Enable SSH instead of Telnet (encrypted vs plaintext)\n- Use strong encryption for management (SSH v2, HTTPS, SNMPv3)\n- Implement ACLs (Access Control Lists) para i-limit ang management access\n- Keep firmware/OS updated\n- Disable unused ports\n\nSwitch Security:\n- Port Security: I-limit kung ilang MAC addresses ang pwedeng matuto sa isang port\n- DHCP Snooping: I-filter ang DHCP messages para iwas rogue DHCP server\n- Dynamic ARP Inspection (DAI): I-validate ang ARP packets\n- STP Security (BPDU Guard, Root Guard): Protektahan ang STP operations\n- 802.1X: Port-based authentication (RADIUS)\n\nWireless Security:\n- WPA3: Latest at pinaka-secure (WiFi 6 devices)\n- WPA2-AES: Minimum standard (CCMP encryption)\n- WEP/WPA-TKIP: Hindi na secure\n- MAC Filtering: I-allow lang ang specific devices (but can be spoofed)\n- Disable SSID Broadcast: Hidden network (but can be discovered)\n\nPhysical Security:\n- Locked server rooms (appropriate access control)\n- Cable locks para sa equipment\n- Security cameras (CCTV)\n- Environmental controls (temperature, humidity, fire suppression)' },
+      { title: 'Authentication and Access Control', text: 'Ang authentication ay nagve-verify ng identity ng user o device, habang ang authorization ay nagde-determine kung ano ang access nila.\n\nAuthentication Factors:\n- Something you KNOW: Password, PIN\n- Something you HAVE: Smart card, token, phone (MFA authenticator app)\n- Something you ARE: Biometrics (fingerprint, face, retina, voice)\n- Something you DO: Behavior patterns (keystroke dynamics)\n- Somewhere you ARE: Geolocation, IP address\n\nMulti-Factor Authentication (MFA): At least 2 factors from different categories.\n\nAAA (Authentication, Authorization, Accounting):\n- RADIUS (Remote Authentication Dial-In User Service): Port 1812/1813. Centralized authentication. Supports WiFi, VPN, switch access.\n- TACACS+ (Terminal Access Controller Access-Control System Plus): Port 49. Cisco proprietary. Separes authentication, authorization, at accounting.\n- Kerberos: Microsoft Active Directory authentication protocol. Uses tickets.\n- LDAP (Lightweight Directory Access Protocol): Port 389. Directory services.\n- LDAPS (LDAP Secure): Port 636.\n\n802.1X: Port-based network access control. EAP (Extensible Authentication Protocol) over LAN.\n\nSingle Sign-On (SSO): One login for multiple applications. SAML, OAuth, OpenID Connect.\n\nAccess Control Models:\n- DAC (Discretionary): Owner controls access (NTFS permissions)\n- MAC (Mandatory): System enforces access (military/government)\n- RBAC (Role-Based): Access based on job role (most common in enterprise)' },
+      { title: 'IDS/IPS', text: 'Ang IDS (Intrusion Detection System) at IPS (Intrusion Prevention System) ay nagmo-monitor ng network traffic para sa malicious activity.\n\nIDS (Intrusion Detection System):\n- Passive system — nagma-monitor at nag-aalert lang\n- No direct action sa traffic\n- Mas mababa ang risk (no false positive blocking)\n- Placement: Usually out-of-band (receives copy of traffic)\n\nIPS (Intrusion Prevention System):\n- Active system — nagma-monitor at nagba-block ng malicious traffic\n- Inline deployment — dumadaan ang traffic sa IPS\n- Mas mataas ang risk (false positives can block legitimate traffic)\n- Real-time prevention\n\nDetection Methods:\n- Signature-based: Matches known attack patterns. Effective for known threats. Cannot detect zero-day attacks. Low false positive rate.\n- Anomaly-based: Creates baseline of normal behavior, alerts on deviations. Can detect zero-day attacks. Higher false positive rate.\n- Behavior-based: Analyzes behavior patterns. Similar to anomaly-based but more focused on entities.\n- Heuristic: Uses algorithms para mag-identify ng suspicious activity.\n\nResponse:\n- Alert: Notification sa administrator\n- Log: Record the event\n- Block: Prevent the traffic (IPS only)\n- Reset: Terminate the connection\n- Shun: Block source IP for a period\n\nNIPS vs HIPS: Network-based IPS (monitors whole network) vs Host-based IPS (monitors single host).' },
+      { title: 'Access Control Lists (ACLs)', text: 'Ang ACL ay isang listahan ng rules na nagco-control ng network traffic based sa IP addresses, protocols, at ports.\n\nTypes of ACLs:\n- Standard ACL: Filters based on source IP address only. Best placed close to destination.\n- Extended ACL: Filters based on source/dest IP, port, protocol. Best placed close to source.\n- Named ACL: Instead of numbers, gumagamit ng descriptive name.\n\nACL Processing:\n- Sequential order: Rules are processed from top to bottom\n- First match applies: Kapag nag-match ang packet sa isang rule, i-a-apply ang action at hindi na i-che-check ang succeeding rules\n- Implicit Deny: May automatic deny all rule sa dulo (kung walang nag-match, dinedeny ang traffic)\n- Direction: Inbound (papasok ng interface) vs Outbound (lalabas ng interface)\n\nACL Examples:\n- Permit specific host: permit ip host 192.168.1.10 any\n- Permit subnet: permit ip 192.168.1.0 0.0.0.255 any\n- Deny specific port: deny tcp any any eq 23 (deny Telnet)\n- Permit HTTPS: permit tcp any any eq 443\n\nWildcard Mask: Inverse ng subnet mask. 0.0.0.0 = exact match, 255.255.255.255 = any.\n\nApplications:\n- Security: I-block ang unauthorized access\n- Traffic filtering: I-restrict ang certain types ng traffic\n- QoS: I-classify ang traffic para sa prioritization\n- VPN: I-define kung aling traffic ang dadaan sa VPN tunnel\n\nBest Practice: I-place ang extended ACLs as close to the source as possible para i-save ang bandwidth.' }
+    ]
+  },
+  troubleshooting: {
+    title: 'Network Troubleshooting',
+    steps: [
+      { title: 'Troubleshooting Methodology', text: 'Ang systematic approach sa network troubleshooting ay susi para mabilis at epektibong ma-resolve ang issues.\n\nCompTIA Network+ Troubleshooting Steps:\n\n1. Identify the Problem\n   - Gather information mula sa user (ano, kailan, sino, paano)\n   - Duplicate ang issue (kung posible)\n   - Identify recent changes (config, hardware, software updates)\n   - Determine scope (iisa lang o buong department/site?)\n\n2. Establish a Theory of Probable Cause\n   - List possible causes (hardware? software? configuration? ISP?)\n   - Start with the most obvious at simplest (Occam\'s Razor)\n   - Question the obvious: "Nag-reboot ba?" "May update ba?"\n\n3. Test the Theory\n   - Try isang fix at a time\n   - Kung hindi gumana, eliminate ang theory at subukan ang next\n   - Document ang results para maiwasan ang paulit-ulit na testing\n\n4. Establish a Plan of Action\n   - Plan kung paano i-resolve ang issue\n   - Consider impact (downtime? data loss?)\n   - Prepare rollback plan\n\n5. Implement the Solution\n   - Execute ang plan (follow change management kung kailangan)\n   - Escalate kung out of scope\n\n6. Verify Full System Functionality\n   - I-confirm sa user na working na\n   - I-check kung walang bagong issues\n\n7. Document\n   - Root cause, solution, lessons learned\n   - Update knowledge base' },
+      { title: 'Troubleshooting Tools', text: 'Mga tools na ginagamit sa network troubleshooting.\n\nCommand Line Tools:\n- ping: I-test ang connectivity sa remote device. ping 8.8.8.8, ping google.com. Options: -t (continuous), -n (count), -l (size).\n- ipconfig: I-display ang IP configuration. ipconfig /all, ipconfig /release, ipconfig /renew, ipconfig /flushdns.\n- tracert/traceroute: I-trace ang path ng packet papunta sa destination. tracert google.com. Shows bawat hop at latency.\n- nslookup/dig: DNS lookup. nslookup google.com. I-resolve ang domain name sa IP address.\n- netstat: I-display ang active connections, listening ports, routing table. netstat -a (all), -n (numeric), -b (binary), -r (route table).\n- arp: I-display at i-manage ang ARP cache. arp -a (view cache), arp -d (delete entry).\n- route: I-display at i-manage ang routing table. route print (Windows), route -n (Linux).\n- telnet/ssh: Remote access. Telnet (unencrypted, hindi safe).\n- pathping: Combination ng ping at tracert (Windows).\n\nHardware Tools:\n- Cable Tester: I-verify na tama ang wiring ng Ethernet cable\n- Tone Generator & Probe: I-trace ang cables sa patch panel\n- Multimeter: I-check ang voltage, continuity\n- Loopback Plug: I-test ang network port\n- TDR (Time Domain Reflectometer): I-identify ang cable breaks at distance\n- OTDR (Optical TDR): Para sa fiber optic cables\n\nSoftware Tools:\n- Wireshark: Packet capture at protocol analysis\n- PuTTY: SSH/Telnet client\n- Nmap: Port scanning at network discovery' },
+      { title: 'Wired Network Issues', text: 'Common wired network problems at solutions.\n\nPhysical Layer Issues:\n- Damaged cable (cut, kinked, crushed) — replace cable\n- Loose connection — reseat connectors\n- Wrong cable type (crossover vs straight-through) — modern devices auto-sense (Auto MDIX)\n- Cable length exceeded (100m for Ethernet) — add switch/repeater\n- EMI interference (near power cables, motors, fluorescent lights) — use STP, reroute cable\n- Faulty port — try different port sa switch\n\nData Link Layer Issues:\n- Duplex mismatch — isang device naka-full duplex, isa half duplex. Causes slow performance at errors.\n- Speed mismatch — negotiate to common speed\n- CRC errors — bad cable, faulty NIC\n- MAC address flooding — CAM table overflow (security attack)\n- STP issues — loops, blocked ports\n\nNetwork Layer Issues:\n- Wrong IP configuration (static vs DHCP) — check ipconfig\n- Wrong subnet mask — hindi maka-reach sa ibang network\n- Wrong default gateway — no internet access\n- Duplicate IP address — IP conflict\n- Routing issues — check routing table, routing protocols\n\nVLAN Issues:\n- Trunk port misconfiguration (allowed VLANs, native VLAN mismatch)\n- Access port in wrong VLAN\n- VLAN pruning issues\n\nBest Approach: Start from Layer 1 and work up. Check physical first, then data link, then network.' },
+      { title: 'Wireless Network Issues', text: 'Wireless-specific troubleshooting — mas complex dahil sa RF environment.\n\nConnectivity Issues:\n- Wrong SSID naka-connect ang user\n- Wrong security type (WPA2 vs WPA3, AES vs TKIP)\n- Wrong password — check case sensitivity\n- DHCP failure — check DHCP server, IP scope availability\n- Client not supported — old client trying to connect to WiFi 6 only AP\n\nPerformance Issues:\n- Channel interference — 2.4 GHz channels 1, 6, 11 lang ang non-overlapping\n- Adjacent channel interference — APs sa magkalapit na channels\n- Co-channel interference — APs sa same channel na magkalapit\n- Too many clients per AP — add more APs, reduce cell size\n- Legacy devices dragging down performance (b/g devices on 802.11n/ac network)\n\nSignal Issues:\n- Weak signal — too far from AP\n- Obstacles — concrete walls, metal, water pipes, elevator shafts\n- Reflection/Multipath — signal bounces off surfaces\n- RF interference — microwave, Bluetooth, cordless phones, Zigbee\n\nAP Issues:\n- AP not broadcasting SSID\n- AP channel bonding (40/80/160 MHz) causing interference\n- AP power settings (too high = co-channel interference, too low = coverage gaps)\n- Firmware issues\n\nSite Survey: Gamit ang tool (Ekahau, NetSpot, Acrylic) para i-map ang WiFi coverage at identify dead zones, interference, channel overlap.' },
+      { title: 'Network Service Issues', text: 'Troubleshooting common network services.\n\nDHCP Issues:\n- No IP address (169.254.x.x APIPA) — DHCP server unreachable\n- DHCP server failure — check DHCP service, scope exhaustion\n- Wrong DHCP scope options — wrong gateway, DNS, subnet mask\n- IP conflict — ibang device may same IP\n- DHCP snooping blocking legitimate DHCP\n\nDNS Issues:\n- Cannot resolve domain names — "Server not found"\n- Check DNS server: nslookup google.com\n- Flush DNS cache: ipconfig /flushdns\n- Wrong DNS server configured (use internal vs external)\n- DNS resolution order (local hosts file > DNS cache > DNS server)\n- DNS forwarders at root hints\n\nNAT Issues:\n- No internet access pero may LAN connectivity\n- Check NAT translations: show ip nat translations\n- PAT (Port Address Translation) — many-to-one NAT\n- Static NAT — one-to-one mapping\n- NAT pool exhaustion (too many internal users)\n\nVPN Issues:\n- Authentication failure — wrong credentials, expired certificate\n- Tunnel not establishing — check firewall rules, protocol/port\n- MTU issues — fragmentation problems\n- Routing issues — traffic not going through tunnel\n\nAuthentication Issues (AAA):\n- RADIUS server unreachable\n- Wrong shared secret\n- Certificate errors\n- Account locked/expired' },
+      { title: 'Common Network Problems', text: 'Mabilisang reference ng common network issues at probable causes.\n\n"No Internet Access" warning:\n- Check physical connection (cable, link lights)\n- ipconfig /all — may IP address ba?\n- Ping gateway — kaya bang mag-reach sa router?\n- Ping 8.8.8.8 — may internet connection ba?\n- Ping google.com — gumagana ba ang DNS?\n\n"Intermittent Connectivity":\n- Loose cable connection\n- Faulty NIC\n- Duplex mismatch\n- Switch port flapping\n- DNS issues\n- Broadcasting storm\n\n"Slow Network":\n- Bandwidth congestion (peak hours)\n- Loop sa network (STP not working)\n- Broadcast storm\n- Faulty device flapping\n- Malware (botnet traffic)\n- QoS misconfiguration\n\n"Cannot Access Network Resources":\n- Permission issues\n- VLAN membership\n- Firewall blocking\n- Routing issues\n- DNS resolution\n- Network discovery settings (Windows)\n\n"IP Address Conflict":\n- Two devices gamit same IP\n- Static IP na nasa DHCP scope\n- Duplicate DHCP server\n\n"WiFi Drops Frequently":\n- Channel interference\n- Weak signal\n- Client driver issues\n- AP overload\n- Power saving settings ng client\n- AP firmware bug' }
+    ]
+  },
+  management: {
+    title: 'Network Management',
+    steps: [
+      { title: 'IP Addressing', text: 'Ang IP addressing ay ang pundasyon ng network communication. Bawat device ay nangangailangan ng unique IP address.\n\nIPv4 Addressing Basics:\n- 32-bit address, divided into 4 octets (8 bits each)\n- Each octet: 0-255 (256 possibilities per octet)\n- Dotted decimal: 192.168.1.0\n- Binary: 11000000.10101000.00000001.00000000\n\nNetwork vs Host Portion:\n- IP address ay binubuo ng network portion at host portion\n- Subnet mask ang nagde-determine kung saan ang hangganan\n- /24 (255.255.255.0): First 3 octets = network, last octet = host\n\nIPv4 Address Classes (Classful):\n- Class A: /8 (255.0.0.0) — 16,777,214 hosts per network\n- Class B: /16 (255.255.0.0) — 65,534 hosts per network\n- Class C: /24 (255.255.255.0) — 254 hosts per network\n- Class D: Multicast (224.0.0.0 - 239.255.255.255)\n- Class E: Reserved (240.0.0.0 - 255.255.255.255)\n\nPrivate IP Address Ranges (RFC 1918):\n- 10.0.0.0/8 (10.0.0.0 - 10.255.255.255)\n- 172.16.0.0/12 (172.16.0.0 - 172.31.255.255)\n- 192.168.0.0/16 (192.168.0.0 - 192.168.255.255)\n\nSpecial Addresses:\n- Network address: First IP (all host bits 0) — hindi pwedeng i-assign sa device\n- Broadcast address: Last IP (all host bits 1) — para sa lahat ng devices sa network\n- Loopback: 127.0.0.1 (localhost)\n- APIPA: 169.254.0.0/16 (self-assigned kung walang DHCP)' },
+      { title: 'Subnetting', text: 'Ang subnetting ay ang paghahati ng isang malaking network sa mas maliliit na sub-networks.\n\nBakit nag-subnet?\n- Mas efficient na paggamit ng IP addresses\n- Bawasan ang broadcast traffic (bawat subnet = hiwalay na broadcast domain)\n- Segregation para sa security\n- Organisasyon (by department, location, function)\n\nSubnet Mask Notation:\n- Dotted Decimal: 255.255.255.192\n- CIDR Notation: /26\n\nCIDR Table:\n- /24 = 255.255.255.0 = 256 IPs (254 usable)\n- /25 = 255.255.255.128 = 128 IPs (126 usable)\n- /26 = 255.255.255.192 = 64 IPs (62 usable)\n- /27 = 255.255.255.224 = 32 IPs (30 usable)\n- /28 = 255.255.255.240 = 16 IPs (14 usable)\n- /29 = 255.255.255.248 = 8 IPs (6 usable)\n- /30 = 255.255.255.252 = 4 IPs (2 usable — para sa point-to-point links)\n\nSubnetting Formula:\n- Number of subnets = 2^(borrowed bits)\n- Number of hosts per subnet = 2^(remaining host bits) - 2\n- -2 because: network address at broadcast address cannot be assigned\n\nExample: 192.168.1.0/24 into /26\n- 4 subnets (2^2)\n- 62 hosts per subnet (2^6 - 2)\n- Subnet 0: 192.168.1.0 - 192.168.1.63\n- Subnet 1: 192.168.1.64 - 192.168.1.127\n- Subnet 2: 192.168.1.128 - 192.168.1.191\n- Subnet 3: 192.168.1.192 - 192.168.1.255\n\nMagic Number: 256 - subnet mask = block size (e.g., 256 - 192 = 64)' },
+      { title: 'DNS (Domain Name System)', text: 'Ang DNS ay nagta-translate ng domain names (google.com) sa IP addresses (142.250.80.46).\n\nDNS Hierarchy:\n- Root Domain: "." (13 root servers worldwide)\n- TLD (Top-Level Domain): .com, .org, .net, .gov, .edu, .ph\n- Second-Level Domain: google.com, microsoft.com\n- Subdomain: www.google.com, mail.google.com\n\nDNS Record Types:\n- A: IPv4 address mapping (hostname → IP)\n- AAAA: IPv6 address mapping\n- CNAME: Canonical name (alias) — map one name to another\n- MX: Mail exchanger — email server for domain\n- NS: Name server — authoritative DNS server\n- PTR: Pointer record — reverse DNS (IP → hostname)\n- SOA: Start of Authority — domain metadata (primary NS, admin email, refresh interval)\n- TXT: Text record — SPF, DKIM, DMARC (email authentication)\n- SRV: Service location — specific services (LDAP, SIP)\n\nDNS Resolution Process:\n1. Browser checks local cache (browser, OS)\n2. Recursive query to ISP/configured DNS server\n3. DNS server checks cache → if not found, query root servers\n4. Root server points to TLD server (.com)\n5. TLD server points to authoritative name server (google.com)\n6. Authoritative server returns IP address\n\nDNS Tools:\n- nslookup: Basic DNS lookup tool\n- dig: Advanced DNS lookup (Linux/macOS)\n- ipconfig /flushdns: Clear DNS cache\n- ipconfig /displaydns: Show cached DNS entries\n\nPort: 53 (UDP for queries, TCP for zone transfers)' },
+      { title: 'DHCP (Dynamic Host Configuration Protocol)', text: 'Ang DHCP ay nag-automate ng IP address assignment sa network devices.\n\nDORA Process:\n1. Discover: Client broadcasts "I need an IP address" (DHCPDISCOVER)\n2. Offer: DHCP server responds with "Use this IP" (DHCPOFFER)\n3. Request: Client says "I accept this IP" (DHCPREQUEST)\n4. Acknowledgment: Server confirms "You got it" (DHCPACK)\n\nDHCP Lease:\n- Temporary assignment ng IP address sa client\n- Default lease time: 24 hours (pwedeng baguhin)\n- T1 (50%): Client tries to renew ang lease\n- T2 (87.5%): Client broadcasts para mag-renew\n- Kapag nag-expire, i-release ang IP at kailangan ng bago\n\nDHCP Options:\n- Option 1: Subnet mask\n- Option 3: Default gateway (router)\n- Option 6: DNS servers\n- Option 15: Domain name\n- Option 43: Vendor-specific info (e.g., AP controller IP)\n- Option 66/67: TFTP server at boot file (PXE boot)\n- Option 150: TFTP server (Cisco VoIP phones)\n\nDHCP Scope:\n- Range ng IP addresses na pwedeng i-assign\n- Exclusions: IPs na hindi dapat i-assign (static devices)\n- Reservations: Specific IP para sa specific MAC address\n\nDHCP Relay/IP Helper: Nag-fo-forward ng DHCP broadcasts sa ibang subnet.\n\nDHCP Snooping: Security feature na nagfi-filter ng DHCP messages para iwas rogue DHCP server.' },
+      { title: 'NAT (Network Address Translation)', text: 'Ang NAT ay nagbibigay-daan sa maraming internal devices na mag-share ng iisang public IP address.\n\nTypes of NAT:\n- Static NAT (One-to-One): Isang private IP → isang public IP. Ginagamit para sa servers na dapat accessible from internet.\n- Dynamic NAT (Many-to-Many): Pool ng public IPs. Mga private IPs gamit ang mga available na public IPs.\n- PAT (Port Address Translation) / NAT Overload (Many-to-One): Maraming private IPs → iisang public IP gamit ang different source ports. Ito ang pinaka-common (sa bahay/office).\n\nHow PAT Works:\n1. Internal client (192.168.1.10:5000) sends request to internet\n2. Router changes source IP to public IP (203.0.113.5) at source port to unique port (e.g., 60000)\n3. Router maintains translation table: 192.168.1.10:5000 ↔ 203.0.113.5:60000\n4. Return traffic: destination 203.0.113.5:60000 → router translates back to 192.168.1.10:5000\n\nNAT Advantages:\n- Conserves public IP addresses\n- Hides internal IP addresses (basic security)\n- Flexibility sa internal addressing\n\nNAT Disadvantages:\n- Breaks end-to-end connectivity principle\n- Complicates some applications (VoIP, VPN, gaming)\n- Adds processing overhead\n\nNAT Terminology:\n- Inside Local: Private IP ng internal device\n- Inside Global: Public IP ng internal device (after NAT)\n- Outside Local: Destination IP as seen from inside\n- Outside Global: Actual destination IP on internet\n\nPort Forwarding: I-forward ang specific port from public IP to specific internal device.' },
+      { title: 'Cloud Networking', text: 'Ang cloud networking ay ang paggamit ng cloud-based infrastructure para mag-host ng network services.\n\nCloud Service Models:\n- IaaS (Infrastructure as a Service): Virtual machines, networking, storage (AWS EC2, Azure VM, Google Compute Engine)\n- PaaS (Platform as a Service): Deploy apps without managing infrastructure (Azure App Service, Google App Engine, Heroku)\n- SaaS (Software as a Service): Ready-to-use software (Office 365, Google Workspace, Salesforce)\n\nCloud Deployment Models:\n- Public Cloud: Shared infrastructure (AWS, Azure, GCP) — pay-as-you-go\n- Private Cloud: Dedicated infrastructure (on-premise or hosted) — maximum control\n- Hybrid Cloud: Combination — sensitive data on private, burst capacity on public\n- Community Cloud: Shared by multiple organizations with common concerns\n\nCloud Networking Concepts:\n- VPC (Virtual Private Cloud): Isolated network sa cloud (AWS VPC, Azure VNet)\n- Subnets: Public (with internet access) at Private (without direct internet access)\n- Security Groups: Stateful firewall rules sa instance level\n- NACL (Network ACL): Stateless firewall rules sa subnet level\n- Load Balancers: Distribute traffic across instances (ALB, NLB, ELB)\n- CDN (Content Delivery Network): Edge locations para sa faster content delivery (CloudFront, Cloudflare)\n\nVirtualization in Cloud:\n- Hypervisors: Type 1 (bare metal) — VMware ESXi, Hyper-V, KVM\n- Containers: Docker, Kubernetes — lightweight, shared OS kernel\n- Microservices: Applications na binubuo ng small, independent services\n- Orchestration: Automated management ng containers (Kubernetes, Docker Swarm)' },
+      { title: 'Virtualization', text: 'Ang virtualization ay ang pagpapatakbo ng multiple virtual resources sa iisang physical hardware.\n\nTypes of Virtualization:\n- Server Virtualization: Multiple VMs on one physical server\n- Storage Virtualization: Logical storage abstraction (SAN, NAS, VSAN)\n- Network Virtualization: Virtual networks, switches, routers (VLANs, VXLAN, SDN)\n- Desktop Virtualization: VDI (Virtual Desktop Infrastructure) — VMware Horizon, Citrix\n- Application Virtualization: Apps running in isolated environment\n\nHypervisor Types:\n- Type 1 (Bare Metal): Diretso sa hardware. VMware ESXi, Microsoft Hyper-V, KVM, XenServer. Efficient, better performance.\n- Type 2 (Hosted): Tumatakbo sa OS. VirtualBox, VMware Workstation/Player, Parallels. Mas madaling gamitin pero may overhead.\n\nVirtual Networking:\n- vSwitch: Virtual switch na nagco-connect ng VMs sa isa\'t isa at sa physical network\n- Virtual NIC: Network adapter na naka-attach sa VM\n- Port Groups: Logical grouping ng ports with same configuration\n- VLAN trunking: VMs can be on different VLANs\n\nVirtual Resources:\n- vCPU: Virtual processor — pwedeng multiple vCPUs per VM\n- vRAM: Virtual memory — allocated from host\'s physical RAM\n- vHDD/VMDK: Virtual disk file — thin provisioned (grow as needed) o thick provisioned (pre-allocated)\n\nBenefits:\n- Server consolidation (less physical hardware)\n- Isolation (VMs are independent)\n- Snapshots (point-in-time recovery)\n- Live migration (vMotion, Live Migration)\n- Resource optimization\n\nCloud vs Traditional Virtualization: Cloud = self-service, elastic, pay-as-you-go. Traditional = IT-managed, fixed capacity, upfront cost.' }
+    ]
+  }
+};
+
+const moduleIds = ['networking-concepts','infrastructure','operations','security','troubleshooting','management'];
+const moduleIcons = ['ti ti-sitemap','ti ti-server-2','ti ti-activity','ti ti-shield-lock','ti ti-wrench','ti ti-hierarchy-2'];
+const moduleColors = ['#1d4ed8','#0f3460','#ef9f27','#e94560','#1d9e75','#7c3aed'];
+const moduleDesc = ['OSI model, TCP/IP, ports, protocols at standards','Routers, switches, wireless, cabling at topologies','Monitoring, documentation, policies at business continuity','Firewalls, VPNs, security threats at hardening','Methodology, tools, wired at wireless issues','IP addressing, DNS, DHCP, cloud at virtualization'];
+
+const quizData = {
+  'networking-concepts': [
+    { q: 'Anong layer ng OSI model ang responsible para sa routing?', options: ['Physical', 'Data Link', 'Network', 'Transport'], answer: 2 },
+    { q: 'Anong port ang ginagamit ng SSH?', options: ['21', '22', '23', '25'], answer: 1 },
+    { q: 'Alin sa mga sumusunod ang connection-oriented protocol?', options: ['UDP', 'TCP', 'IP', 'ICMP'], answer: 1 },
+    { q: 'Anong IPv6 address type ang equivalent ng private IPv4?', options: ['Link-local', 'Unique Local', 'Global Unicast', 'Multicast'], answer: 1 },
+    { q: 'Ilang bits mayroon ang MAC address?', options: ['32', '48', '64', '128'], answer: 1 }
+  ],
+  infrastructure: [
+    { q: 'Anong device ang nag-o-operate sa Layer 2 at nagde-decide based sa MAC address?', options: ['Router', 'Switch', 'Firewall', 'Hub'], answer: 1 },
+    { q: 'Anong Ethernet standard ang sumusuporta ng 10 Gbps sa Cat6a?', options: ['1000BASE-T', '10GBASE-T', '100BASE-TX', '40GBASE-T'], answer: 1 },
+    { q: 'Anong WiFi standard ang kilala bilang WiFi 5?', options: ['802.11n', '802.11ac', '802.11ax', '802.11g'], answer: 1 },
+    { q: 'Anong fiber type ang gumagamit ng laser at kayang umabot ng 40+ km?', options: ['Multi-mode', 'Single-mode', 'Plastic fiber', 'Coaxial'], answer: 1 },
+    { q: 'Anong PoE standard ang nagbibigay ng hanggang 30W?', options: ['802.3af', '802.3at', '802.3bt Type 3', '802.3bt Type 4'], answer: 1 }
+  ],
+  operations: [
+    { q: 'Anong protocol ang ginagamit para sa network monitoring at management?', options: ['SMTP', 'SNMP', 'SSH', 'SIP'], answer: 1 },
+    { q: 'Ano ang ibig sabihin ng RTO?', options: ['Recovery Time Objective', 'Return on Investment', 'Request to Operate', 'Remote Terminal Output'], answer: 0 },
+    { q: 'Anong topology ang nagbibigay ng pinakamataas na redundancy?', options: ['Star', 'Bus', 'Mesh', 'Ring'], answer: 2 },
+    { q: 'Ano ang tawag sa pag-i-establish ng normal performance metrics para sa comparison?', options: ['Baselining', 'Benchmarking', 'Monitoring', 'Auditing'], answer: 0 },
+    { q: 'Anong standard ang nagbibigay ng virtual IP redundancy para sa routers?', options: ['STP', 'VRRP', 'LACP', 'VLAN'], answer: 1 }
+  ],
+  security: [
+    { q: 'Anong firewall type ang nagmo-monitor ng state ng active connections?', options: ['Packet Filtering', 'Stateful Inspection', 'Proxy', 'Stateless'], answer: 1 },
+    { q: 'Anong VPN protocol ang pinakamoderno at pinakamabilis?', options: ['PPTP', 'L2TP/IPsec', 'WireGuard', 'IPsec'], answer: 2 },
+    { q: 'Anong attack ang gumagamit ng maraming compromised devices para ma-overload ang target?', options: ['Phishing', 'DDoS', 'MITM', 'ARP Spoofing'], answer: 1 },
+    { q: 'Ano ang pinagkaiba ng IPS sa IDS?', options: ['IPS ay mas mura', 'IPS ay active at nagba-block ng traffic', 'IPS ay software lang', 'IPS ay para sa wireless'], answer: 1 },
+    { q: 'Anong port ang ginagamit ng RADIUS authentication?', options: ['49', '389', '1812', '636'], answer: 2 }
+  ],
+  troubleshooting: [
+    { q: 'Anong command ang ginagamit para i-trace ang path ng packets papunta sa destination?', options: ['ping', 'tracert', 'ipconfig', 'netstat'], answer: 1 },
+    { q: 'Ano ang unang dapat i-check kapag walang internet access ang isang user?', options: ['I-reformat ang computer', 'I-check ang physical connection', 'I-replace ang motherboard', 'I-update ang BIOS'], answer: 1 },
+    { q: 'Anong tool ang ginagamit para mag-diagnose ng cable breaks?', options: ['Multimeter', 'TDR', 'Tone generator', 'Loopback plug'], answer: 1 },
+    { q: 'Anong IP address ang nag-i-indicate na walang DHCP server (APIPA)?', options: ['192.168.x.x', '10.x.x.x', '169.254.x.x', '172.16.x.x'], answer: 2 },
+    { q: 'Anong layer ng OSI model ang unang dapat i-check sa troubleshooting?', options: ['Application', 'Network', 'Physical', 'Transport'], answer: 2 }
+  ],
+  management: [
+    { q: 'Anong private IP range ang nasa Class C?', options: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '169.254.0.0/16'], answer: 2 },
+    { q: 'Anong DHCP message ang isinesend ng server para mag-offer ng IP address?', options: ['DHCPDISCOVER', 'DHCPOFFER', 'DHCPREQUEST', 'DHCPACK'], answer: 1 },
+    { q: 'Anong DNS record type ang ginagamit para sa email server?', options: ['A', 'CNAME', 'MX', 'PTR'], answer: 2 },
+    { q: 'Anong uri ng NAT ang nagpapahintulot ng maraming internal IPs sa iisang public IP?', options: ['Static NAT', 'Dynamic NAT', 'PAT (NAT Overload)', 'Double NAT'], answer: 2 },
+    { q: 'Anong CIDR notation ang may 254 usable hosts?', options: ['/25', '/26', '/27', '/24'], answer: 3 }
+  ]
+};
+
+const scenarioData = {
+  'cannot-connect': {
+    title: 'Cannot Connect to Internet',
+    desc: 'Exercise: Isang user ang nag-report na hindi siya makapag-internet. May "No internet" warning sa system tray. Kailangan mong i-diagnose at i-resolve ang issue step by step.',
+    steps: [
+      { text: 'Unang i-check ang physical connection: Tingnan kung naka-plug ang Ethernet cable sa computer at sa wall jack. I-check ang link lights sa PC port at switch port. Kung wireless, tingnan kung naka-on ang WiFi at connected sa tamang SSID.' },
+      { text: 'I-run ang ipconfig /all sa Command Prompt. I-check kung may IP address ang computer. Kung ang IP ay nagsisimula sa 169.254.x.x, ibig sabihin walang DHCP server na na-reach. I-try ang ipconfig /release at ipconfig /renew para makakuha ng bagong IP.' },
+      { text: 'Ping ang default gateway. Gamitin ang ipconfig para malaman ang gateway IP, pagkatapos i-ping ito. Kung hindi nag-reply, may problema sa router o switch. Kung nag-reply, gumagana ang local network connectivity.' },
+      { text: 'Ping ang external IP address tulad ng 8.8.8.8 (Google DNS). Kung nag-reply ito pero hindi nagre-reply ang ping sa google.com, likely DNS issue. Kung hindi nag-reply ang 8.8.8.8, may WAN/internet connection issue mula sa ISP.' },
+      { text: 'I-check ang DNS settings: nslookup google.com. Kung hindi ma-resolve, i-check kung tama ang DNS server addresses. I-try baguhin sa 8.8.8.8 (Google DNS) o 1.1.1.1 (Cloudflare). I-run ang ipconfig /flushdns para i-clear ang DNS cache.' },
+      { text: '✅ Na-resolve mo ang issue! Document kung ano ang root cause — maaaring loose cable, DHCP server issue, DNS misconfiguration, o ISP outage. I-verify sa user na working na ang internet access at walang ibang issues.' }
+    ]
+  },
+  'slow-network': {
+    title: 'Slow Network Performance',
+    desc: 'Exercise: Maraming users ang nagrereklamo na mabagal ang network tuwing peak hours (10AM-2PM). Kailangan mong i-identify ang cause at mag-implement ng solution.',
+    steps: [
+      { text: 'Gamit ang SNMP monitoring tool (PRTG, SolarWinds, o MRTG), i-check ang bandwidth utilization ng uplink ports at core switches. Tingnan kung may ports na umaabot sa 90-100% utilization lalo na during peak hours.' },
+      { text: 'I-identify ang top talkers — aling devices o users ang kumukonsumo ng most bandwidth. Gamit ang NetFlow/sFlow analysis o bandwidth monitoring tool, tingnan kung may nagda-download ng malalaking files, nag-stream ng video, o may malware activity.' },
+      { text: 'I-check ang network para sa loops o broadcast storms. Tingnan ang STP status ng switches. I-check kung may non-STP devices na nag-cause ng loop. I-verify ang BPDU Guard at Root Guard configurations sa edge ports.' },
+      { text: 'I-review ang QoS (Quality of Service) configuration. May QoS ba na naka-set para i-prioritize ang critical traffic (VoIP, business apps)? Kung wala, mag-implement ng QoS na maglilimita sa non-essential traffic at magbibigay ng priority sa importanteng applications.' },
+      { text: 'I-implement ang traffic shaping o rate limiting. Mag-set ng bandwidth limits per user/department para hindi ma-monopolize ng iilan ang bandwidth. I-configure ang QoS policies para i-prioritize ang business-critical traffic at i-de-prioritize ang streaming/gaming.' },
+      { text: '✅ Na-resolve mo ang issue! Document ang improvements: bandwidth utilization before vs after, QoS implementation details, at traffic shaping rules. I-monitor ang network para i-verify na stable na ang performance during peak hours.' }
+    ]
+  },
+  'vpn-trouble': {
+    title: 'VPN Connection Failed',
+    desc: 'Exercise: Isang remote user ang hindi makakonek sa company VPN gamit ang laptop niya from home. Ang VPN client ay nagpapakita ng "Connection failed" error. Kailangan mong i-troubleshoot.',
+    steps: [
+      { text: 'Una, i-verify na may internet connection ang user. I-ping ang 8.8.8.8 at i-access ang isang website (e.g., google.com) sa browser. Kung walang internet, ang issue ay sa user\'s home connection, hindi sa VPN.' },
+      { text: 'I-verify ang VPN credentials. I-check kung tama ang username at password. I-reset ang password kung kinakailangan. I-check kung naka-lock ang account sa Active Directory. Kung gumagamit ng certificate, i-verify na hindi expired ang certificate.' },
+      { text: 'I-check ang firewall rules sa corporate network at sa user\'s home network. I-verify na ang VPN protocol at port (e.g., UDP 500/4500 para sa IPsec, TCP 443 para sa SSL VPN) ay hindi naka-block sa corporate firewall at sa home router ng user.' },
+      { text: 'I-test ang VPN protocol at port connectivity. Gamit ang telnet o Test-NetConnection (PowerShell), i-check kung accessible ang VPN server sa tamang port. I-try ang ibang VPN protocol kung supported (e.g., from IPsec to SSL VPN).' },
+      { text: 'I-check ang VPN client configuration. I-verify ang server address, authentication method, at encryption settings. I-reinstall ang VPN client software kung kinakailangan. I-check ang logs sa VPN client para sa specific error messages.' },
+      { text: '✅ Na-resolve mo ang issue! Kung hindi pa rin maka-connect, i-escalate sa network administrator o VPN team. Document ang troubleshooting steps at resolution. Kung na-resolve, i-advise ang user sa best practices para sa VPN connection.' }
+    ]
+  },
+  'wireless-outage': {
+    title: 'Wireless Network Outage',
+    desc: 'Exercise: Ang mga wireless access points (APs) sa second floor ay nag-o-offline nang pa-intermittent. Ang users ay nawawalan ng WiFi connection nang ilang minuto bago mag-reconnect. Kailangan mong i-diagnose at i-fix ang issue.',
+    steps: [
+      { text: 'I-check ang physical connectivity ng APs. Pumunta sa location at i-verify na naka-on ang APs (power LED). I-check ang Ethernet cable connection sa AP at sa switch. I-check kung may link lights sa switch port na connected sa AP.' },
+      { text: 'I-verify ang PoE (Power over Ethernet) switch. I-check kung may power budget issues ang PoE switch. Pumasok sa switch management interface at i-verify ang PoE power consumption vs power budget. I-check kung may PoE errors o port flapping.' },
+      { text: 'I-check ang RF interference gamit ang spectrum analyzer o WiFi analyzer tool (Ekahau, NetSpot, Acrylic). Hanapin ang mga non-WiFi interference sources: microwave, cordless phones, Bluetooth devices, o neighboring APs sa magkakalapit na channels.' },
+      { text: 'I-review ang channel configuration ng APs. Gamit ang 2.4 GHz band, i-verify na ang APs ay nasa channels 1, 6, o 11 (non-overlapping). I-check kung may channel overlap sa neighboring APs na nag-cause ng co-channel interference.' },
+      { text: 'I-adjust ang channel at power settings. I-set ang APs sa auto-channel selection o i-manual na pumili ng least congested channels. I-adjust ang transmit power — bawasan kung masyadong malakas (causing co-channel interference) o dagdagan kung mahina ang signal.' },
+      { text: '✅ Na-resolve mo ang issue! I-monitor ang AP stability ng ilang araw para i-verify na stable na. Document ang changes: channel assignments, power levels, at kung may nakitang interference sources. I-update ang network documentation.' }
+    ]
+  }
+};
+
+function getProgress() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveProgress(key, subkey, value) {
+  const p = getProgress();
+  if (!p[key]) p[key] = {};
+  p[key][subkey] = value;
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  updateAllDisplays();
+}
+function getModuleProgress(id) {
+  const p = getProgress();
+  const m = p.modules && p.modules[id];
+  if (!m || !m.steps) return { completed: 0, total: lessons[id].steps.length, steps: [] };
+  return { completed: m.steps.filter(Boolean).length, total: lessons[id].steps.length, steps: m.steps };
+}
+function addActivity(text) {
+  const p = getProgress();
+  if (!p.activity) p.activity = [];
+  p.activity.unshift({ text: text, time: Date.now() });
+  if (p.activity.length > 50) p.activity = p.activity.slice(0, 50);
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  updateAllDisplays();
+}
+const achievementDefs = [
+  { id: 'first-module', label: 'First Steps', desc: 'Complete your first training module', icon: 'ti ti-star' },
+  { id: 'all-modules', label: 'Networking Scholar', desc: 'Complete all 6 training modules', icon: 'ti ti-books' },
+  { id: 'first-quiz', label: 'Quiz Novice', desc: 'Pass your first quiz (80%+)', icon: 'ti ti-checklist' },
+  { id: 'all-quizzes', label: 'Network Quiz Master', desc: 'Pass all 6 quizzes (80%+)', icon: 'ti ti-award' },
+  { id: 'first-scenario', label: 'Scenario Solver', desc: 'Complete your first scenario', icon: 'ti ti-tasks' },
+  { id: 'all-scenarios', label: 'Network Expert', desc: 'Complete all 4 scenarios', icon: 'ti ti-medal' },
+  { id: 'perfect-quiz', label: 'Perfect Score', desc: 'Get 100% on any quiz', icon: 'ti ti-crown' },
+  { id: 'half-progress', label: 'Halfway There', desc: 'Reach 50% overall progress', icon: 'ti ti-flag' }
+];
+function checkAchievements() {
+  const p = getProgress();
+  if (!p.achievements) p.achievements = {};
+  const mods = p.modules || {};
+  const quizzes = p.quizzes || {};
+  const scen = p.scenarios || {};
+  const modDone = moduleIds.filter(id => { const mp = getModuleProgress(id); return mp.completed === mp.total; }).length;
+  const quizPassed = moduleIds.filter(id => { const q = quizzes[id]; return q && q.correct / q.total >= 0.8; }).length;
+  const scenDone = Object.keys(scenarioData).filter(k => scen[k] && scen[k].completed).length;
+  const totalSteps = moduleIds.reduce((s,id) => s + lessons[id].steps.length, 0);
+  const doneSteps = moduleIds.reduce((s,id) => s + getModuleProgress(id).completed, 0);
+  const pct = totalSteps ? Math.round(doneSteps / totalSteps * 100) : 0;
+  if (!p.achievements['first-module'] && modDone >= 1) unlockAchievement('first-module');
+  if (!p.achievements['all-modules'] && modDone === moduleIds.length) unlockAchievement('all-modules');
+  if (!p.achievements['first-quiz'] && quizPassed >= 1) unlockAchievement('first-quiz');
+  if (!p.achievements['all-quizzes'] && quizPassed === moduleIds.length) unlockAchievement('all-quizzes');
+  if (!p.achievements['first-scenario'] && scenDone >= 1) unlockAchievement('first-scenario');
+  if (!p.achievements['all-scenarios'] && scenDone === Object.keys(scenarioData).length) unlockAchievement('all-scenarios');
+  if (!p.achievements['half-progress'] && pct >= 50) unlockAchievement('half-progress');
+  Object.keys(quizzes).forEach(k => { const q = quizzes[k]; if (!p.achievements['perfect-quiz'] && q && q.total > 0 && q.correct === q.total) unlockAchievement('perfect-quiz'); });
+}
+function unlockAchievement(id) {
+  const p = getProgress();
+  if (!p.achievements) p.achievements = {};
+  if (p.achievements[id]) return;
+  p.achievements[id] = { unlockedAt: Date.now() };
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  addActivity('🏆 Achieved: ' + achievementDefs.find(a => a.id === id).label);
+  showToast('🏆 Achievement unlocked: ' + achievementDefs.find(a => a.id === id).label);
+}
+function showToast(msg, isError) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, 3000);
+}
+function switchPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  document.getElementById('breadcrumb').innerHTML = '<strong>' + ({ home:'Home', training:'Training Center', progress:'My Progress' }[id] || 'Home') + '</strong>';
+  if (id === 'training') updateTrainingDisplays();
+  if (id === 'progress') updateProgressPage();
+}
+function switchTab(tab, el) {
+  document.querySelectorAll('#panel-training .tab-content').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('#panel-training .tab-btn').forEach(function(t) { t.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  updateTrainingDisplays();
+}
+function updateAllDisplays() {
+  const p = getProgress();
+  const mods = p.modules || {};
+  const quizzes = p.quizzes || {};
+  const scen = p.scenarios || {};
+  const modDone = moduleIds.filter(function(id) { const mp = getModuleProgress(id); return mp.completed === mp.total; }).length;
+  const quizPassed = moduleIds.filter(function(id) { const q = quizzes[id]; return q && q.correct / q.total >= 0.8; }).length;
+  const scenDone = Object.keys(scenarioData).filter(function(k) { return scen[k] && scen[k].completed; }).length;
+  const totalSteps = moduleIds.reduce(function(s,id) { return s + lessons[id].steps.length; }, 0);
+  const doneSteps = moduleIds.reduce(function(s,id) { return s + getModuleProgress(id).completed; }, 0);
+  const pct = totalSteps ? Math.round(doneSteps / totalSteps * 100) : 0;
+  document.getElementById('homeModulesDone').textContent = modDone + '/' + moduleIds.length;
+  document.getElementById('homeQuizzesDone').textContent = quizPassed + '/' + moduleIds.length;
+  document.getElementById('homeScenariosDone').textContent = scenDone + '/' + Object.keys(scenarioData).length;
+  document.getElementById('homeProgressPct').textContent = pct + '%';
+  document.getElementById('homeProgressBar').style.width = pct + '%';
+  var trainingBadge = document.getElementById('trainingNavBadge');
+  if (trainingBadge) { trainingBadge.textContent = pct > 0 ? pct + '%' : 'NEW'; }
+  var html = '';
+  moduleIds.forEach(function(id) {
+    const mp = getModuleProgress(id);
+    const pct2 = mp.total ? Math.round(mp.completed / mp.total * 100) : 0;
+    const status = mp.completed === 0 ? 'Not started' : mp.completed === mp.total ? '✅ Complete' : mp.completed + '/' + mp.total + ' done';
+    html += '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f3f4f6;font-size:13px;"><span style="width:90px;font-weight:500;color:#1a2332">' + lessons[id].title + '</span><div style="flex:1"><div class="progress-bar"><div class="progress-fill" style="width:' + pct2 + '%"></div></div></div><span style="color:#6b7a8d;font-size:12px;min-width:90px;text-align:right">' + status + '</span></div>';
+  });
+  document.getElementById('homeModuleProgress').innerHTML = html;
+  var acts = p.activity || [];
+  if (acts.length === 0) { document.getElementById('homeActivityLog').innerHTML = '<div style="color:#9aa3ad;text-align:center;padding:10px">No activity yet.</div>'; } else { document.getElementById('homeActivityLog').innerHTML = acts.slice(0, 10).map(function(a) { return '<div class="activity-item">' + a.text + '</div>'; }).join(''); }
+}
+function updateTrainingDisplays() { renderModuleGrid(); renderQuizGrid(); renderScenarioGrid(); }
+function renderModuleGrid() {
+  const el = document.getElementById('moduleGrid');
+  el.innerHTML = moduleIds.map(function(id, i) {
+    const mp = getModuleProgress(id);
+    const pct = mp.total ? Math.round(mp.completed / mp.total * 100) : 0;
+    const cls = mp.completed === mp.total ? 'completed' : mp.completed > 0 ? 'in-progress' : '';
+    const status = mp.completed === 0 ? 'Not started' : mp.completed === mp.total ? '✅ Completed (' + mp.total + '/' + mp.total + ')' : mp.completed + '/' + mp.total + ' steps';
+    return '<div class="module-card ' + cls + '" onclick="startLesson(\'' + id + '\')"><div class="module-card-title"><i class="' + moduleIcons[i] + '" style="color:' + moduleColors[i] + '"></i> ' + lessons[id].title + '</div><div class="module-card-desc">' + moduleDesc[i] + '</div><div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div><div style="margin-top:6px"><span class="module-card-status">' + status + '</span></div></div>';
+  }).join('');
+}
+function renderQuizGrid() {
+  const el = document.getElementById('quizGrid');
+  const p = getProgress();
+  const quizzes = p.quizzes || {};
+  el.innerHTML = moduleIds.map(function(id, i) {
+    const q = quizzes[id];
+    const score = q ? q.correct + '/' + q.total : null;
+    const passed = q && q.correct / q.total >= 0.8;
+    const badgeCls = passed ? 'badge-green' : q ? 'badge-red' : 'badge-gray';
+    const label = passed ? '✅ Passed (' + score + ')' : q ? '❌ ' + score : 'Not taken';
+    return '<div class="module-card" onclick="startQuiz(\'' + id + '\')"><div class="module-card-title"><i class="' + moduleIcons[i] + '" style="color:' + moduleColors[i] + '"></i> ' + lessons[id].title + ' Quiz</div><div class="module-card-desc">5 questions — ' + moduleDesc[i].substring(0, 40) + '...</div><div style="margin-top:8px"><span class="badge ' + badgeCls + '">' + label + '</span></div></div>';
+  }).join('');
+}
+function renderScenarioGrid() {
+  const el = document.getElementById('scenarioGrid');
+  const p = getProgress();
+  const scen = p.scenarios || {};
+  el.innerHTML = Object.keys(scenarioData).map(function(k) {
+    const s = scenarioData[k];
+    const done = scen[k] && scen[k].completed;
+    const cls = done ? 'completed' : '';
+    return '<div class="module-card ' + cls + '" onclick="startScenario(\'' + k + '\')"><div class="module-card-title"><i class="ti ti-tasks" style="color:#7c3aed"></i> ' + s.title + '</div><div class="module-card-desc">' + s.desc.substring(0, 80) + '...</div><div style="margin-top:8px"><span class="module-card-status">' + (done ? '✅ Completed' : 'Not started') + '</span></div></div>';
+  }).join('');
+}
+function updateProgressPage() {
+  const p = getProgress();
+  const quizzes = p.quizzes || {};
+  const scen = p.scenarios || {};
+  const modDone = moduleIds.filter(function(id) { const mp = getModuleProgress(id); return mp.completed === mp.total; }).length;
+  const quizPassed = moduleIds.filter(function(id) { const q = quizzes[id]; return q && q.correct / q.total >= 0.8; }).length;
+  const scenDone = Object.keys(scenarioData).filter(function(k) { return scen[k] && scen[k].completed; }).length;
+  document.getElementById('progressModules').textContent = modDone + '/' + moduleIds.length;
+  document.getElementById('progressQuizzes').textContent = quizPassed + '/' + moduleIds.length;
+  document.getElementById('progressScenarios').textContent = scenDone + '/' + Object.keys(scenarioData).length;
+  document.getElementById('progressModulesPill').textContent = modDone === 0 ? 'Not started' : modDone === moduleIds.length ? '✅ All complete' : modDone + ' done';
+  document.getElementById('progressModulesPill').className = 'pill ' + (modDone === 0 ? 'pill-gray' : modDone === moduleIds.length ? 'pill-green' : 'pill-blue');
+  document.getElementById('progressQuizzesPill').textContent = quizPassed === 0 ? 'Not started' : quizPassed === moduleIds.length ? '✅ All passed' : quizPassed + ' passed';
+  document.getElementById('progressQuizzesPill').className = 'pill ' + (quizPassed === 0 ? 'pill-gray' : quizPassed === moduleIds.length ? 'pill-green' : 'pill-amber');
+  document.getElementById('progressScenariosPill').textContent = scenDone === 0 ? 'Not started' : scenDone === Object.keys(scenarioData).length ? '✅ All complete' : scenDone + ' done';
+  document.getElementById('progressScenariosPill').className = 'pill ' + (scenDone === 0 ? 'pill-gray' : scenDone === Object.keys(scenarioData).length ? 'pill-green' : 'pill-blue');
+  var achHtml = achievementDefs.map(function(a) { const unlocked = p.achievements && p.achievements[a.id]; return '<div class="achievement ' + (unlocked ? 'unlocked' : 'locked') + '"><i class="' + a.icon + '"></i> ' + a.label + '</div>'; }).join('');
+  document.getElementById('achievementsList').innerHTML = achHtml || '<div style="color:#9aa3ad;text-align:center">No achievements yet.</div>';
+  var acts = p.activity || [];
+  document.getElementById('progressActivityLog').innerHTML = acts.length === 0 ? '<div style="color:#9aa3ad;text-align:center">No activity yet.</div>' : acts.slice(0, 30).map(function(a) { return '<div class="activity-item">' + a.text + '</div>'; }).join('');
+}
+
+var activeLesson = null, lessonStepIdx = 0;
+function startLesson(id) {
+  activeLesson = id; lessonStepIdx = 0;
+  document.getElementById('lessonTitle').textContent = lessons[id].title;
+  document.getElementById('lessonNextBtn').textContent = 'Next →';
+  showLessonStep();
+  document.getElementById('lessonOverlay').classList.add('open');
+}
+function showLessonStep() {
+  var lesson = lessons[activeLesson];
+  var steps = lesson.steps;
+  var idx = lessonStepIdx;
+  var mp = getModuleProgress(activeLesson);
+  var done = mp.steps && mp.steps[idx];
+  var html = '<div class="quiz-progress">Step ' + (idx + 1) + ' of ' + steps.length + '</div>';
+  var st = steps[idx];
+  html += '<div class="scenario-step" style="margin-bottom:16px"><div class="scenario-step-content"><div><span class="scenario-step-num">' + (idx + 1) + '</span></div><div class="scenario-step-text">';
+  if (done) { html += '<span style="color:#1d9e75;font-weight:600">✓ Completed</span>'; } else { html += '<strong>' + st.title + '</strong><p style="margin-top:6px;white-space:pre-line">' + st.text + '</p>'; }
+  html += '</div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">';
+  if (!done) { html += '<button class="btn btn-success" onclick="completeLessonStep(' + idx + ')"><i class="ti ti-check"></i> Mark as complete</button>'; }
+  if (idx > 0) { html += '<button class="btn btn-ghost" onclick="prevLessonStep()"><i class="ti ti-arrow-left"></i> Previous</button>'; }
+  html += '</div>';
+  document.getElementById('lessonBody').innerHTML = html;
+  document.getElementById('lessonNextBtn').style.display = idx < steps.length - 1 ? 'inline-flex' : 'none';
+  var closeBtn = document.querySelector('#lessonActions .btn-ghost');
+  if (closeBtn) closeBtn.textContent = 'Close';
+}
+function completeLessonStep(idx) {
+  if (!activeLesson) return;
+  var p = getProgress();
+  if (!p.modules) p.modules = {};
+  if (!p.modules[activeLesson]) p.modules[activeLesson] = { steps: [] };
+  if (!p.modules[activeLesson].steps) p.modules[activeLesson].steps = [];
+  p.modules[activeLesson].steps[idx] = true;
+  p.modules[activeLesson]._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  addActivity('📖 Completed: ' + lessons[activeLesson].steps[idx].title + ' (' + lessons[activeLesson].title + ')');
+  checkAchievements();
+  showLessonStep(); updateAllDisplays();
+}
+function nextLessonStep() { if (activeLesson && lessonStepIdx < lessons[activeLesson].steps.length - 1) { lessonStepIdx++; showLessonStep(); } }
+function prevLessonStep() { if (lessonStepIdx > 0) { lessonStepIdx--; showLessonStep(); } }
+
+var activeQuiz = null, quizQuestionIdx = 0, quizAnswers = [];
+function startQuiz(id) {
+  activeQuiz = id; quizQuestionIdx = 0; quizAnswers = [];
+  document.getElementById('quizTitle').textContent = lessons[id].title + ' Quiz';
+  document.getElementById('quizResult').style.display = 'none';
+  document.getElementById('quizNextBtn').style.display = 'inline-flex';
+  document.getElementById('quizNextBtn').disabled = true;
+  document.getElementById('quizNextBtn').textContent = 'Next →';
+  showQuizQuestion();
+  document.getElementById('quizOverlay').classList.add('open');
+}
+function showQuizQuestion() {
+  var qs = quizData[activeQuiz];
+  var idx = quizQuestionIdx;
+  var q = qs[idx];
+  document.getElementById('quizProgress').textContent = 'Question ' + (idx + 1) + ' of ' + qs.length;
+  document.getElementById('quizQuestion').textContent = q.q;
+  var answered = quizAnswers[idx] !== undefined;
+  var html = q.options.map(function(o, i) {
+    var cls = 'quiz-option';
+    if (answered) {
+      if (i === q.answer) cls += ' correct';
+      else if (i === quizAnswers[idx]) cls += ' wrong';
+    } else if (i === quizAnswers[idx]) { cls += ' selected'; }
+    return '<button class="' + cls + '" onclick="answerQuiz(' + i + ')"' + (answered ? ' disabled' : '') + '>' + o + '</button>';
+  }).join('');
+  document.getElementById('quizOptions').innerHTML = html;
+  document.getElementById('quizNextBtn').disabled = quizAnswers[idx] === undefined;
+}
+function answerQuiz(idx) { if (activeQuiz === null) return; quizAnswers[quizQuestionIdx] = idx; showQuizQuestion(); }
+function nextQuizQuestion() {
+  if (activeQuiz === null) return;
+  var qs = quizData[activeQuiz];
+  if (quizQuestionIdx < qs.length - 1) { quizQuestionIdx++; document.getElementById('quizNextBtn').disabled = true; showQuizQuestion(); } else { finishQuiz(); }
+}
+function finishQuiz() {
+  var qs = quizData[activeQuiz];
+  var correct = 0;
+  qs.forEach(function(q, i) { if (quizAnswers[i] === q.answer) correct++; });
+  var total = qs.length;
+  var pct = Math.round(correct / total * 100);
+  var passed = pct >= 80;
+  document.getElementById('quizScoreDisplay').textContent = correct + '/' + total;
+  document.getElementById('quizScoreDisplay').style.color = passed ? '#1d9e75' : pct >= 50 ? '#ef9f27' : '#e94560';
+  document.getElementById('quizResultLabel').textContent = passed ? '✅ Passed! Mahusay!' : pct >= 50 ? 'Kailangan pang mag-aral. Try again!' : 'Need more practice. I-review ang module at subukan ulit.';
+  document.getElementById('quizResult').style.display = 'block';
+  document.getElementById('quizNextBtn').style.display = 'none';
+  var p = getProgress();
+  if (!p.quizzes) p.quizzes = {};
+  if (!p.quizzes[activeQuiz] || p.quizzes[activeQuiz].correct < correct) {
+    p.quizzes[activeQuiz] = { correct: correct, total: total };
+    p._updated = Date.now();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+    addActivity('📝 Quiz "' + lessons[activeQuiz].title + '": ' + correct + '/' + total + ' (' + pct + '%)' + (passed ? ' ✅ PASSED' : ''));
+    checkAchievements(); updateAllDisplays();
+  }
+}
+
+var activeScenarioKey = null, scenarioStepIdx = 0;
+function startScenario(k) {
+  activeScenarioKey = k; scenarioStepIdx = 0;
+  document.getElementById('scenarioTitle').textContent = scenarioData[k].title;
+  showScenarioStep();
+  document.getElementById('scenarioOverlay').classList.add('open');
+}
+function showScenarioStep() {
+  var k = activeScenarioKey; if (!k) return;
+  var s = scenarioData[k]; var steps = s.steps;
+  var idx = scenarioStepIdx;
+  var p = getProgress();
+  var done = p.scenarios && p.scenarios[k] && p.scenarios[k].completed;
+  var html = '<div style="margin-bottom:12px;font-size:13px;color:#6b7a8d">' + s.desc + '</div>' +
+    steps.map(function(st, i) {
+      var isDone = done || (p.scenarios && p.scenarios[k] && p.scenarios[k].steps && p.scenarios[k].steps[i]);
+      return '<div class="scenario-step ' + (isDone ? 'completed' : '') + '" id="ss-' + i + '"><div class="scenario-step-content"><div><span class="scenario-step-num">' + (i + 1) + '</span></div><div class="scenario-step-text">' +
+        (isDone ? '<span style="color:#1d9e75;font-weight:600">✓ Completed</span>' : '<strong>Step ' + (i + 1) + ':</strong><p style="margin-top:4px;white-space:pre-line">' + st.text + '</p>' + (i <= idx ? '<button class="btn btn-success btn-sm" style="margin-top:8px" onclick="completeScenarioStep(' + i + ')"><i class="ti ti-check"></i> Mark done</button>' : '')) +
+        '</div></div></div>';
+    }).join('');
+  document.getElementById('scenarioBody').innerHTML = html;
+  if (done) { document.getElementById('scenarioNextBtn').style.display = 'none'; }
+  else { document.getElementById('scenarioNextBtn').textContent = idx < steps.length - 1 ? 'Next Step →' : 'Complete Scenario'; document.getElementById('scenarioNextBtn').style.display = 'inline-flex'; }
+}
+function completeScenarioStep(idx) {
+  if (!activeScenarioKey) return;
+  var p = getProgress();
+  if (!p.scenarios) p.scenarios = {};
+  if (!p.scenarios[activeScenarioKey]) p.scenarios[activeScenarioKey] = { steps: [] };
+  if (!p.scenarios[activeScenarioKey].steps) p.scenarios[activeScenarioKey].steps = [];
+  p.scenarios[activeScenarioKey].steps[idx] = true;
+  if (idx === scenarioData[activeScenarioKey].steps.length - 1) {
+    p.scenarios[activeScenarioKey].completed = true;
+    p.scenarios[activeScenarioKey].completedAt = Date.now();
+    addActivity('🏁 Completed scenario: ' + scenarioData[activeScenarioKey].title);
+  } else {
+    addActivity('📋 Scenario step ' + (idx + 1) + ': ' + scenarioData[activeScenarioKey].title);
+  }
+  p._updated = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  checkAchievements();
+  if (idx < scenarioData[activeScenarioKey].steps.length - 1) { scenarioStepIdx++; }
+  showScenarioStep(); updateAllDisplays();
+}
+function nextScenarioStep() {
+  if (activeScenarioKey) { if (scenarioStepIdx < scenarioData[activeScenarioKey].steps.length - 1) { scenarioStepIdx++; showScenarioStep(); } }
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'lessonOverlay') { activeLesson = null; }
+  if (id === 'quizOverlay') { activeQuiz = null; }
+  if (id === 'scenarioOverlay') { activeScenarioKey = null; }
+}
+function doLogin() {
+  var user = document.getElementById('loginUser').value.trim();
+  var name = document.getElementById('loginName').value.trim();
+  if (!user) { document.getElementById('loginError').textContent = 'Please enter your Employee ID / Username.'; document.getElementById('loginError').style.display = 'block'; return; }
+  if (!name) { document.getElementById('loginError').textContent = 'Please enter your Full Name.'; document.getElementById('loginError').style.display = 'block'; return; }
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('appMain').style.display = 'flex';
+  document.getElementById('userName').textContent = name;
+  document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+  updateAllDisplays();
+  addActivity('🔐 Started CompTIA Network+ Training');
+}
+document.addEventListener('DOMContentLoaded', function() { updateAllDisplays(); });
+</script>
+<div style="text-align:center;padding:10px 20px;font-size:11px;color:#8a9aaa;border-top:1px solid rgba(255,255,255,0.08);background:#1a1a2e;">Independent training simulation. Hindi affiliated sa CompTIA o sa kahit anong kumpanya.</div>
+<script>
+(function(){function p(e){e.preventDefault()}document.addEventListener('contextmenu',p);document.addEventListener('keydown',function(e){if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(e.key.toLowerCase()))||(e.ctrlKey&&['u','c','x'].includes(e.key.toLowerCase()))){e.preventDefault();return false}});document.addEventListener('copy',p);document.addEventListener('cut',p)})();
+</script>
+</body>
+</html>
