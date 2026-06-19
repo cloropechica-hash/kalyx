@@ -685,7 +685,7 @@ function fbGetAllUsernames(callback) {
     var users = [];
     snapshot.forEach(function(doc) {
       var d = doc.data();
-      users.push({ username: d.username, name: d.name, role: d.role });
+      users.push({ username: d.username, name: d.name || d.username, email: d.email || '', role: d.role || 'executive_path', isAdmin: !!d.isAdmin, executiveAdmin: !!d.executiveAdmin });
     });
     if (callback) callback(null, users);
   }).catch(function(err) {

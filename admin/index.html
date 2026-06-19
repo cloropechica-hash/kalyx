@@ -1219,10 +1219,16 @@ function performGlobalSearch() {
 
 initTheme();
 initFirebase(function() {
-  initAuth(function() {
-    checkWelcome();
-    loadDashboard();
-    populateUserFilters();
+  // Load all users from Firestore profiles first, then render admin
+  fbGetAllUsernames(function(err, firestoreUsers) {
+    if (!err && firestoreUsers && firestoreUsers.length > 0) {
+      localStorage.setItem('users', JSON.stringify(firestoreUsers));
+    }
+    initAuth(function() {
+      checkWelcome();
+      loadDashboard();
+      populateUserFilters();
+    });
   });
 });
 </script>
