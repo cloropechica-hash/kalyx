@@ -798,28 +798,35 @@ async function saveUser() {
     if (password) users[idx].password = await hashPass(password);
     saveUsers(users);
     // Sync role changes to Firestore for cross-device consistency
-    var fbDb = window.__fbDb;
-    if (fbDb && editId) {
-      var oldUsername = editId;
-      var newUsername = username;
-      var profileData = { name: name, email: email, role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin };
-      // Update Firestore profile
-      fbDb.collection('profiles').doc(newUsername).set(profileData, { merge: true }).catch(function(e) { console.warn('Firestore profile update:', e.message); });
-      // If username changed, also clean up old document and update usernames collection
-      if (oldUsername !== newUsername) {
-        fbDb.collection('profiles').doc(oldUsername).delete().catch(function(e) {});
-        fbDb.collection('usernames').doc(oldUsername).delete().catch(function(e) {});
-        fbDb.collection('usernames').doc(newUsername).set({ uid: users[idx].uid || '', email: email }).catch(function(e) {});
-        // Migrate userdata to new username
-        fbDb.collection('userdata').doc(oldUsername).get().then(function(doc) {
-          if (doc.exists) {
-            fbDb.collection('userdata').doc(newUsername).set(doc.data()).then(function() {
-              fbDb.collection('userdata').doc(oldUsername).delete().catch(function(e) {});
-            }).catch(function(e) {});
-          }
-        }).catch(function(e) {});
+    try {
+      var fbDb = window.__fbDb;
+      var fbAuth = window.__fbAuth;
+      if (fbDb && editId) {
+        var oldUsername = editId;
+        var newUsername = username;
+        fbDb.collection('profiles').doc(newUsername).update({
+          name: name, email: email, role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin, username: newUsername
+        }).catch(function(e) {
+          // Document may not exist yet — use set instead
+          fbDb.collection('profiles').doc(newUsername).set({
+            uid: users[idx].uid || '', name: name, email: email, username: newUsername, role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin
+          }).catch(function(e2) { console.warn('Firestore profile create:', e2.message); });
+        });
+        // If username changed, clean up old documents
+        if (oldUsername !== newUsername) {
+          fbDb.collection('profiles').doc(oldUsername).delete().catch(function(e) {});
+          fbDb.collection('usernames').doc(oldUsername).delete().catch(function(e) {});
+          fbDb.collection('usernames').doc(newUsername).set({ uid: users[idx].uid || '', email: email }).catch(function(e) {});
+          fbDb.collection('userdata').doc(oldUsername).get().then(function(doc) {
+            if (doc.exists) {
+              fbDb.collection('userdata').doc(newUsername).set(doc.data()).then(function() {
+                fbDb.collection('userdata').doc(oldUsername).delete().catch(function(e) {});
+              }).catch(function(e) {});
+            }
+          }).catch(function(e) {});
+        }
       }
-    }
+    } catch(e) { console.warn('Firestore sync error:', e); }
   } else {
     if (users.some(function(u) { return u.username === username; })) {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
