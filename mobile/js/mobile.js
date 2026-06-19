@@ -25,6 +25,9 @@ var mobileApp = {
     initFirebase(function(err, user) {
       if (err) { console.error(err); return; }
       if (!user) { window.location.href = '../login/'; return; }
+      // Refresh session from Firestore cache (permission changes, role changes)
+      var freshSession = fbGetSession();
+      if (freshSession) mobileApp.session = freshSession;
       fbOnUpdate(function(data) {
         if (mobileApp.onDataUpdate) mobileApp.onDataUpdate(data);
       });

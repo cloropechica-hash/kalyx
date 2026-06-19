@@ -5064,7 +5064,25 @@ initAuth(function() {
   loadDashboard();
   checkDueTasks();
 });
-initFirebase(function() {});
+initFirebase(function() {
+  // Refresh session from Firestore and re-apply permissions
+  var s = getSession();
+  if (s) {
+    var isExecAdmin = s.executiveAdmin === true;
+    var restrictedNavs = ['navInventory', 'navSystems', 'navKnowledge'];
+    restrictedNavs.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = isExecAdmin ? '' : 'none';
+    });
+    var restrictedMobile = ['mobile-nav-inventory', 'mobile-nav-systems', 'mobile-nav-knowledge'];
+    restrictedMobile.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.style.display = isExecAdmin ? '' : 'none';
+    });
+    var badge = document.getElementById('adminBadge');
+    if (badge) { badge.classList.toggle('hidden', !s.isAdmin); }
+  }
+});
 
 // Real-time cross-browser sync: re-render current view
 fbOnUpdate(function(data) {

@@ -34,6 +34,7 @@ function initFirebase(callback) {
         loadFBData(user.uid, user, function() {
           window.__fbLoaded = true;
           startFBListener(user.uid);
+          fbRefreshSessionFromCache();
           if (callback) callback(null, user);
         });
       } else {
@@ -56,6 +57,7 @@ function finalizeInit(callback) {
     loadFBData(user.uid, user, function() {
       window.__fbLoaded = true;
       startFBListener(user.uid);
+      fbRefreshSessionFromCache();
       if (callback) callback(null, user);
     });
   } else {
@@ -701,4 +703,24 @@ function fbUpdateAssignedTaskStatus(creatorUsername, taskId, status, callback) {
     console.error('fbUpdateAssignedTaskStatus error:', err);
     if (callback) callback(err);
   });
+}
+
+// ==================== SESSION REFRESH ====================
+// Update localStorage session from Firestore cache after data load.
+// This ensures permission changes (isAdmin, executiveAdmin, role) take effect
+// without requiring the user to logout and login again.
+function fbRefreshSessionFromCache() {
+  var profile = window.__fbCache && window.__fbCache.profile;
+  if (!profile) return;
+  var session = getSession();
+  if (!session) return;
+  var changed = false;
+  if (session.isAdmin !== profile.isAdmin) { session.isAdmin = !!profile.isAdmin; changed = true; }
+  if (session.executiveAdmin !== profile.executiveAdmin) { session.executiveAdmin = !!profile.executiveAdmin; changed = true; }
+  if (session.role !== profile.role) { session.role = profile.role; changed = true; }
+  if (session.name !== profile.name) { session.name = profile.name; changed = true; }
+  if (session.email !== profile.email) { session.email = profile.email; changed = true; }
+  if (changed) {
+    fbSaveSession(session);
+  }
 }
