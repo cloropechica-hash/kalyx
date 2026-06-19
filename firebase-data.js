@@ -459,10 +459,26 @@ function fbOnUpdate(callback) {
   window.__fbOnUpdate = callback;
 }
 
-// Read from cache
+// Read from cache, fallback to localStorage
 function getFB(key) {
   if (!window.__fbLoaded) return null;
-  return window.__fbCache ? window.__fbCache[key] : null;
+  if (window.__fbCache) {
+    if (key in window.__fbCache) return window.__fbCache[key];
+    // Fallback: check localStorage for data that hasn't been synced to Firestore yet
+    var username = window.__fbCache.profile ? window.__fbCache.profile.username : null;
+    if (username) {
+      try {
+        var localData = JSON.parse(localStorage.getItem(key + '_' + username));
+        if (localData !== null && localData !== undefined) {
+          window.__fbCache[key] = localData;
+          // Also sync to Firestore for cross-device access
+          syncFieldToFirestore(username, key, localData);
+          return localData;
+        }
+      } catch(e) {}
+    }
+  }
+  return null;
 }
 
 // Write to cache + localStorage + Firestore

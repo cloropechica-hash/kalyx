@@ -1144,9 +1144,25 @@ function getData(type) {
   if (window.__fbLoaded) {
     var cached = getFB(fbKey);
     if (cached && Array.isArray(cached)) return cached;
-    return [];
+    // Not in cache but may be in localStorage (never synced to Firestore yet)
+    var localData = loadLocalDataByType(type);
+    if (localData.length > 0) {
+      window.__fbCache[fbKey] = localData;
+      // Sync to Firestore so other devices can access it
+      var username = window.__fbCache && window.__fbCache.profile ? window.__fbCache.profile.username : null;
+      if (username) syncFieldToFirestore(username, fbKey, localData);
+    }
+    return localData;
   }
   // Fallback to localStorage while Firestore is loading
+  var data = loadLocalDataByType(type);
+  if (data.length > 0) {
+    window.__fbCache[fbKey] = data;
+  }
+  return data;
+}
+
+function loadLocalDataByType(type) {
   var key = getDataKey(type);
   if (type === 'planner') {
     if (!localStorage.getItem(key)) {
@@ -1175,9 +1191,6 @@ function getData(type) {
         }
       }
     }
-  }
-  if (data.length > 0) {
-    window.__fbCache[fbKey] = data;
   }
   return data;
 }
