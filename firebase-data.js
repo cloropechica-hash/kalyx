@@ -236,6 +236,27 @@ function loadFBData(uid, user, callback) {
           db.collection('userdata').doc(autoUsername).get().then(function(uDoc) {
             var data = uDoc.exists ? uDoc.data() : {};
             data.profile = profileData;
+
+            // If Firestore doc missing and cache has data, merge & upload
+            if (!uDoc.exists && window.__fbCache) {
+              var hasExtra = false;
+              Object.keys(window.__fbCache).forEach(function(k) {
+                if (k !== 'profile' && window.__fbCache[k] !== undefined) {
+                  data[k] = window.__fbCache[k];
+                  hasExtra = true;
+                }
+              });
+              if (hasExtra) {
+                var payload = {};
+                Object.keys(data).forEach(function(k) {
+                  if (k !== 'profile') payload[k] = data[k];
+                });
+                db.collection('userdata').doc(autoUsername).set(payload, { merge: true }).catch(function(err) {
+                  console.warn('Firestore initial upload error (auto):', err.message);
+                });
+              }
+            }
+
             window.__fbCache = data;
             window.__fbLoaded = true;
             syncCacheToLocalStorage(autoUsername);
@@ -266,6 +287,28 @@ function loadFBData(uid, user, callback) {
     db.collection('userdata').doc(username).get().then(function(doc) {
       var data = doc.exists ? doc.data() : {};
       data.profile = profileData;
+
+      // If Firestore doc missing but cache has data (from localStorage fallback), merge & upload
+      if (!doc.exists && window.__fbCache && window.__fbCache !== data) {
+        var hasExtraData = false;
+        Object.keys(window.__fbCache).forEach(function(k) {
+          if (k !== 'profile' && window.__fbCache[k] !== undefined) {
+            data[k] = window.__fbCache[k];
+            hasExtraData = true;
+          }
+        });
+        if (hasExtraData) {
+          // Upload existing data to Firestore so other devices can access it
+          var uploadData = {};
+          Object.keys(data).forEach(function(k) {
+            if (k !== 'profile') uploadData[k] = data[k];
+          });
+          db.collection('userdata').doc(username).set(uploadData, { merge: true }).catch(function(err) {
+            console.warn('Firestore initial upload error:', err.message);
+          });
+        }
+      }
+
       window.__fbCache = data;
       window.__fbLoaded = true;
       syncCacheToLocalStorage(username);
