@@ -206,8 +206,6 @@ button, input, select, textarea { min-width: 0; }
   </div>
   <div class="flex items-center gap-2">
     <button id="themeToggle" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="toggleTheme()" title="Toggle theme">dark_mode</button>
-    <button id="langToggle" class="text-xs font-bold text-on-surface-variant hover:bg-surface-container-high w-9 h-9 rounded-xl transition-all" onclick="toggleLang()" title="Toggle language">TL</button>
-    <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all" onclick="exportAllUsersData()" title="Export all users">file_download</button>
     <div class="relative">
       <button id="userBtn" class="h-9 w-9 rounded-xl overflow-hidden border border-outline-variant bg-primary text-on-primary flex items-center justify-center font-bold text-sm hover:opacity-80 transition-all active:scale-90 ring-2 ring-transparent hover:ring-primary/20" onclick="toggleUserMenu()"></button>
       <div id="userMenu" class="hidden absolute right-0 top-12 w-56 bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl p-2 z-50">
@@ -283,48 +281,6 @@ button, input, select, textarea { min-width: 0; }
       <button class="w-full flex items-center gap-3 p-4 rounded-xl bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition-colors" onclick="showSection('pagePlans'); renderAdminPlans();"><span class="material-symbols-outlined">map</span> <span class="font-label-md font-semibold">View All Plans</span></button>
       <button class="w-full flex items-center gap-3 p-4 rounded-xl bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors" onclick="showSection('pageTrips'); renderAdminTrips();"><span class="material-symbols-outlined">flight_takeoff</span> <span class="font-label-md font-semibold">View All Trips</span></button>
     </div>
-  </div>
-</div>
-<!-- User Management -->
-<div id="userManagementSection" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift mt-6">
-  <div class="flex items-center justify-between mb-4">
-    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-indigo-500 inline-block"></span> User Management (Firestore)</h3>
-    <input id="userMgmtSearch" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 w-56" placeholder="Search users..." oninput="filterUsersTable(this.value)" type="text"/>
-  </div>
-  <div class="overflow-x-auto">
-    <table id="usersTable" class="w-full text-left">
-      <thead>
-        <tr class="border-b border-outline-variant font-label-md text-on-surface-variant">
-          <th class="py-3 pr-3">Username</th>
-          <th class="py-3 pr-3">Name</th>
-          <th class="py-3 pr-3">Email</th>
-          <th class="py-3 pr-3">Role</th>
-          <th class="py-3 pr-3">Status</th>
-          <th class="py-3">Actions</th>
-        </tr>
-      </thead>
-      <tbody id="usersTableBody"></tbody>
-    </table>
-  </div>
-</div>
-<!-- Audit Log -->
-<div id="auditLogSection" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift mt-6">
-  <div class="flex items-center justify-between mb-4">
-    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-amber-500 inline-block"></span> Audit Log</h3>
-    <input id="auditLogSearch" class="bg-surface-container border border-outline-variant rounded-xl py-2 px-3 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 w-56" placeholder="Search audit log..." oninput="filterAuditLog(this.value)" type="text"/>
-  </div>
-  <div class="overflow-x-auto">
-    <table id="auditLogTable" class="w-full text-left">
-      <thead>
-        <tr class="border-b border-outline-variant font-label-md text-on-surface-variant">
-          <th class="py-3 pr-3">Action</th>
-          <th class="py-3 pr-3">Details</th>
-          <th class="py-3 pr-3">Username</th>
-          <th class="py-3">Timestamp</th>
-        </tr>
-      </thead>
-      <tbody id="auditLogBody"></tbody>
-    </table>
   </div>
 </div>
 </section>
@@ -581,30 +537,6 @@ button, input, select, textarea { min-width: 0; }
       <div class="flex gap-3 pt-2">
         <button class="flex-1 bg-primary text-on-primary py-3 rounded-xl font-title-lg hover:opacity-90 transition-all active:scale-[0.98]" onclick="saveUser()">Save</button>
         <button class="flex-1 border border-outline-variant text-on-surface-variant py-3 rounded-xl font-title-lg hover:bg-surface-container transition-all" onclick="closeUserModal()">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="editUserModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-center justify-center p-4">
-  <div class="bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="font-title-lg text-title-lg text-primary">Edit User</h3>
-      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors" onclick="document.getElementById('editUserModal').classList.add('hidden')">close</button>
-    </div>
-    <input type="hidden" id="editUserUid"/>
-    <div class="space-y-4">
-      <div><label class="font-label-md text-on-surface-variant block mb-1.5">Role</label>
-        <select id="editUserRoleSelect" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2.5 px-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20">
-          <option value="executive_path">Executive Path</option>
-          <option value="executive_task">Executive Task</option>
-          <option value="executive_it">Executive IT</option>
-          <option value="admin">Admin</option>
-        </select>
-      </div>
-      <div class="flex gap-3 pt-2">
-        <button class="flex-1 bg-primary text-on-primary py-3 rounded-xl font-title-lg hover:opacity-90 transition-all active:scale-[0.98]" onclick="saveEditUser()">Save</button>
-        <button class="flex-1 border border-outline-variant text-on-surface-variant py-3 rounded-xl font-title-lg hover:bg-surface-container transition-all" onclick="document.getElementById('editUserModal').classList.add('hidden')">Cancel</button>
       </div>
     </div>
   </div>
@@ -1477,117 +1409,12 @@ function performGlobalSearch() {
     }).join('') + (allResults.length > 50 ? '<p class="font-label-md text-on-surface-variant text-center mt-2">Showing 50 of ' + allResults.length + ' results. Refine your search.</p>' : '') + '</div>';
 }
 
-function exportAllUsersData() {
-  var db = fbDb;
-  db.collection('users').get().then(function(snap) {
-    var allData = [];
-    snap.forEach(function(doc) {
-      var d = doc.data().data || {};
-      var p = d.profile || {};
-      allData.push({
-        username: p.username || '',
-        name: p.name || '',
-        email: p.email || '',
-        role: p.role || '',
-        isAdmin: p.isAdmin || false,
-        disabled: p.disabled || false,
-        uid: doc.id
-      });
-    });
-    exportCSV(allData, 'kalyx-users-' + new Date().toISOString().split('T')[0] + '.csv');
-    showToast('Users exported!', 'success');
-  }).catch(function(err) { showToast('Export error: ' + err.message, 'error'); });
-}
-
-function loadUsers() {
-  var db = fbDb;
-  db.collection('users').get().then(function(snap) {
-    var html = '';
-    snap.forEach(function(doc) {
-      var d = doc.data().data || {};
-      var p = d.profile || {};
-      var disabled = p.disabled ? 'disabled' : 'active';
-      var badgeClass = disabled === 'disabled' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700';
-      html += '<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors">' +
-        '<td class="py-3 pr-3 font-body-md text-on-surface">' + (p.username || '?') + '</td>' +
-        '<td class="py-3 pr-3 font-body-md text-on-surface-variant">' + (p.name || '') + '</td>' +
-        '<td class="py-3 pr-3 font-body-md text-on-surface-variant">' + (p.email || '') + '</td>' +
-        '<td class="py-3 pr-3">' +
-          '<select class="text-xs border border-outline-variant rounded-lg px-2 py-1 bg-surface" onchange="updateUserRole(\'' + doc.id + '\',this.value)">' +
-            '<option value="executive_path"' + (p.role==='executive_path'?' selected':'') + '>Executive Path</option>' +
-            '<option value="executive_task"' + (p.role==='executive_task'?' selected':'') + '>Executive Task</option>' +
-            '<option value="executive_it"' + (p.role==='executive_it'?' selected':'') + '>Executive IT</option>' +
-            '<option value="admin"' + (p.role==='admin'?' selected':'') + '>Admin</option>' +
-          '</select>' +
-        '</td>' +
-        '<td class="py-3"><span class="text-[10px] px-2 py-0.5 rounded-full font-semibold ' + badgeClass + '">' + disabled + '</span></td>' +
-        '<td class="py-3">' +
-          '<button class="text-xs ' + (p.disabled ? 'text-emerald-600' : 'text-red-600') + ' font-semibold hover:underline" onclick="toggleUserStatus(\'' + doc.id + '\',' + (!p.disabled) + ')">' + (p.disabled ? 'Enable' : 'Disable') + '</button>' +
-        '</td></tr>';
-    });
-    var tbody = document.getElementById('usersTableBody');
-    if (tbody) tbody.innerHTML = html || '<tr><td colspan="6" class="py-6 text-center text-on-surface-variant">No users found</td></tr>';
-  }).catch(function(err) { showToast('Error loading users: ' + err.message, 'error'); });
-}
-
-function updateUserRole(uid, role) {
-  fbDb.collection('users').doc(uid).update({ 'data.profile.role': role }).then(function() {
-    showToast('Role updated!', 'success');
-    audit('admin_update_role', { uid: uid, role: role });
-  }).catch(function(err) { showToast('Error: ' + err.message, 'error'); });
-}
-
-function toggleUserStatus(uid, disable) {
-  fbDb.collection('users').doc(uid).update({ 'data.profile.disabled': disable }).then(function() {
-    showToast(disable ? 'User disabled' : 'User enabled', 'success');
-    audit('admin_toggle_user', { uid: uid, disabled: disable });
-    loadUsers();
-  }).catch(function(err) { showToast('Error: ' + err.message, 'error'); });
-}
-
-function loadAuditLog() {
-  fbDb.collection('audit_log').orderBy('timestamp', 'desc').limit(100).get().then(function(snap) {
-    var html = '';
-    snap.forEach(function(doc) {
-      var d = doc.data();
-      html += '<tr class="border-b border-outline-variant hover:bg-surface-container-low transition-colors">' +
-        '<td class="py-2 pr-3 font-body-md text-on-surface text-xs">' + (d.action || '') + '</td>' +
-        '<td class="py-2 pr-3 font-body-md text-on-surface-variant text-xs">' + (typeof d.details === 'string' ? d.details.substring(0, 50) : '') + '</td>' +
-        '<td class="py-2 pr-3 font-body-md text-on-surface-variant text-xs">' + (d.username || '') + '</td>' +
-        '<td class="py-2 font-body-md text-on-surface-variant text-xs">' + (d.timestamp ? new Date(d.timestamp).toLocaleString() : '') + '</td></tr>';
-    });
-    var tbody = document.getElementById('auditLogBody');
-    if (tbody) tbody.innerHTML = html || '<tr><td colspan="4" class="py-6 text-center text-on-surface-variant">No audit entries</td></tr>';
-  }).catch(function(err) { console.error('Audit load error:', err); });
-}
-
-function filterAuditLog(q) {
-  var rows = document.querySelectorAll('#auditLogBody tr');
-  var lq = (q||'').toLowerCase();
-  rows.forEach(function(r) { r.style.display = r.textContent.toLowerCase().indexOf(lq) > -1 ? '' : 'none'; });
-}
-function filterUsersTable(q) {
-  var rows = document.querySelectorAll('#usersTableBody tr');
-  var lq = (q||'').toLowerCase();
-  rows.forEach(function(r) { r.style.display = r.textContent.toLowerCase().indexOf(lq) > -1 ? '' : 'none'; });
-}
-
-function saveEditUser() {
-  var uid = document.getElementById('editUserUid').value;
-  var role = document.getElementById('editUserRoleSelect').value;
-  if (!uid) return;
-  updateUserRole(uid, role);
-  document.getElementById('editUserModal').classList.add('hidden');
-}
-
 initTheme();
 initAuth(function() {
   checkWelcome();
   syncFirestoreUsers(function() {
     syncAllUsersFromFirestore(function() {
       loadDashboard();
-      loadUsers();
-      loadAuditLog();
       populateUserFilters();
     });
   });

@@ -165,7 +165,6 @@ button, input, select, textarea { min-width: 0; }
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="../firebase-config.js"></script>
   <script src="../firebase-data.js"></script>
 </head>
@@ -207,8 +206,6 @@ button, input, select, textarea { min-width: 0; }
   </div>
   <div class="flex items-center gap-2">
     <button id="themeToggle" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="toggleTheme()" title="Toggle theme">dark_mode</button>
-    <button id="langToggle" class="text-xs font-bold text-on-surface-variant hover:bg-surface-container-high w-9 h-9 rounded-xl transition-all" onclick="toggleLang()" title="Toggle language">TL</button>
-    <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all" onclick="exportExpenses()" title="Export expenses">file_download</button>
     <button id="tripNotificationBtn" class="relative material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="showTripNotifications()" title="Upcoming trips">notifications<span id="tripNotificationCount" class="hidden absolute -top-1 -right-1 h-5 w-5 rounded-full bg-amber-500 text-[11px] text-white flex items-center justify-center font-semibold"></span></button>
     <a class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" href="#" onclick="goTo('guide/')">help</a>
     <div class="relative">
@@ -347,28 +344,6 @@ button, input, select, textarea { min-width: 0; }
     <button class="w-full lg:w-auto bg-[#0D9488] text-white px-8 py-4 rounded-xl font-title-lg hover:scale-[1.02] transition-transform flex items-center justify-center gap-3 shadow-md">
       <span class="material-symbols-outlined">add_a_photo</span> Start Scan
     </button>
-  </div>
-</div>
-
-<div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
-    <h3 class="font-title-lg text-title-lg text-primary mb-4">Expense by Category</h3>
-    <div class="relative h-64"><canvas id="expenseChartJs"></canvas></div>
-  </div>
-  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
-    <h3 class="font-title-lg text-title-lg text-primary mb-4">Monthly Spending Trend</h3>
-    <div class="relative h-64"><canvas id="monthlyExpenseChartJs"></canvas></div>
-  </div>
-</div>
-
-<div class="mt-6 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
-  <h3 class="font-title-lg text-title-lg text-primary mb-4">Budget Overview</h3>
-  <div id="budgetOverview" class="space-y-3">
-    <p class="text-on-surface-variant text-sm">Set a monthly budget to track your spending.</p>
-  </div>
-  <div class="flex items-center gap-3 mt-4">
-    <input id="budgetInput" type="number" class="w-40 border border-outline-variant rounded-xl px-4 py-2 text-sm bg-surface" placeholder="Monthly budget"/>
-    <button class="bg-primary text-on-primary px-5 py-2 rounded-xl text-sm font-semibold hover:opacity-90" onclick="setBudget()">Set Budget</button>
   </div>
 </div>
 
@@ -515,108 +490,8 @@ function showTripNotifications() {
     return '- ' + (t.name || 'Untitled') + ' (' + t.date + (t.time ? ' ' + t.time : '') + ') - ' + (t.destination || 'N/A');
   }).join('\n'));
 }
-
-var _expenseCharts = {};
-
-function toggleLang() {
-  var l = localStorage.getItem('kalyx_lang') || 'tl';
-  localStorage.setItem('kalyx_lang', l === 'en' ? 'tl' : 'en');
-  var btn = document.getElementById('langToggle');
-  if (btn) btn.textContent = localStorage.getItem('kalyx_lang') === 'en' ? 'TL' : 'EN';
-}
-
-function exportExpenses() {
-  var s = JSON.parse(localStorage.getItem('session') || '{}');
-  if (!s.loggedIn) return;
-  var exp = JSON.parse(localStorage.getItem('expenses_' + s.username) || '[]');
-  exportCSV(exp, 'expenses-' + s.username + '-' + new Date().toISOString().split('T')[0] + '.csv');
-  showToast('Expenses exported!', 'success');
-}
-
-function destroyExpenseCharts() {
-  Object.keys(_expenseCharts).forEach(function(k) { try { _expenseCharts[k].destroy(); } catch(e) {} });
-  _expenseCharts = {};
-}
-
-function renderExpenseChart() {
-  destroyExpenseCharts();
-  var s = JSON.parse(localStorage.getItem('session') || '{}');
-  if (!s.loggedIn) return;
-  var expenses = JSON.parse(localStorage.getItem('expenses_' + s.username) || '[]');
-  if (!expenses.length) return;
-
-  var isDark = document.documentElement.classList.contains('dark');
-  var textColor = isDark ? '#c4c8ce' : '#45474c';
-  var gridColor = isDark ? '#2a3448' : '#e5eeff';
-
-  // Category pie
-  var catCounts = {};
-  var monthlyTotals = {};
-  expenses.forEach(function(e) {
-    var cat = e.category || 'Other';
-    catCounts[cat] = (catCounts[cat] || 0) + parseFloat(e.amount) || 0;
-    if (e.date) {
-      var mKey = e.date.substring(0, 7);
-      monthlyTotals[mKey] = (monthlyTotals[mKey] || 0) + parseFloat(e.amount) || 0;
-    }
-  });
-
-  var catCanvas = document.getElementById('expenseChartJs');
-  if (catCanvas) {
-    var catLabels = Object.keys(catCounts);
-    var catValues = catLabels.map(function(k) { return catCounts[k]; });
-    var colors = ['#0D9488','#6366F1','#0EA5E9','#F59E0B','#EF4444','#8B5CF6','#EC4899','#14B8A6'];
-    _expenseCharts.expenseChartJs = new Chart(catCanvas.getContext('2d'), {
-      type: 'pie',
-      data: { labels: catLabels, datasets: [{ data: catValues, backgroundColor: colors.slice(0, catLabels.length), borderWidth: 0 }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: textColor } } } }
-    });
-  }
-
-  var monthCanvas = document.getElementById('monthlyExpenseChartJs');
-  if (monthCanvas) {
-    var sortedMonths = Object.keys(monthlyTotals).sort();
-    var monthLabels = sortedMonths.map(function(m) { var d = new Date(m + '-01'); return d.toLocaleString('default', { month: 'short', year: '2-digit' }); });
-    var monthValues = sortedMonths.map(function(m) { return monthlyTotals[m]; });
-    _expenseCharts.monthlyExpenseChartJs = new Chart(monthCanvas.getContext('2d'), {
-      type: 'bar',
-      data: { labels: monthLabels, datasets: [{ label: 'Total', data: monthValues, backgroundColor: '#0D9488', borderRadius: 4 }] },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-        scales: { x: { ticks: { color: textColor }, grid: { color: gridColor } }, y: { beginAtZero: true, ticks: { color: textColor }, grid: { color: gridColor } } }
-      }
-    });
-  }
-  renderBudgetOverview(expenses);
-}
-
-function renderBudgetOverview(expenses) {
-  var container = document.getElementById('budgetOverview');
-  if (!container) return;
-  var budget = parseFloat(localStorage.getItem('monthly_budget') || '0');
-  if (!budget) { container.innerHTML = '<p class="text-on-surface-variant text-sm">Set a monthly budget above to track your spending.</p>'; return; }
-  var now = new Date();
-  var currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-  var monthTotal = 0;
-  (expenses || []).forEach(function(e) {
-    if (e.date && e.date.indexOf(currentMonth) === 0) monthTotal += parseFloat(e.amount) || 0;
-  });
-  var pct = Math.min(100, Math.round((monthTotal / budget) * 100));
-  var color = pct > 90 ? 'bg-red-500' : pct > 70 ? 'bg-amber-500' : 'bg-emerald-500';
-  var remaining = budget - monthTotal;
-  container.innerHTML = '<div><div class="flex justify-between text-sm mb-1"><span class="text-on-surface">Spent: PHP ' + monthTotal.toFixed(2) + '</span><span class="text-on-surface-variant">Budget: PHP ' + budget.toFixed(2) + '</span></div><div class="w-full h-3 rounded-full bg-surface-container-high overflow-hidden"><div class="h-full rounded-full ' + color + ' transition-all duration-700" style="width:' + pct + '%"></div></div><p class="text-xs text-on-surface-variant mt-2">' + (remaining >= 0 ? 'Remaining: PHP ' + remaining.toFixed(2) : 'Over budget by: PHP ' + Math.abs(remaining).toFixed(2)) + '</p></div>';
-}
-
-function setBudget() {
-  var val = document.getElementById('budgetInput').value;
-  if (!val || isNaN(val) || parseFloat(val) <= 0) { showToast('Please enter a valid budget amount', 'warning'); return; }
-  localStorage.setItem('monthly_budget', val);
-  showToast('Budget set to PHP ' + parseFloat(val).toFixed(2), 'success');
-  renderExpenseChart();
-}
-
 initTheme(); initAuth(function() {
   initTripNotifications();
-  renderExpenseChart();
 });
 </script>
 </body>

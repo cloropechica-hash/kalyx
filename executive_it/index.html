@@ -169,65 +169,61 @@ button, input, select, textarea { min-width: 0; }
 <!-- Sidebar -->
 <aside class="fixed left-0 top-0 h-full w-72 sidebar-main z-50 flex flex-col p-8 hidden md:flex shadow-xl">
   <div class="mb-10">
-    <h1 class="font-headline-md text-headline-md font-bold text-white tracking-tight" data-i18n="Executive IT">Executive IT</h1>
-    <p class="font-label-md text-label-md text-indigo-200 mt-1" data-i18n="IT Management Portal">IT Management Portal</p>
+    <h1 class="font-headline-md text-headline-md font-bold text-white tracking-tight">Executive IT</h1>
+    <p class="font-label-md text-label-md text-indigo-200 mt-1">IT Management Portal</p>
   </div>
   <nav class="flex-1 space-y-1.5">
     <a id="navDashboard" class="flex items-center gap-3 bg-white/20 text-white font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm cursor-pointer" onclick="switchView('dashboard')">
       <span class="material-symbols-outlined">dashboard</span>
-      <span class="font-label-md" data-i18n="Dashboard">Dashboard</span>
+      <span class="font-label-md">Dashboard</span>
     </a>
     <a id="navServices" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('services')">
       <span class="material-symbols-outlined">support</span>
-      <span class="font-label-md" data-i18n="IT Services">IT Services</span>
+      <span class="font-label-md">IT Services</span>
     </a>
     <a id="navMaintenance" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('maintenance')">
       <span class="material-symbols-outlined">handyman</span>
-      <span class="font-label-md" data-i18n="IT Maintenance">IT Maintenance</span>
+      <span class="font-label-md">IT Maintenance</span>
     </a>
     <a id="navInventory" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('inventory')">
       <span class="material-symbols-outlined">inventory</span>
-      <span class="font-label-md" data-i18n="IT Inventory">IT Inventory</span>
+      <span class="font-label-md">IT Inventory</span>
     </a>
     <a id="navTask" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('task')">
       <span class="material-symbols-outlined">task</span>
-      <span class="font-label-md" data-i18n="Task">Task</span>
+      <span class="font-label-md">Task</span>
     </a>
     <a id="navPlanner" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('planner')">
       <span class="material-symbols-outlined">map</span>
-      <span class="font-label-md" data-i18n="Plans &amp; Roadmaps">Plans &amp; Roadmaps</span>
+      <span class="font-label-md">Plans &amp; Roadmaps</span>
     </a>
     <a id="navAccomplishments" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('accomplishments')">
       <span class="material-symbols-outlined">assignment_turned_in</span>
-      <span class="font-label-md" data-i18n="Daily Accomplishments">Daily Accomplishments</span>
+      <span class="font-label-md">Daily Accomplishments</span>
     </a>
     <a id="navTickets" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('tickets')">
       <span class="material-symbols-outlined">confirmation_number</span>
-      <span class="font-label-md" data-i18n="Support Tickets">Support Tickets</span>
+      <span class="font-label-md">Support Tickets</span>
     </a>
     <a id="navSystems" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('systems')">
       <span class="material-symbols-outlined">monitor_heart</span>
-      <span class="font-label-md" data-i18n="System Monitor">System Monitor</span>
+      <span class="font-label-md">System Monitor</span>
     </a>
     <a id="navTimetrack" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('timetrack')">
       <span class="material-symbols-outlined">timer</span>
-      <span class="font-label-md" data-i18n="Time Tracking">Time Tracking</span>
-    </a>
-    <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" href="../executive_it/training/" target="_blank">
-      <span class="material-symbols-outlined">school</span>
-      <span class="font-label-md" data-i18n="Training">Training</span>
+      <span class="font-label-md">Time Tracking</span>
     </a>
     <a id="navKnowledge" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('knowledge')">
       <span class="material-symbols-outlined">menu_book</span>
-      <span class="font-label-md" data-i18n="Knowledge Base">Knowledge Base</span>
+      <span class="font-label-md">Knowledge Base</span>
     </a>
     <a id="navAuditlog" class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer" onclick="switchView('auditlog')">
       <span class="material-symbols-outlined">history</span>
-      <span class="font-label-md" data-i18n="Audit Log">Audit Log</span>
+      <span class="font-label-md">Audit Log</span>
     </a>
   </nav>
   <button class="mt-auto bg-emerald-500 hover:bg-emerald-400 text-white py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="openAddModal()">
-    <span class="material-symbols-outlined">add</span> <span data-i18n="New Item">New Item</span>
+    <span class="material-symbols-outlined">add</span> New Item
   </button>
 </aside>
 
@@ -237,50 +233,47 @@ button, input, select, textarea { min-width: 0; }
   <aside class="absolute left-0 top-0 h-full w-72 sidebar-main flex flex-col p-8 shadow-xl">
     <div class="mb-10 flex justify-between items-center">
       <div>
-        <h1 class="font-headline-md text-headline-md font-bold text-white tracking-tight" data-i18n="Executive IT">Executive IT</h1>
-        <p class="font-label-md text-label-md text-indigo-200 mt-1" data-i18n="IT Management Portal">IT Management Portal</p>
+        <h1 class="font-headline-md text-headline-md font-bold text-white tracking-tight">Executive IT</h1>
+        <p class="font-label-md text-label-md text-indigo-200 mt-1">IT Management Portal</p>
       </div>
       <button class="material-symbols-outlined text-white/70 hover:bg-white/10 p-2 rounded-xl" onclick="document.getElementById('mobile-menu').classList.add('hidden')">close</button>
     </div>
     <nav class="flex-1 space-y-1.5">
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('dashboard');document.getElementById('mobile-menu').classList.add('hidden')">
-        <span class="material-symbols-outlined">dashboard</span><span class="font-label-md" data-i18n="Dashboard">Dashboard</span>
+        <span class="material-symbols-outlined">dashboard</span><span class="font-label-md">Dashboard</span>
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('services');document.getElementById('mobile-menu').classList.add('hidden')">
-        <span class="material-symbols-outlined">support</span><span class="font-label-md" data-i18n="IT Services">IT Services</span>
+        <span class="material-symbols-outlined">support</span><span class="font-label-md">IT Services</span>
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('maintenance');document.getElementById('mobile-menu').classList.add('hidden')">
-        <span class="material-symbols-outlined">handyman</span><span class="font-label-md" data-i18n="IT Maintenance">IT Maintenance</span>
+        <span class="material-symbols-outlined">handyman</span><span class="font-label-md">IT Maintenance</span>
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('inventory');document.getElementById('mobile-menu').classList.add('hidden')">
-        <span class="material-symbols-outlined">inventory</span><span class="font-label-md" data-i18n="IT Inventory">IT Inventory</span>
+        <span class="material-symbols-outlined">inventory</span><span class="font-label-md">IT Inventory</span>
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('task');document.getElementById('mobile-menu').classList.add('hidden')">
-        <span class="material-symbols-outlined">task</span><span class="font-label-md" data-i18n="Task">Task</span>
+        <span class="material-symbols-outlined">task</span><span class="font-label-md">Task</span>
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('planner');document.getElementById('mobile-menu').classList.add('hidden')">
-        <span class="material-symbols-outlined">map</span><span class="font-label-md" data-i18n="Plans &amp; Roadmaps">Plans &amp; Roadmaps</span>
+        <span class="material-symbols-outlined">map</span><span class="font-label-md">Plans &amp; Roadmaps</span>
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('accomplishments');document.getElementById('mobile-menu').classList.add('hidden')">
-        <span class="material-symbols-outlined">assignment_turned_in</span><span class="font-label-md" data-i18n="Daily Accomplishments">Daily Accomplishments</span>
+        <span class="material-symbols-outlined">assignment_turned_in</span><span class="font-label-md">Daily Accomplishments</span>
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('tickets');document.getElementById('mobile-menu').classList.add('hidden')">
-        <span class="material-symbols-outlined">confirmation_number</span><span class="font-label-md" data-i18n="Support Tickets">Support Tickets</span>
+        <span class="material-symbols-outlined">confirmation_number</span><span class="font-label-md">Support Tickets</span>
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('systems');document.getElementById('mobile-menu').classList.add('hidden')">
-        <span class="material-symbols-outlined">monitor_heart</span><span class="font-label-md" data-i18n="System Monitor">System Monitor</span>
+        <span class="material-symbols-outlined">monitor_heart</span><span class="font-label-md">System Monitor</span>
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('timetrack');document.getElementById('mobile-menu').classList.add('hidden')">
-        <span class="material-symbols-outlined">timer</span><span class="font-label-md" data-i18n="Time Tracking">Time Tracking</span>
-      </a>
-      <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" href="../executive_it/training/" target="_blank" onclick="document.getElementById('mobile-menu').classList.add('hidden')">
-        <span class="material-symbols-outlined">school</span><span class="font-label-md" data-i18n="Training">Training</span>
+        <span class="material-symbols-outlined">timer</span><span class="font-label-md">Time Tracking</span>
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('knowledge');document.getElementById('mobile-menu').classList.add('hidden')">
-        <span class="material-symbols-outlined">menu_book</span><span class="font-label-md" data-i18n="Knowledge Base">Knowledge Base</span>
+        <span class="material-symbols-outlined">menu_book</span><span class="font-label-md">Knowledge Base</span>
       </a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all cursor-pointer" onclick="switchView('auditlog');document.getElementById('mobile-menu').classList.add('hidden')">
-        <span class="material-symbols-outlined">history</span><span class="font-label-md" data-i18n="Audit Log">Audit Log</span>
+        <span class="material-symbols-outlined">history</span><span class="font-label-md">Audit Log</span>
       </a>
     </nav>
   </aside>
@@ -294,12 +287,10 @@ button, input, select, textarea { min-width: 0; }
     <button class="md:hidden material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-xl transition-colors" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">menu</button>
     <div class="relative w-full max-w-sm">
       <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
-      <input id="searchInput" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 pl-10 pr-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Search services, tickets..." data-i18n-placeholder="Search services, tickets..." type="text" oninput="handleSearch(this.value)"/>
+      <input id="searchInput" class="w-full bg-surface-container border border-outline-variant rounded-xl py-2 pl-10 pr-4 text-body-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Search services, tickets..." type="text" oninput="handleSearch(this.value)"/>
     </div>
   </div>
   <div class="flex items-center gap-2">
-    <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all active:scale-90" onclick="toggleLang()" title="Switch Language">translate</button>
-    <button id="exportBtn" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all active:scale-90" title="Export to Excel" onclick="exportToExcel()">download</button>
     <button id="themeToggle" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="toggleTheme()" title="Toggle theme">dark_mode</button>
     <div class="relative">
       <button id="userBtn" class="h-9 w-9 rounded-xl overflow-hidden border border-outline-variant bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm hover:opacity-80 transition-all active:scale-90 ring-2 ring-transparent hover:ring-primary/20" onclick="toggleUserMenu()"></button>
@@ -5385,7 +5376,6 @@ function checkWelcome() {
 })();
 
 initTheme();
-applyLang();
 initAuth(function() {
   checkWelcome();
   loadDashboard();
@@ -5500,65 +5490,6 @@ function removeAvatar() {
   if (btn) btn.textContent = initial;
   if (menuAvatar) menuAvatar.textContent = initial;
   closeAvatarModal();
-}
-
-// ==================== LANG TOGGLE ====================
-var __lang = localStorage.getItem('lang') || 'en';
-var __i18n = {
-  en: {},
-  fil: {
-    'Dashboard': 'Dashboard',
-    'IT Services': 'Serbisyo ng IT',
-    'IT Maintenance': 'Pagpapanatili ng IT',
-    'IT Inventory': 'Imbentaryo ng IT',
-    'Task': 'Gawain',
-    'Plans & Roadmaps': 'Plano at Roadmaps',
-    'Daily Accomplishments': 'Araw-araw na Nagawa',
-    'Support Tickets': 'Support Ticket',
-    'System Monitor': 'System Monitor',
-    'Time Tracking': 'Pagsubaybay sa Oras',
-    'Knowledge Base': 'Knowledge Base',
-    'Audit Log': 'Audit Log',
-    'Training': 'Pagsasanay',
-    'Search services, tickets...': 'Maghanap ng serbisyo, ticket...',
-    'Executive IT': 'Executive IT',
-    'IT Management Portal': 'IT Management Portal'
-  }
-};
-
-function toggleLang() {
-  __lang = __lang === 'en' ? 'fil' : 'en';
-  localStorage.setItem('lang', __lang);
-  applyLang();
-}
-
-function applyLang() {
-  if (__lang === 'en') return;
-  var t = __i18n[__lang] || {};
-  document.querySelectorAll('[data-i18n]').forEach(function(el) {
-    var key = el.getAttribute('data-i18n');
-    if (t[key]) el.textContent = t[key];
-  });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
-    var key = el.getAttribute('data-i18n-placeholder');
-    if (t[key]) el.placeholder = t[key];
-  });
-}
-
-// ==================== EXPORT ====================
-function exportToExcel() {
-  var view = currentView || 'dashboard';
-  var table = document.getElementById(view + '-table') || document.querySelector('.main-content table');
-  if (!table) {
-    // Try to find visible table
-    var tables = document.querySelectorAll('.main-content table, .content-area table, table');
-    for (var i = 0; i < tables.length; i++) {
-      if (tables[i].offsetParent !== null) { table = tables[i]; break; }
-    }
-  }
-  if (!table) { alert('No table data to export.'); return; }
-  var wb = XLSX.utils.table_to_book(table, { raw: true });
-  XLSX.writeFile(wb, view + '_export.xlsx');
 }
 </script>
 

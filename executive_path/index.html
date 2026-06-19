@@ -233,8 +233,6 @@ button, input, select, textarea { min-width: 0; }
     </div>
   </div>
   <div class="flex items-center gap-2">
-    <button id="langToggle" class="text-xs font-bold text-on-surface-variant hover:bg-surface-container-high w-9 h-9 rounded-xl transition-all" onclick="toggleLang()" title="Toggle language">TL</button>
-    <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all" onclick="exportRoadmap()" title="Export data">file_download</button>
     <button id="themeToggle" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="toggleTheme()" title="Toggle theme">dark_mode</button>
     <button id="tripNotificationBtn" class="relative material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" onclick="showTripNotifications()" title="Upcoming trips">notifications<span id="tripNotificationCount" class="hidden absolute -top-1 -right-1 h-5 w-5 rounded-full bg-amber-500 text-[11px] text-white flex items-center justify-center font-semibold"></span></button>
     <a class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2.5 rounded-xl transition-all duration-200 active:scale-90" href="#" onclick="goTo('guide/')">help</a>
@@ -265,8 +263,6 @@ button, input, select, textarea { min-width: 0; }
 </header>
 
 <section class="p-4 md:p-8 max-w-screen-2xl mx-auto">
-
-<div id="pageDashboard">
 
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
   <div>
@@ -367,48 +363,6 @@ button, input, select, textarea { min-width: 0; }
 </div>
 
 </div>
-</div>
-
-<div id="pageRoadmap" class="hidden">
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <h2 class="font-headline-lg text-headline-lg text-primary">Roadmap</h2>
-      <p class="font-body-lg text-on-surface-variant">Milestones & Progress Timeline</p>
-    </div>
-    <button class="bg-primary text-on-primary px-5 py-2.5 rounded-xl font-label-md flex items-center gap-2 hover:opacity-90 transition-all active:scale-90" onclick="showAddMilestone()">
-      <span class="material-symbols-outlined text-sm">add</span> Milestone
-    </button>
-  </div>
-  <div id="roadmapTimeline" class="space-y-4">
-    <p class="text-on-surface-variant text-center py-8">No milestones yet.</p>
-  </div>
-  <div class="mt-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
-    <h3 class="font-title-lg text-title-lg text-primary mb-4">Progress Overview</h3>
-    <div id="roadmapProgress" class="space-y-3"></div>
-  </div>
-</div>
-
-<!-- Add Milestone Modal -->
-<div id="milestoneModal" class="fixed inset-0 bg-black/50 z-[9999] hidden flex items-center justify-center p-4" onclick="if(event.target===this)closeMilestoneModal()">
-  <div class="bg-surface-container-lowest rounded-2xl shadow-xl p-6 w-full max-w-md" onclick="event.stopPropagation()">
-    <h3 class="font-title-lg text-title-lg text-primary mb-4">Add Milestone</h3>
-    <div class="space-y-3">
-      <input id="msTitle" class="w-full border border-outline-variant rounded-xl px-4 py-2.5 text-sm bg-surface" placeholder="Title"/>
-      <input id="msDate" type="date" class="w-full border border-outline-variant rounded-xl px-4 py-2.5 text-sm bg-surface"/>
-      <textarea id="msDesc" class="w-full border border-outline-variant rounded-xl px-4 py-2.5 text-sm bg-surface" placeholder="Description" rows="3"></textarea>
-      <select id="msStatus" class="w-full border border-outline-variant rounded-xl px-4 py-2.5 text-sm bg-surface">
-        <option value="pending">Pending</option>
-        <option value="in_progress">In Progress</option>
-        <option value="completed">Completed</option>
-      </select>
-    </div>
-    <div class="flex gap-3 mt-6">
-      <button class="flex-1 bg-primary text-on-primary py-2.5 rounded-xl font-semibold text-sm hover:opacity-90" onclick="saveMilestone()">Save</button>
-      <button class="flex-1 bg-surface-container text-on-surface-variant py-2.5 rounded-xl font-semibold text-sm border border-outline-variant hover:bg-surface-container-high" onclick="closeMilestoneModal()">Cancel</button>
-    </div>
-  </div>
-</div>
-
 </section>
 </main>
 
@@ -882,108 +836,6 @@ function checkWelcome() {
     document.getElementById('welcomeName').textContent = s.name || s.username;
     document.getElementById('welcomeModal').classList.remove('hidden');
   }
-}
-
-function toggleLang() {
-  var l = localStorage.getItem('kalyx_lang') || 'tl';
-  localStorage.setItem('kalyx_lang', l === 'en' ? 'tl' : 'en');
-  document.getElementById('langToggle').textContent = localStorage.getItem('kalyx_lang') === 'en' ? 'TL' : 'EN';
-}
-
-function exportRoadmap() {
-  var s = JSON.parse(localStorage.getItem('session') || '{}');
-  if (!s.loggedIn) return;
-  var data = {
-    trips: JSON.parse(localStorage.getItem('trips_' + s.username) || '[]'),
-    plans: JSON.parse(localStorage.getItem('plans_' + s.username) || '[]'),
-    milestones: JSON.parse(localStorage.getItem('milestones_' + s.username) || '[]')
-  };
-  exportJSON(data, 'roadmap-export-' + s.username + '-' + new Date().toISOString().split('T')[0] + '.json');
-  showToast('Data exported!', 'success');
-}
-
-function showSection(name) {
-  var pages = ['dashboard','trips','plans','roadmap'];
-  pages.forEach(function(p) {
-    var el = document.getElementById('page' + p.charAt(0).toUpperCase() + p.slice(1));
-    if (el) el.classList.add('hidden');
-  });
-  var target = document.getElementById('page' + name.charAt(0).toUpperCase() + name.slice(1));
-  if (target) target.classList.remove('hidden');
-  if (name === 'roadmap') renderRoadmap();
-}
-
-function renderRoadmap() {
-  var s = JSON.parse(localStorage.getItem('session') || '{}');
-  if (!s.loggedIn) return;
-  var milestones = JSON.parse(localStorage.getItem('milestones_' + s.username) || '[]');
-  var timeline = document.getElementById('roadmapTimeline');
-  if (!timeline) return;
-  if (!milestones.length) {
-    timeline.innerHTML = '<div class="text-center py-12 text-on-surface-variant"><span class="material-symbols-outlined text-4xl mb-2">timeline</span><p>No milestones yet. Click "Milestone" to add one.</p></div>';
-    return;
-  }
-  milestones.sort(function(a,b) { return (a.date||'').localeCompare(b.date||''); });
-  timeline.innerHTML = milestones.map(function(m, i) {
-    var statusIcon = m.status === 'completed' ? 'check_circle' : m.status === 'in_progress' ? 'progress_activity' : 'radio_button_unchecked';
-    var statusColor = m.status === 'completed' ? 'text-emerald-500' : m.status === 'in_progress' ? 'text-amber-500' : 'text-on-surface-variant';
-    var line = i < milestones.length - 1 ? '<div class="w-0.5 h-8 bg-outline-variant ml-[19px]"></div>' : '';
-    return '<div class="flex gap-4"><div class="flex flex-col items-center"><span class="material-symbols-outlined ' + statusColor + '">' + statusIcon + '</span>' + line + '</div><div class="flex-1 pb-2"><h4 class="font-semibold text-sm text-on-surface">' + (m.title || 'Untitled') + '</h4><p class="text-xs text-on-surface-variant">' + (m.date || '') + '</p><p class="text-xs text-on-surface-variant mt-1">' + (m.description || '') + '</p><div class="flex gap-2 mt-1"><span class="text-[10px] px-1.5 py-0.5 rounded-full ' + (m.status==='completed'?'bg-emerald-100 text-emerald-700':m.status==='in_progress'?'bg-amber-100 text-amber-700':'bg-surface-container-high text-on-surface-variant') + '">' + (m.status||'pending') + '</span></div></div></div>';
-  }).join('');
-  renderProgressOverview();
-}
-
-function renderProgressOverview() {
-  var s = JSON.parse(localStorage.getItem('session') || '{}');
-  if (!s.loggedIn) return;
-  var milestones = JSON.parse(localStorage.getItem('milestones_' + s.username) || '[]');
-  var tasks = JSON.parse(localStorage.getItem('tasks_' + s.username) || '[]');
-  var plans = JSON.parse(localStorage.getItem('plans_' + s.username) || '[]');
-  var container = document.getElementById('roadmapProgress');
-  if (!container) return;
-  var msTotal = milestones.length || 1;
-  var msDone = milestones.filter(function(m) { return m.status === 'completed'; }).length;
-  var tTotal = tasks.length || 1;
-  var tDone = tasks.filter(function(t) { return t.status === 'completed'; }).length;
-  var pTotal = plans.length || 1;
-  var pDone = plans.filter(function(p) { return p.status === 'completed'; }).length;
-  container.innerHTML = [
-    { label: 'Milestones', done: msDone, total: msTotal, color: 'bg-[#6366F1]' },
-    { label: 'Tasks', done: tDone, total: tTotal, color: 'bg-[#0D9488]' },
-    { label: 'Plans', done: pDone, total: pTotal, color: 'bg-[#0EA5E9]' }
-  ].map(function(item) {
-    var pct = Math.round((item.done / item.total) * 100);
-    return '<div><div class="flex justify-between text-sm mb-1"><span class="text-on-surface">' + item.label + '</span><span class="text-on-surface-variant">' + item.done + '/' + item.total + ' (' + pct + '%)</span></div><div class="w-full h-2.5 rounded-full bg-surface-container-high overflow-hidden"><div class="h-full rounded-full ' + item.color + ' transition-all duration-700" style="width:' + pct + '%"></div></div></div>';
-  }).join('');
-}
-
-function showAddMilestone() {
-  document.getElementById('milestoneModal').classList.remove('hidden');
-}
-
-function closeMilestoneModal() {
-  document.getElementById('milestoneModal').classList.add('hidden');
-}
-
-function saveMilestone() {
-  var s = JSON.parse(localStorage.getItem('session') || '{}');
-  if (!s.loggedIn) return;
-  var title = document.getElementById('msTitle').value.trim();
-  var date = document.getElementById('msDate').value;
-  var desc = document.getElementById('msDesc').value.trim();
-  var status = document.getElementById('msStatus').value;
-  if (!title) { showToast('Please enter a title', 'warning'); return; }
-  if (!date) { showToast('Please select a date', 'warning'); return; }
-  var milestones = JSON.parse(localStorage.getItem('milestones_' + s.username) || '[]');
-  milestones.push({ id: Date.now().toString(), title: title, date: date, description: desc, status: status, createdAt: new Date().toISOString() });
-  localStorage.setItem('milestones_' + s.username, JSON.stringify(milestones));
-  closeMilestoneModal();
-  document.getElementById('msTitle').value = '';
-  document.getElementById('msDate').value = '';
-  document.getElementById('msDesc').value = '';
-  renderRoadmap();
-  showToast('Milestone added!', 'success');
-  audit('add_milestone', { title: title });
 }
 
 initTheme();
