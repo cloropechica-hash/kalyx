@@ -359,20 +359,36 @@ function startFBListener(uid) {
       .onSnapshot(function(doc) {
         if (!doc.exists) return;
         var data = doc.data();
-        if (!data || !data.profile) return;
+        if (!data) return;
 
-        // Merge with existing cache (don't overwrite what user is currently editing)
-        var oldCache = window.__fbCache || {};
-        window.__fbCache = data;
-        window.__fbLoaded = true;
-        syncCacheToLocalStorage(username);
+        // Preserve profile from existing cache if not in Firestore doc
+        if (!data.profile) {
+          data.profile = (window.__fbCache && window.__fbCache.profile) || null;
+        }
+        // If there's still no profile, try to load from profiles collection
+        if (!data.profile) {
+          db.collection('profiles').doc(username).get().then(function(pDoc) {
+            if (pDoc.exists) {
+              data.profile = pDoc.data();
+              applySnapshotData(username, data);
+            }
+          }).catch(function() {});
+          return;
+        }
 
-        // Notify UI to refresh
-        if (window.__fbOnUpdate) window.__fbOnUpdate(data, oldCache);
+        applySnapshotData(username, data);
       }, function(err) {
         console.warn('Firestore listener error:', err);
       });
   }).catch(function() {});
+}
+
+function applySnapshotData(username, data) {
+  var oldCache = window.__fbCache || {};
+  window.__fbCache = data;
+  window.__fbLoaded = true;
+  syncCacheToLocalStorage(username);
+  if (window.__fbOnUpdate) window.__fbOnUpdate(data, oldCache);
 }
 
 function stopFBListener() {
