@@ -1,11 +1,13 @@
-// Supabase Configuration (replaces Firebase)
-var SUPABASE_URL = 'https://xhweqrlyppvtksqbqrne.supabase.co';
-var SUPABASE_ANON_KEY = 'sb_publishable_UMaXwhml3R_i0HFxYDuzXg_LtFmx96A';
+var firebaseConfig = {
+  apiKey: "AIzaSyB0GxnuZxF0o34z13toRIvBpvdnedZookM",
+  authDomain: "kalyx-task.firebaseapp.com",
+  projectId: "kalyx-task",
+  storageBucket: "kalyx-task.firebasestorage.app",
+  messagingSenderId: "816431009992",
+  appId: "1:816431009992:web:dabfca4b936951ef2115fd",
+  measurementId: "G-D1DLCT2QJR"
+};
 
-var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false
-  }
-});
+window.__fbApp = null;
+window.__fbAuth = null;
+window.__fbDb = null;

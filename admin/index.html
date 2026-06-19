@@ -3,11 +3,67 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com;">
 <title>Administrator | Control Panel</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<script src="../scripts/tailwind-config.js"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "on-primary-container": "var(--on-primary-container)", "on-surface": "var(--on-surface)",
+        "outline": "var(--outline)", "on-background": "var(--on-background)",
+        "on-secondary-fixed": "var(--on-secondary-fixed)", "surface-container-highest": "var(--surface-container-highest)",
+        "inverse-surface": "var(--inverse-surface)", "tertiary-fixed-dim": "var(--tertiary-fixed-dim)",
+        "surface": "var(--surface)", "secondary": "var(--secondary)", "on-secondary": "var(--on-secondary)",
+        "on-primary-fixed-variant": "var(--on-primary-fixed-variant)", "secondary-container": "var(--secondary-container)",
+        "on-error": "var(--on-error)", "on-primary": "var(--on-primary)",
+        "on-error-container": "var(--on-error-container)", "on-tertiary": "var(--on-tertiary)",
+        "surface-container-high": "var(--surface-container-high)", "inverse-on-surface": "var(--inverse-on-surface)",
+        "on-secondary-container": "var(--on-secondary-container)", "surface-variant": "var(--surface-variant)",
+        "primary-container": "var(--primary-container)", "error-container": "var(--error-container)",
+        "tertiary": "var(--tertiary)", "inverse-primary": "var(--inverse-primary)",
+        "secondary-fixed-dim": "var(--secondary-fixed-dim)", "tertiary-container": "var(--tertiary-container)",
+        "surface-container-low": "var(--surface-container-low)", "surface-container-lowest": "var(--surface-container-lowest)",
+        "on-tertiary-container": "var(--on-tertiary-container)", "on-secondary-fixed-variant": "var(--on-secondary-fixed-variant)",
+        "surface-container": "var(--surface-container)", "on-primary-fixed": "var(--on-primary-fixed)",
+        "error": "var(--error)", "background": "var(--background)", "primary-fixed": "var(--primary-fixed)",
+        "surface-tint": "var(--surface-tint)", "outline-variant": "var(--outline-variant)",
+        "primary-fixed-dim": "var(--primary-fixed-dim)", "on-tertiary-fixed": "var(--on-tertiary-fixed)",
+        "on-tertiary-fixed-variant": "var(--on-tertiary-fixed-variant)", "on-surface-variant": "var(--on-surface-variant)",
+        "tertiary-fixed": "var(--tertiary-fixed)", "primary": "var(--primary)", "surface-dim": "var(--surface-dim)",
+        "surface-bright": "var(--surface-bright)", "secondary-fixed": "var(--secondary-fixed)"
+      },
+      borderRadius: { DEFAULT: "0.5rem", lg: "0.75rem", xl: "1rem", full: "9999px" },
+      fontFamily: {
+        "headline-md": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "body-lg": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "label-md": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "title-lg": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "code-sm": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "display-lg": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "body-md": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "headline-lg-mobile": ["-apple-system", "Inter", "system-ui", "sans-serif"],
+        "headline-lg": ["-apple-system", "Inter", "system-ui", "sans-serif"]
+      },
+      fontSize: {
+        "headline-md": ["24px", {lineHeight: "32px", fontWeight: "600"}],
+        "body-lg": ["16px", {lineHeight: "24px", fontWeight: "400"}],
+        "label-md": ["12px", {lineHeight: "16px", fontWeight: "500"}],
+        "title-lg": ["20px", {lineHeight: "28px", fontWeight: "600"}],
+        "code-sm": ["12px", {lineHeight: "16px", fontWeight: "400"}],
+        "display-lg": ["48px", {lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700"}],
+        "body-md": ["14px", {lineHeight: "20px", fontWeight: "400"}],
+        "headline-lg-mobile": ["24px", {lineHeight: "32px", fontWeight: "600"}],
+        "headline-lg": ["32px", {lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "600"}]
+      }
+    }
+  }
+}
+</script>
 <style>
 :root {
   --on-primary-container: #8590a6; --on-surface: #0b1c30; --outline: #75777d;
@@ -86,10 +142,12 @@ button, input, select, textarea { min-width: 0; }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
 </style>
   <link rel="stylesheet" href="../styles/custom.css" />
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="../firebase-config.js"></script>
-<script src="../scripts/supabase-data.js"></script>
-<script src="../scripts/theme.js"></script>
+<script src="../firebase-data.js"></script>
+<script src="../shared.js"></script>
 </head>
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
@@ -394,14 +452,7 @@ button, input, select, textarea { min-width: 0; }
       <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Registered users</span><span class="font-body-md font-semibold" id="sysInfoUsers">0</span></div>
     </div>
   </div>
-  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
-    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-emerald-500">cloud_upload</span> Sync Users to Cloud</h3>
-    <p class="font-body-md text-on-surface-variant mb-4">Create or update Supabase Auth accounts for all local users. Required para makapag-login sila sa ibang device.</p>
-    <button class="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-label-md hover:bg-emerald-700 transition-colors" onclick="syncAllLocalUsersToCloud()">
-      <span class="material-symbols-outlined">cloud_upload</span> Sync All Users to Cloud
-    </button>
-    <span id="syncStatus" class="font-label-md text-on-surface-variant ml-3"></span>
-  </div>
+
 </div>
 </section>
 
@@ -478,6 +529,10 @@ button, input, select, textarea { min-width: 0; }
         <input type="checkbox" id="userIsAdmin" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500"/>
         <label for="userIsAdmin" class="font-label-md text-on-surface-variant cursor-pointer">Portal Admin (can view all users' data within their portal)</label>
       </div>
+      <div class="flex items-center gap-2">
+        <input type="checkbox" id="userExecutiveAdmin" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500"/>
+        <label for="userExecutiveAdmin" class="font-label-md text-on-surface-variant cursor-pointer">Executive Administrator (access to Inventory, System Monitor &amp; Knowledge Base)</label>
+      </div>
       <div class="flex gap-3 pt-2">
         <button class="flex-1 bg-primary text-on-primary py-3 rounded-xl font-title-lg hover:opacity-90 transition-all active:scale-[0.98]" onclick="saveUser()">Save</button>
         <button class="flex-1 border border-outline-variant text-on-surface-variant py-3 rounded-xl font-title-lg hover:bg-surface-container transition-all" onclick="closeUserModal()">Cancel</button>
@@ -499,41 +554,12 @@ button, input, select, textarea { min-width: 0; }
 </div>
 
 <script>
-function getSession() {
-  return JSON.parse(localStorage.getItem('session') || 'null');
-}
-
-function getBaseUrl() {
-  var p = window.location.pathname.replace(/\/?index\.html$/, '').replace(/\/$/, '');
-  return p.substring(0, p.lastIndexOf('/') + 1);
-}
-
 function goTo(path) { window.location.href = getBaseUrl() + path; }
 
 function initAuth(callback) {
-  initFirebase(function(err, user) {
-    if (!err && user && window.__fbLoaded) {
-      var profile = getFB('profile') || {};
-      if (profile.isAdmin) {
-        var fbSession = {
-          username: profile.username,
-          name: profile.name || profile.username,
-          email: user.email,
-          isAdmin: true,
-          role: 'admin',
-          supabaseUid: user.uid,
-          loggedIn: true,
-          timestamp: Date.now()
-        };
-        fbSaveSession(fbSession);
-        finishAuth(fbSession, callback);
-        return;
-      }
-    }
-    var session = getSession();
-    if (!session || !session.loggedIn) { goTo('login/'); return; }
-    finishAuth(session, callback);
-  });
+  var session = getSession();
+  if (!session || !session.loggedIn) { goTo('login/'); return; }
+  finishAuth(session, callback);
 }
 
 function finishAuth(session, callback) {
@@ -549,8 +575,6 @@ function finishAuth(session, callback) {
   if (callback) callback(session);
 }
 
-function toggleUserMenu() { document.getElementById('userMenu').classList.toggle('hidden'); }
-
 function checkWelcome() {
   var s = JSON.parse(localStorage.getItem('session') || '{}');
   if (!s.username) return;
@@ -562,7 +586,7 @@ function checkWelcome() {
   }
 }
 
-function doLogout() { fbLogout(function() { goTo('login/'); }); }
+function doLogout() { fbClearSession(); window.__fbCache = {}; window.__fbLoaded = false; goTo('login/'); }
 
 document.addEventListener('click', function(e) {
   var menu = document.getElementById('userMenu');
@@ -597,56 +621,6 @@ function showSection(id) {
   if (id === 'pageData') loadSystemInfo();
 }
 
-function escapeHtml(str) {
-  if (!str) return '';
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function mergeSupabaseUsers(sbUsers, localUsers) {
-  if (!sbUsers || !sbUsers.length) return localUsers;
-  var merged = localUsers.slice();
-  sbUsers.forEach(function(sb) {
-    var existing = merged.find(function(m) { return m.username === sb.username || m.email === sb.email; });
-    if (existing) {
-      existing.role = sb.role || existing.role;
-      existing.name = sb.name || sb.username || existing.name;
-      existing.email = sb.email || existing.email;
-      existing.isAdmin = sb.is_admin || (sb.role === 'admin');
-    } else {
-      merged.push({ username: sb.username, name: sb.name || sb.username, email: sb.email || '', role: sb.role || 'executive_task', isAdmin: sb.is_admin || false });
-    }
-  });
-  return merged;
-}
-
-function syncSupabaseUsers(callback) {
-  if (typeof supabaseClient === 'undefined') { if (callback) callback(); return; }
-
-  // Try RPC first (bypass RLS)
-  supabaseClient.rpc('get_all_profiles').then(function(rpcResult) {
-    if (!rpcResult.error && rpcResult.data && rpcResult.data.length) {
-      var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
-      var merged = mergeSupabaseUsers(rpcResult.data, localUsers);
-      localStorage.setItem('users', JSON.stringify(merged));
-      if (callback) callback();
-      return;
-    }
-    // RPC failed, try direct SELECT (gagana pagkatapos ng RLS fix)
-    throw new Error('RPC failed');
-  }).catch(function() {
-    supabaseClient.from('profiles').select('*').then(function(pResult) {
-      if (!pResult.error && pResult.data && pResult.data.length) {
-        var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
-        var merged = mergeSupabaseUsers(pResult.data, localUsers);
-        localStorage.setItem('users', JSON.stringify(merged));
-      }
-      if (callback) callback();
-    }).catch(function() {
-      if (callback) callback();
-    });
-  });
-}
-
 function getUsers() {
   var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
   // Merge legacy users_executive_it into single source
@@ -664,121 +638,6 @@ function getUsers() {
 }
 function saveUsers(users) {
   localStorage.setItem('users', JSON.stringify(users));
-}
-
-function fetchSupabaseUserData(username, callback) {
-  var client = supabaseClient;
-  if (!client) { if (callback) callback(null); return; }
-
-  // Hanapin muna ang UID ng user mula sa profiles
-  client.from('profiles').select('id').eq('username', username).single().then(function(pResult) {
-    if (pResult.error || !pResult.data) { if (callback) callback(null); return; }
-
-    client.rpc('get_userdata', { p_uid: pResult.data.id }).then(function(rpcResult) {
-      if (!rpcResult.error && rpcResult.data && Object.keys(rpcResult.data).length > 0) {
-        var data = typeof rpcResult.data === 'string' ? JSON.parse(rpcResult.data) : rpcResult.data;
-        // Sync sa localStorage
-        if (data.tasks) localStorage.setItem('tasks_' + username, JSON.stringify(data.tasks));
-        if (data.shared_tasks) localStorage.setItem('shared_tasks_' + username, JSON.stringify(data.shared_tasks));
-        if (data.plans) localStorage.setItem('plans_' + username, JSON.stringify(data.plans));
-        if (data.dailylog) localStorage.setItem('dailylog_' + username, JSON.stringify(data.dailylog));
-        if (data.trips) localStorage.setItem('trips_' + username, JSON.stringify(data.trips));
-        if (data.milestones) localStorage.setItem('milestones_' + username, JSON.stringify(data.milestones));
-        Object.keys(data).forEach(function(k) {
-          if (k.indexOf('it_') === 0) localStorage.setItem(k + '_' + username, JSON.stringify(data[k]));
-        });
-        if (callback) callback(data);
-      } else {
-        // Fallback sa direct SELECT
-        client.from('userdata').select('data').eq('id', pResult.data.id).single().then(function(sResult) {
-          if (!sResult.error && sResult.data && sResult.data.data) {
-            var d = sResult.data.data;
-            if (d.tasks) localStorage.setItem('tasks_' + username, JSON.stringify(d.tasks));
-            if (d.shared_tasks) localStorage.setItem('shared_tasks_' + username, JSON.stringify(d.shared_tasks));
-            if (d.plans) localStorage.setItem('plans_' + username, JSON.stringify(d.plans));
-            if (d.dailylog) localStorage.setItem('dailylog_' + username, JSON.stringify(d.dailylog));
-            if (d.trips) localStorage.setItem('trips_' + username, JSON.stringify(d.trips));
-            if (d.milestones) localStorage.setItem('milestones_' + username, JSON.stringify(d.milestones));
-            Object.keys(d).forEach(function(k) {
-              if (k.indexOf('it_') === 0) localStorage.setItem(k + '_' + username, JSON.stringify(d[k]));
-            });
-            if (callback) callback(d);
-          } else {
-            if (callback) callback(null);
-          }
-        }).catch(function() { if (callback) callback(null); });
-      }
-    }).catch(function() { if (callback) callback(null); });
-  }).catch(function() { if (callback) callback(null); });
-}
-
-function syncAllUsersFromSupabase(callback) {
-  var users = getUsers();
-  if (!users.length || typeof supabaseClient === 'undefined') { if (callback) callback(); return; }
-
-  var pending = users.length;
-  var done = 0;
-
-  users.forEach(function(u) {
-    fetchSupabaseUserData(u.username, function() {
-      done++;
-      if (done >= pending && callback) callback();
-    });
-  });
-}
-
-// I-sync ang lahat ng local users papuntang Supabase Auth (para makapag-login sa ibang device)
-function syncAllLocalUsersToCloud() {
-  var statusEl = document.getElementById('syncStatus');
-  if (!statusEl) return;
-  statusEl.textContent = 'Syncing...';
-
-  var users = getUsers();
-  if (!users.length || typeof supabaseClient === 'undefined') {
-    statusEl.textContent = 'No users or Supabase not connected.';
-    return;
-  }
-
-  var pending = users.length;
-  var done = 0;
-  var errors = 0;
-
-  users.forEach(function(u) {
-    var email = u.email || (u.username + '@app.local');
-
-    // I-ensure lang na may profile at userdata sa Supabase
-    // (Hindi na ginagalaw ang Auth account - yan ay kay admin mag-create o via login)
-    Promise.resolve(supabaseClient.from('profiles').select('id').eq('username', u.username).single()).then(function(p) {
-      if (p.data && p.data.id) {
-        // May profile na - update userdata
-        var userData = { profile: { username: u.username, name: u.name || u.username, email: email, isAdmin: u.isAdmin || false, role: u.role || 'executive_task' } };
-        ['tasks','plans','milestones','dailylog','trips','shared_tasks'].forEach(function(k) {
-          try { var v = JSON.parse(localStorage.getItem(k + '_' + u.username)); if (Array.isArray(v)) userData[k] = v; } catch(e) {}
-        });
-        ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
-          try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + u.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {}
-        });
-        Promise.resolve(supabaseClient.from('userdata').upsert({ id: p.data.id, data: userData }, { onConflict: 'id' })).then(function() {
-          done++;
-          if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users processed.' + (errors ? ' (' + errors + ' errors)' : '');
-        }, function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
-      } else {
-        // Wala pang profile - subukan i-create (kung may existing Auth account)
-        // Kung wala, ito ay mabibigo at magti-trigger ng error
-        Promise.resolve(supabaseClient.from('profiles').insert({
-          username: u.username, name: u.name || u.username,
-          email: email, role: u.role || 'executive_task', is_admin: u.isAdmin || false
-        })).then(function() {
-          done++;
-          if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users processed.' + (errors ? ' (' + errors + ' errors)' : '');
-        }, function() {
-          // Profile insert failed - malamang walang Auth account
-          done++; errors++;
-          if (done >= pending) statusEl.textContent = 'Sync done. ' + errors + ' users need Supabase Auth account. Create them via Users tab first.';
-        });
-      }
-    }, function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
-  });
 }
 
 function collectUserData(username) {
@@ -846,25 +705,6 @@ function loadDashboard() {
   }).join('') || '<p class="font-label-md text-on-surface-variant text-center py-8">No activity</p>';
 }
 
-function updateSupabaseProfile(email, profile) {
-  var client = supabaseClient;
-  if (!client) return;
-  // Gamit ang RPC para hindi ma-RLS block
-  client.rpc('get_all_profiles').then(function(result) {
-    if (result.error || !result.data) return;
-    var found = result.data.find(function(p) { return p.email === email; });
-    if (!found) return;
-    Promise.resolve(client.rpc('admin_update_profile', {
-      p_user_id: found.id,
-      p_username: profile.username,
-      p_name: profile.name || profile.username,
-      p_email: email,
-      p_role: profile.role || 'executive_task',
-      p_is_admin: profile.isAdmin || false
-    })).then(null, function(e) { console.error('Supabase profile update error:', e); });
-  });
-}
-
 async function hashPass(pass) {
   var enc = new TextEncoder().encode(pass);
   var buf = await crypto.subtle.digest('SHA-256', enc);
@@ -920,6 +760,7 @@ function openUserModal(data) {
   document.getElementById('userPassword').value = '';
   document.getElementById('userRole').value = data ? (data.role || 'executive_task') : 'executive_task';
   document.getElementById('userIsAdmin').checked = data ? !!data.isAdmin : false;
+  document.getElementById('userExecutiveAdmin').checked = data ? !!data.executiveAdmin : false;
   document.getElementById('userModal').classList.remove('hidden');
 }
 
@@ -932,6 +773,7 @@ async function saveUser() {
   var password = document.getElementById('userPassword').value;
   var role = document.getElementById('userRole').value;
   var isAdmin = document.getElementById('userIsAdmin').checked;
+  var executiveAdmin = document.getElementById('userExecutiveAdmin').checked;
   var editId = document.getElementById('editUserId').value;
   var errEl = document.getElementById('userModal').querySelector('.space-y-4');
   var oldErr = document.getElementById('userModalErr');
@@ -952,13 +794,9 @@ async function saveUser() {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
       err.textContent = 'Super Administrator role cannot be changed.'; errEl.prepend(err); return;
     }
-    users[idx].name = name; users[idx].username = username; users[idx].email = email; users[idx].role = role; users[idx].isAdmin = isAdmin;
+    users[idx].name = name; users[idx].username = username; users[idx].email = email; users[idx].role = role; users[idx].isAdmin = isAdmin; users[idx].executiveAdmin = executiveAdmin;
     if (password) users[idx].password = await hashPass(password);
     saveUsers(users);
-    // Sync changes to Supabase profile for cross-browser login
-    if (email && typeof supabaseClient !== 'undefined') {
-      updateSupabaseProfile(email, { username: username, name: name, role: role, isAdmin: isAdmin });
-    }
   } else {
     if (users.some(function(u) { return u.username === username; })) {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
@@ -968,27 +806,17 @@ async function saveUser() {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
       err.textContent = 'Password is required for new users.'; errEl.prepend(err); return;
     }
-    users.push({ username: username, name: name, email: email, password: await hashPass(password), role: role, isAdmin: isAdmin });
+    users.push({ username: username, name: name, email: email, password: await hashPass(password), role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin });
     localStorage.setItem('welcome_' + username, 'true');
     saveUsers(users);
-    // Also create Supabase Auth account + profile for cross-browser login
-    // Kung walang email, gamitin ang username@app.local para makapag-login sa ibang device
-    var syncEmail = email || (username + '@app.local');
-    if (typeof supabaseClient !== 'undefined') {
-      fbRegister(syncEmail, password, { username: username, name: name, role: role, isAdmin: isAdmin }, function(err) {
-        if (err) {
-          console.error('Supabase account creation error:', err);
-          // Show error to admin but don't block the flow
-          var statusEl = document.getElementById('syncStatus');
-          if (statusEl) statusEl.textContent = 'Note: ' + username + ' Supabase account: ' + (err.message || err).substring(0, 60);
-        }
+    // Create Firebase Auth account for cross-device login
+    var fbAuth = window.__fbAuth;
+    var fbDb = window.__fbDb;
+    if (fbAuth && fbDb && email) {
+      var syncPass = password || 'changeme123';
+      fbRegister(email, syncPass, { username: username, name: name, role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin }, function(regErr) {
+        if (regErr) console.warn('Firebase account creation:', regErr.message);
       });
-      // Update user record para may email na for future logins
-      if (!email) {
-        var allUsers = getUsers();
-        var foundUser = allUsers.find(function(x) { return x.username === username; });
-        if (foundUser) { foundUser.email = syncEmail; saveUsers(allUsers); }
-      }
     }
   }
   closeUserModal();
@@ -1011,21 +839,6 @@ function deleteUser(username) {
   ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(k) { localStorage.removeItem('it_' + k + '_' + username); });
   localStorage.removeItem('welcome_' + username);
   localStorage.removeItem('tutorial_' + username);
-
-  // Delete from Supabase din gamit ang RPC
-  var client = supabaseClient;
-  if (client) {
-    try {
-      // Hanapin ang user ID mula sa profiles
-      client.rpc('get_all_profiles').then(function(result) {
-        if (result.error || !result.data) return;
-        var found = result.data.find(function(p) { return p.username === username; });
-        if (found) {
-          Promise.resolve(client.rpc('admin_delete_user', { p_user_id: found.id })).then(null, function(e) { console.error('Supabase delete error:', e); });
-        }
-      });
-    } catch(e) {}
-  }
 
   renderUsers();
   loadDashboard();
@@ -1375,15 +1188,11 @@ function performGlobalSearch() {
 }
 
 initTheme();
-initAuth(function() {
-  checkWelcome();
-  syncSupabaseUsers(function() {
-    // I-sync ang lahat ng user data mula Supabase papuntang localStorage
-    // para makita ng admin ang data kahit sa ibang device ginawa
-    syncAllUsersFromSupabase(function() {
-      loadDashboard();
-      populateUserFilters();
-    });
+initFirebase(function() {
+  initAuth(function() {
+    checkWelcome();
+    loadDashboard();
+    populateUserFilters();
   });
 });
 </script>
