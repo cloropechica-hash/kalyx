@@ -31,7 +31,7 @@ function initFirebase(callback) {
     var unsub = auth.onAuthStateChanged(function(user) {
       unsub();
       if (user) {
-        loadFBData(user.uid, function() {
+        loadFBData(user.uid, user, function() {
           window.__fbLoaded = true;
           startFBListener(user.uid);
           if (callback) callback(null, user);
@@ -53,7 +53,7 @@ function finalizeInit(callback) {
   var auth = window.__fbAuth;
   var user = auth.currentUser;
   if (user) {
-    loadFBData(user.uid, function() {
+    loadFBData(user.uid, user, function() {
       window.__fbLoaded = true;
       startFBListener(user.uid);
       if (callback) callback(null, user);
@@ -71,7 +71,7 @@ function fbLogin(email, password, callback) {
 
   auth.signInWithEmailAndPassword(email, password)
     .then(function(cred) {
-      return loadFBData(cred.user.uid, function() {
+      return loadFBData(cred.user.uid, cred.user, function() {
         startFBListener(cred.user.uid);
         // Sync legacy localStorage data to Firestore (first login on new device)
         syncLegacyLocalData(cred.user.uid, function() {
@@ -198,7 +198,8 @@ function getSession() {
 }
 
 // Load user data from Firestore into localStorage cache
-function loadFBData(uid, callback) {
+function loadFBData(uid, user, callback) {
+  if (typeof user === 'function') { callback = user; user = null; }
   var db = window.__fbDb;
   if (!db) { window.__fbCache = {}; window.__fbLoaded = true; if (callback) callback(); return; }
 
@@ -209,6 +210,32 @@ function loadFBData(uid, callback) {
       var session = getSession();
       if (session) {
         loadLocalData(function() {
+          window.__fbLoaded = true;
+          if (callback) callback();
+        });
+        return;
+      }
+      // Auto-create profile from Firebase Auth user data
+      if (user && user.email) {
+        var autoUsername = user.email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '_');
+        var profileData = {
+          uid: uid,
+          email: user.email,
+          username: autoUsername,
+          name: user.displayName || autoUsername,
+          role: 'executive_path',
+          isAdmin: false,
+          executiveAdmin: false
+        };
+        db.collection('usernames').doc(autoUsername).set({ uid: uid, email: user.email }).then(function() {
+          return db.collection('profiles').doc(autoUsername).set(profileData);
+        }).then(function() {
+          window.__fbCache = { profile: profileData };
+          window.__fbLoaded = true;
+          syncCacheToLocalStorage(autoUsername);
+          if (callback) callback();
+        }).catch(function() {
+          window.__fbCache = { profile: profileData };
           window.__fbLoaded = true;
           if (callback) callback();
         });
@@ -507,7 +534,7 @@ function onAuthStateChanged(callback) {
   if (!auth) { if (callback) callback(null); return; }
   auth.onAuthStateChanged(function(user) {
     if (user) {
-      loadFBData(user.uid, function() {
+      loadFBData(user.uid, user, function() {
         if (callback) callback(user);
       });
     } else {
