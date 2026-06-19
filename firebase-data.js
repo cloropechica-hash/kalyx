@@ -232,10 +232,20 @@ function loadFBData(uid, user, callback) {
         db.collection('usernames').doc(autoUsername).set({ uid: uid, email: user.email }).then(function() {
           return db.collection('profiles').doc(autoUsername).set(profileData);
         }).then(function() {
-          window.__fbCache = { profile: profileData };
-          window.__fbLoaded = true;
-          syncCacheToLocalStorage(autoUsername);
-          if (callback) callback();
+          // Check if userdata already exists (saved by another device)
+          db.collection('userdata').doc(autoUsername).get().then(function(uDoc) {
+            var data = uDoc.exists ? uDoc.data() : {};
+            data.profile = profileData;
+            window.__fbCache = data;
+            window.__fbLoaded = true;
+            syncCacheToLocalStorage(autoUsername);
+            if (callback) callback();
+          }).catch(function() {
+            window.__fbCache = { profile: profileData };
+            window.__fbLoaded = true;
+            syncCacheToLocalStorage(autoUsername);
+            if (callback) callback();
+          });
         }).catch(function() {
           window.__fbCache = { profile: profileData };
           window.__fbLoaded = true;
@@ -281,7 +291,7 @@ function syncLegacyLocalData(uid, callback) {
   if (!db || !uid) { if (callback) callback(); return; }
 
   var session = getSession();
-  var username = session ? session.username : null;
+  var username = session ? session.username : (window.__fbCache && window.__fbCache.profile ? window.__fbCache.profile.username : null);
   if (!username) { if (callback) callback(); return; }
 
   // Check if profile exists in Firestore already
