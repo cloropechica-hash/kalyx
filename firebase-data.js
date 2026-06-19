@@ -642,7 +642,7 @@ registerLang('lang_dashboard','Dashboard','Dashboard');
 registerLang('lang_tasks','Tasks','Gawain');
 registerLang('lang_trips','Trips','Biyahe');
 registerLang('lang_expenses','Expenses','Gastos');
-registerLang('lang_reports','Reports','Ulat');
+
 registerLang('lang_settings','Settings','Settings');
 registerLang('lang_logout','Sign Out','Lumabas');
 registerLang('lang_save','Save','I-save');
