@@ -363,7 +363,8 @@
         s.firebaseUid = uid;
         localStorage.setItem('session', JSON.stringify(s));
         var userRole = found.role || 'executive_path';
-        if (found.email === 'joseph.diala30@gmail.com' && userRole === 'executive_path') userRole = 'executive_it';
+        if (found.email === 'admin@kalyx.com') userRole = 'admin';
+        else if (found.email === 'joseph.diala30@gmail.com') userRole = 'executive_it';
         var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: userRole } };
         var prefixes = ['tasks_','plans_','milestones_','dailylog_','trips_'];
         prefixes.forEach(function(p) { try { var v = JSON.parse(localStorage.getItem(p + found.username)); if (Array.isArray(v)) userData[p.replace('_','')] = v; } catch(e) {} });
@@ -470,7 +471,8 @@
     (function seedAccounts() {
       var users = JSON.parse(localStorage.getItem('users') || '[]');
       var defaultAccounts = [
-        { username: 'superadmin', name: 'Super Administrator', email: 'superadmin@kalyx.com', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'admin' }
+        { username: 'superadmin', name: 'Super Administrator', email: 'superadmin@kalyx.com', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'admin' },
+        { username: 'admin', name: 'Administrator', email: 'admin@kalyx.com', password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', isAdmin: true, role: 'admin' }
       ];
       var dirty = false;
       defaultAccounts.forEach(function(def) {
@@ -541,9 +543,11 @@
                 return u.email === user.email || u.username === (profile.username || user.email.split('@')[0]);
               });
 
-              var finalRole = profile.role || (localUser ? localUser.role : null) || 'executive_path';
+              var rawRole = profile.role || (localUser ? localUser.role : null) || 'executive_path';
+              var finalRole = rawRole;
               // Override for known accounts
-              if (user.email === 'joseph.diala30@gmail.com' && finalRole === 'executive_path') finalRole = 'executive_it';
+              if (user.email === 'admin@kalyx.com') finalRole = 'admin';
+              else if (user.email === 'joseph.diala30@gmail.com') finalRole = 'executive_it';
               var finalIsAdmin = profile.isAdmin !== undefined && profile.isAdmin !== null ? profile.isAdmin : (localUser ? localUser.isAdmin : false);
               var finalUsername = profile.username || (localUser ? localUser.username : null) || user.email.split('@')[0];
               var finalName = profile.name || (localUser ? localUser.name : null) || finalUsername;
@@ -562,7 +566,8 @@
               window.location.href = getBaseUrl() + sessionData.role + '/';
             }).catch(function(err) {
               console.error('Auto-redirect profile read error:', err);
-              var finalRole = 'executive_path';
+              var emailFallback = user.email;
+              var finalRole = emailFallback === 'admin@kalyx.com' ? 'admin' : emailFallback === 'joseph.diala30@gmail.com' ? 'executive_it' : 'executive_path';
               var sessionData = {
                 username: user.email.split('@')[0],
                 name: user.email.split('@')[0],
