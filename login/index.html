@@ -3,17 +3,15 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com;">
   <title>Executive Path | Login</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="../firebase-config.js"></script>
   <script src="../firebase-data.js"></script>
-  <script src="../shared.js"></script>
   <script>
     tailwind.config = {
       darkMode: "class",
@@ -245,6 +243,8 @@
       var errEl = document.getElementById('loginError');
       errEl.classList.add('hidden');
       setLoading(true);
+      // Flag to prevent onAuthStateChanged from interfering
+      window.__fbLoggingIn = true;
 
       if (!loginInput || !pass) {
         errEl.textContent = 'Please enter email and password.';
@@ -253,86 +253,144 @@
         return;
       }
 
-      function doFirebaseLogin(email) {
-        initFirebase(function(fbErr) {
-          if (fbErr) {
-            setLoading(false);
-            errEl.textContent = 'System error. Please try again.';
-            errEl.classList.remove('hidden');
-            return;
-          }
-
-          fbLogin(email, pass, function(loginErr, user) {
-            setLoading(false);
-            if (loginErr) {
-              var msg = loginErr.message || loginErr.toString();
-              if (msg.indexOf('user-not-found') > -1 || msg.indexOf('wrong-password') > -1 || msg.indexOf('invalid-credential') > -1) {
-                errEl.textContent = 'Invalid email or password.';
-              } else if (msg.indexOf('too-many-requests') > -1) {
-                errEl.textContent = 'Too many attempts. Please try again later.';
-              } else {
-                errEl.textContent = msg;
-              }
-              errEl.classList.remove('hidden');
-              return;
-            }
-
-            // Login successful — create session and redirect
-            var session = createSessionFromCache();
-            if (session) {
-              window.location.href = getBaseUrl() + (session.role || 'executive_path') + '/';
-            } else {
-              errEl.textContent = 'Account setup error. Contact admin.';
-              errEl.classList.remove('hidden');
-            }
-          });
+      // Check LocalStorage FIRST for instant login (solves 30-40s delay)
+      hashPass(pass).then(function(hash) {
+        var users = JSON.parse(localStorage.getItem('users') || '[]');
+        var found = users.find(function(u) {
+          return (u.username === loginInput || u.email === loginInput) && (u.password === hash || u.password === pass);
         });
-      }
 
-      if (loginInput.indexOf('@') !== -1) {
-        doFirebaseLogin(loginInput);
-      } else {
-        // Username entered — look up email
-        lookupEmailByUsername(loginInput, function(email) {
-          if (email) {
-            doFirebaseLogin(email);
-          } else {
-            // Fallback: check localStorage directly
-            hashPass(pass).then(function(hash) {
-              var users = JSON.parse(localStorage.getItem('users') || '[]');
-              var found = users.find(function(u) {
-                return u.username === loginInput && (u.password === hash || u.password === pass);
-              });
-              if (found) {
-                var role = found.role || 'executive_path';
-                localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, executiveAdmin: found.executiveAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
-                window.location.href = getBaseUrl() + role + '/';
+        if (found) {
+          var role = found.role || 'executive_path';
+          localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
+          // Create Firebase account in background for future cross-browser login
+          if (typeof firebase !== 'undefined' && firebase.apps.length) {
+            var syncEmail = found.email;
+            if (!syncEmail || syncEmail.indexOf('@') === -1) {
+              syncEmail = found.username + '@app.local';
+              found.email = syncEmail;
+              var allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+              var ux = allUsers.find(function(u) { return u.username === found.username; });
+              if (ux) { ux.email = syncEmail; localStorage.setItem('users', JSON.stringify(allUsers)); }
+            }
+            migrateLegacyUser(found, pass);
+          }
+          window.location.href = getBaseUrl() + role + '/';
+        } else {
+          // Fallback to Firebase if not found locally
+          if (typeof firebase !== 'undefined' && firebase.apps.length) {
+            // Non-blocking indicator after 15s — just updates button text, never errors
+            var slowNotice = setTimeout(function() {
+              document.getElementById('loginBtnText').textContent = 'Still connecting…';
+            }, 15000);
+
+            fbLogin(loginInput, pass, function(loginErr, session) {
+              if (loginErr) {
+                // Ipakita ang actual error para malaman kung ano ang problema
+                var errMsg = loginErr.message || loginErr.error_description || loginErr.toString();
+                // Kung "Email not confirmed" ang error, iba ang message
+                if (errMsg.indexOf('Email not confirmed') !== -1 || errMsg.indexOf('email_not_confirmed') !== -1) {
+                  errEl.textContent = 'Email not confirmed. Check your inbox or disable email confirmation in Supabase Auth settings.';
+                } else {
+                  errEl.textContent = errMsg;
+                }
+                // Baka username lang ang ginamit, subukan ang synthetic email para sa Firebase
+                if (loginInput.indexOf('@') === -1) {
+                  fbLogin(loginInput + '@app.local', pass, function(err2, session2) {
+                    clearTimeout(slowNotice);
+                    window.__fbLoggingIn = false;
+                    setLoading(false);
+                    if (err2) {
+                      errEl.textContent = err2.message || err2.error_description || err2.toString();
+                      errEl.classList.remove('hidden');
+                    } else {
+                      var users = JSON.parse(localStorage.getItem('users') || '[]');
+                      if (!users.some(function(u) { return u.email === session2.email || u.username === session2.username; })) {
+                        users.push({
+                          username: session2.username,
+                          name: session2.name,
+                          email: session2.email,
+                          password: hash,
+                          role: session2.role,
+                          isAdmin: session2.isAdmin
+                        });
+                        localStorage.setItem('users', JSON.stringify(users));
+                      }
+                      window.location.href = getBaseUrl() + session2.role + '/';
+                    }
+                  });
+                } else {
+                  clearTimeout(slowNotice);
+                  window.__fbLoggingIn = false;
+                  setLoading(false);
+                  errEl.classList.remove('hidden');
+                }
               } else {
-                setLoading(false);
-                errEl.textContent = 'Invalid username or password.';
-                errEl.classList.remove('hidden');
+                // Save user to localStorage for instant login next time
+                var users = JSON.parse(localStorage.getItem('users') || '[]');
+                if (!users.some(function(u) { return u.email === session.email || u.username === session.username; })) {
+                  users.push({
+                    username: session.username,
+                    name: session.name,
+                    email: session.email,
+                    password: hash,
+                    role: session.role,
+                    isAdmin: session.isAdmin
+                  });
+                  localStorage.setItem('users', JSON.stringify(users));
+                }
+                window.location.href = getBaseUrl() + session.role + '/';
               }
             });
+          } else {
+            window.__fbLoggingIn = false;
+            setLoading(false);
+            errEl.textContent = 'Invalid email or password.';
+            errEl.classList.remove('hidden');
           }
-        });
-      }
+        }
+      });
     }
 
-    function createSessionFromCache() {
-      var profile = getFB('profile');
-      if (!profile || !profile.username) return null;
-      var session = {
-        username: profile.username,
-        name: profile.name || profile.username,
-        email: profile.email || '',
-        isAdmin: profile.isAdmin || false,
-        executiveAdmin: profile.executiveAdmin || false,
-        role: profile.role || 'executive_path',
-        loggedIn: true,
-        timestamp: Date.now()
-      };
-      fbSaveSession(session);
-      return session;
+    // Background migration of legacy user to Firebase Auth
+    function migrateLegacyUser(found, pass) {
+      var s = JSON.parse(localStorage.getItem('session') || '{}');
+      if (typeof firebase === 'undefined' || !firebase.apps.length) return;
+      var fbAuth2 = firebase.auth();
+      var fbDb2 = firebase.firestore();
+      fbAuth2.createUserWithEmailAndPassword(found.email, pass).then(function(result) {
+        var uid = result.user.uid;
+        s.firebaseUid = uid;
+        localStorage.setItem('session', JSON.stringify(s));
+        var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: found.role || 'executive_path' } };
+        var prefixes = ['tasks_','plans_','milestones_','dailylog_','trips_'];
+        prefixes.forEach(function(p) { try { var v = JSON.parse(localStorage.getItem(p + found.username)); if (Array.isArray(v)) userData[p.replace('_','')] = v; } catch(e) {} });
+        var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
+        itTypes.forEach(function(t) { try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + found.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {} });
+        fbDb2.collection('users').doc(uid).set({
+          data: userData,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function() {
+          console.log('Migration to Firebase complete');
+        }, function(e) { console.error('Migration userdata error:', e); });
+      }).catch(function(err) {
+        console.error('Migration signup error:', err);
+        // Account might already exist - try to update their data
+        if (err.code === 'auth/email-already-in-use') {
+          var fbAuth2 = firebase.auth();
+          fbAuth2.signInWithEmailAndPassword(found.email, pass).then(function(result) {
+            var uid = result.user.uid;
+            s.firebaseUid = uid;
+            localStorage.setItem('session', JSON.stringify(s));
+            var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: found.role || 'executive_path' } };
+            fbDb2.collection('users').doc(uid).set({
+              data: userData,
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true }).catch(function(e) { console.error('Migration userdata update error:', e); });
+          }).catch(function(e) { console.error('Migration signin error:', e); });
+        }
+      });
     }
 
     function closeRegSuccess() {
@@ -359,44 +417,49 @@
         errEl.classList.remove('hidden');
         return;
       }
-      if (pass.length < 6) {
-        errEl.textContent = 'Password must be at least 6 characters.';
+      if (pass.length < 4) {
+        errEl.textContent = 'Password must be at least 4 characters.';
         errEl.classList.remove('hidden');
         return;
       }
 
       var role = document.getElementById('regRole').value;
 
-      // Initialize Firebase first
-      initFirebase(function(fbErr) {
-        if (fbErr) {
-          errEl.textContent = 'System error. Please try again.';
+      // Register via Supabase Auth
+      fbRegister(email, pass, { username: user, name: name, role: role, isAdmin: false }, function(regErr, session) {
+        if (regErr) {
+          var msg = regErr.message || regErr;
+          if (msg.indexOf('email-already') > -1) msg = 'Email already in use.';
+          else if (msg.indexOf('username') > -1) msg = 'Username already exists.';
+          else if (msg.indexOf('weak-password') > -1) msg = 'Password too weak (min 6 characters).';
+          errEl.textContent = msg;
           errEl.classList.remove('hidden');
           return;
         }
 
-        fbRegister(email, pass, { username: user, name: name, role: role, isAdmin: false }, function(regErr) {
-          if (regErr) {
-            var msg = regErr.message || regErr;
-            if (msg.indexOf('email-already') > -1) msg = 'Email already in use.';
-            else if (msg.indexOf('Username already') > -1) msg = 'Username already exists.';
-            else if (msg.indexOf('weak-password') > -1) msg = 'Password too weak (min 6 characters).';
-            errEl.textContent = msg;
-            errEl.classList.remove('hidden');
-            return;
-          }
+        // Save to localStorage users list immediately (Admin portal uses this)
+        var users = JSON.parse(localStorage.getItem('users') || '[]');
+        if (!users.some(function(u) { return u.username === user; })) {
+          users.push({ username: user, name: name, email: email, password: pass, role: role, isAdmin: false });
+          localStorage.setItem('users', JSON.stringify(users));
+          // Hash password in background for next login
+          hashPass(pass).then(function(hash) {
+            var users = JSON.parse(localStorage.getItem('users') || '[]');
+            var u = users.find(function(u) { return u.username === user; });
+            if (u) { u.password = hash; localStorage.setItem('users', JSON.stringify(users)); }
+          });
+        }
 
-          // Clear inputs
-          document.getElementById('regName').value = '';
-          document.getElementById('regUser').value = '';
-          document.getElementById('regEmail').value = '';
-          document.getElementById('regPass').value = '';
-          document.getElementById('regPass2').value = '';
+        // Clear inputs
+        document.getElementById('regName').value = '';
+        document.getElementById('regUser').value = '';
+        document.getElementById('regEmail').value = '';
+        document.getElementById('regPass').value = '';
+        document.getElementById('regPass2').value = '';
 
-          // Show Welcome Modal
-          document.getElementById('regSuccessName').textContent = name;
-          document.getElementById('regSuccessModal').classList.remove('hidden');
-        });
+        // Show Welcome Modal
+        document.getElementById('regSuccessName').textContent = name;
+        document.getElementById('regSuccessModal').classList.remove('hidden');
       });
     }
 
@@ -447,27 +510,71 @@
         }
       }
       keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
+      if (keysToRemove.length > 0) console.log('Cleaned ' + keysToRemove.length + ' stale localStorage entries from removed accounts');
     })();
 
     updateRegisterVisibility();
 
-    // Initialize Firebase and check session on page load
-    initFirebase(function() {
-      var existingSession = getSession();
-      if (existingSession && existingSession.loggedIn) {
-        // Also check Firebase Auth for validity
-        var auth = window.__fbAuth;
-        if (auth && auth.currentUser) {
-          window.location.href = getBaseUrl() + (existingSession.role || 'executive_path') + '/';
-        } else if (auth) {
-          // Session exists but Firebase not logged in — try to re-authenticate
-          // For now, just redirect (user can re-login)
-          window.location.href = getBaseUrl() + (existingSession.role || 'executive_path') + '/';
-        } else {
-          window.location.href = getBaseUrl() + (existingSession.role || 'executive_path') + '/';
-        }
+    var existingSession = JSON.parse(localStorage.getItem('session') || 'null');
+    if (existingSession && existingSession.loggedIn) {
+      window.location.href = getBaseUrl() + (existingSession.role || 'executive_path') + '/';
+    } else {
+      if (!window.__fbLoggingOut) {
+        var unsubscribe = firebase.auth().onAuthStateChanged(function(user) {
+          unsubscribe();
+          if (user && !window.__fbRegistering && !window.__fbLoggingIn && !window.__fbLoggingOut) {
+            window.__fbUser = { uid: user.uid, email: user.email };
+
+            var fbDb = firebase.firestore();
+            fbDb.collection('users').doc(user.uid).get().then(function(doc) {
+              var profile = {};
+              if (doc.exists) {
+                var data = doc.data().data || {};
+                profile = data.profile || {};
+              }
+
+              var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+              var localUser = localUsers.find(function(u) {
+                return u.email === user.email || u.username === (profile.username || user.email.split('@')[0]);
+              });
+
+              var finalRole = profile.role || (localUser ? localUser.role : null) || 'executive_path';
+              var finalIsAdmin = profile.isAdmin !== undefined && profile.isAdmin !== null ? profile.isAdmin : (localUser ? localUser.isAdmin : false);
+              var finalUsername = profile.username || (localUser ? localUser.username : null) || user.email.split('@')[0];
+              var finalName = profile.name || (localUser ? localUser.name : null) || finalUsername;
+
+              var sessionData = {
+                username: finalUsername,
+                name: finalName,
+                email: user.email,
+                isAdmin: finalIsAdmin,
+                role: finalRole,
+                firebaseUid: user.uid,
+                loggedIn: true,
+                timestamp: Date.now()
+              };
+              fbSaveSession(sessionData);
+              window.location.href = getBaseUrl() + sessionData.role + '/';
+            }).catch(function(err) {
+              console.error('Auto-redirect profile read error:', err);
+              var finalRole = 'executive_path';
+              var sessionData = {
+                username: user.email.split('@')[0],
+                name: user.email.split('@')[0],
+                email: user.email,
+                isAdmin: false,
+                role: finalRole,
+                firebaseUid: user.uid,
+                loggedIn: true,
+                timestamp: Date.now()
+              };
+              fbSaveSession(sessionData);
+              window.location.href = getBaseUrl() + sessionData.role + '/';
+            });
+          }
+        });
       }
-    });
+    }
   </script>
 </body>
 </html>

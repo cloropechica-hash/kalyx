@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com;">
 <title>Administrator | Control Panel</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -142,12 +141,11 @@ button, input, select, textarea { min-width: 0; }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
 </style>
   <link rel="stylesheet" href="../styles/custom.css" />
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="../firebase-config.js"></script>
 <script src="../firebase-data.js"></script>
-<script src="../shared.js"></script>
 </head>
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
@@ -452,7 +450,14 @@ button, input, select, textarea { min-width: 0; }
       <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Registered users</span><span class="font-body-md font-semibold" id="sysInfoUsers">0</span></div>
     </div>
   </div>
-
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-emerald-500">cloud_upload</span> Sync Users to Cloud</h3>
+    <p class="font-body-md text-on-surface-variant mb-4">Create or update Supabase Auth accounts for all local users. Required para makapag-login sila sa ibang device.</p>
+    <button class="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-label-md hover:bg-emerald-700 transition-colors" onclick="syncAllLocalUsersToCloud()">
+      <span class="material-symbols-outlined">cloud_upload</span> Sync All Users to Cloud
+    </button>
+    <span id="syncStatus" class="font-label-md text-on-surface-variant ml-3"></span>
+  </div>
 </div>
 </section>
 
@@ -529,10 +534,6 @@ button, input, select, textarea { min-width: 0; }
         <input type="checkbox" id="userIsAdmin" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500"/>
         <label for="userIsAdmin" class="font-label-md text-on-surface-variant cursor-pointer">Portal Admin (can view all users' data within their portal)</label>
       </div>
-      <div class="flex items-center gap-2">
-        <input type="checkbox" id="userExecutiveAdmin" class="rounded border-outline-variant text-indigo-600 focus:ring-indigo-500"/>
-        <label for="userExecutiveAdmin" class="font-label-md text-on-surface-variant cursor-pointer">Executive Administrator (access to Inventory, System Monitor &amp; Knowledge Base)</label>
-      </div>
       <div class="flex gap-3 pt-2">
         <button class="flex-1 bg-primary text-on-primary py-3 rounded-xl font-title-lg hover:opacity-90 transition-all active:scale-[0.98]" onclick="saveUser()">Save</button>
         <button class="flex-1 border border-outline-variant text-on-surface-variant py-3 rounded-xl font-title-lg hover:bg-surface-container transition-all" onclick="closeUserModal()">Cancel</button>
@@ -554,12 +555,55 @@ button, input, select, textarea { min-width: 0; }
 </div>
 
 <script>
+function getSession() {
+  return JSON.parse(localStorage.getItem('session') || 'null');
+}
+
+function getBaseUrl() {
+  var p = window.location.pathname.replace(/\/?index\.html$/, '').replace(/\/$/, '');
+  return p.substring(0, p.lastIndexOf('/') + 1);
+}
+
 function goTo(path) { window.location.href = getBaseUrl() + path; }
 
+function initTheme() {
+  var theme = localStorage.getItem('theme') || 'light';
+  if (theme === 'dark') document.documentElement.classList.add('dark');
+  var btn = document.getElementById('themeToggle');
+  if (btn) btn.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+}
+
+function toggleTheme() {
+  var isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  var btn = document.getElementById('themeToggle');
+  if (btn) btn.textContent = isDark ? 'light_mode' : 'dark_mode';
+}
+
 function initAuth(callback) {
-  var session = getSession();
-  if (!session || !session.loggedIn) { goTo('login/'); return; }
-  finishAuth(session, callback);
+  initFirebase(function(err, user) {
+    if (!err && user && window.__fbLoaded) {
+      var profile = getFB('profile') || {};
+      if (profile.isAdmin) {
+        var fbSession = {
+          username: profile.username,
+          name: profile.name || profile.username,
+          email: user.email,
+          isAdmin: true,
+          role: 'admin',
+          firebaseUid: user.uid,
+          loggedIn: true,
+          timestamp: Date.now()
+        };
+        fbSaveSession(fbSession);
+        finishAuth(fbSession, callback);
+        return;
+      }
+    }
+    var session = getSession();
+    if (!session || !session.loggedIn) { goTo('login/'); return; }
+    finishAuth(session, callback);
+  });
 }
 
 function finishAuth(session, callback) {
@@ -575,6 +619,8 @@ function finishAuth(session, callback) {
   if (callback) callback(session);
 }
 
+function toggleUserMenu() { document.getElementById('userMenu').classList.toggle('hidden'); }
+
 function checkWelcome() {
   var s = JSON.parse(localStorage.getItem('session') || '{}');
   if (!s.username) return;
@@ -586,7 +632,7 @@ function checkWelcome() {
   }
 }
 
-function doLogout() { fbClearSession(); window.__fbCache = {}; window.__fbLoaded = false; goTo('login/'); }
+function doLogout() { fbLogout(function() { goTo('login/'); }); }
 
 document.addEventListener('click', function(e) {
   var menu = document.getElementById('userMenu');
@@ -621,6 +667,38 @@ function showSection(id) {
   if (id === 'pageData') loadSystemInfo();
 }
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function syncFirestoreUsers(callback) {
+  var fbDb = firebase.firestore();
+  fbDb.collection('users').get().then(function(snapshot) {
+    var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    snapshot.forEach(function(doc) {
+      var data = doc.data().data || {};
+      var profile = data.profile || {};
+      if (profile.username) {
+        var existing = localUsers.find(function(u) { return u.username === profile.username || u.email === profile.email; });
+        if (!existing) {
+          localUsers.push({
+            username: profile.username,
+            name: profile.name || profile.username,
+            email: profile.email || '',
+            role: profile.role || 'executive_task',
+            isAdmin: profile.isAdmin || false
+          });
+        }
+      }
+    });
+    localStorage.setItem('users', JSON.stringify(localUsers));
+    if (callback) callback();
+  }).catch(function() {
+    if (callback) callback();
+  });
+}
+
 function getUsers() {
   var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
   // Merge legacy users_executive_it into single source
@@ -638,6 +716,101 @@ function getUsers() {
 }
 function saveUsers(users) {
   localStorage.setItem('users', JSON.stringify(users));
+}
+
+function fetchFirestoreUserData(username, callback) {
+  var fbDb = firebase.firestore();
+  // Look up user by querying Firestore users collection
+  fbDb.collection('users').get().then(function(snapshot) {
+    var found = false;
+    snapshot.forEach(function(doc) {
+      var data = doc.data().data || {};
+      var profile = data.profile || {};
+      if (profile.username === username) {
+        // Sync sa localStorage
+        if (data.tasks) localStorage.setItem('tasks_' + username, JSON.stringify(data.tasks));
+        if (data.shared_tasks) localStorage.setItem('shared_tasks_' + username, JSON.stringify(data.shared_tasks));
+        if (data.plans) localStorage.setItem('plans_' + username, JSON.stringify(data.plans));
+        if (data.dailylog) localStorage.setItem('dailylog_' + username, JSON.stringify(data.dailylog));
+        if (data.trips) localStorage.setItem('trips_' + username, JSON.stringify(data.trips));
+        if (data.milestones) localStorage.setItem('milestones_' + username, JSON.stringify(data.milestones));
+        Object.keys(data).forEach(function(k) {
+          if (k.indexOf('it_') === 0) localStorage.setItem(k + '_' + username, JSON.stringify(data[k]));
+        });
+        found = true;
+        if (callback) callback(data);
+      }
+    });
+    if (!found && callback) callback(null);
+  }).catch(function() { if (callback) callback(null); });
+}
+
+function syncAllUsersFromFirestore(callback) {
+  var users = getUsers();
+  if (!users.length) { if (callback) callback(); return; }
+
+  var pending = users.length;
+  var done = 0;
+
+  users.forEach(function(u) {
+    fetchFirestoreUserData(u.username, function() {
+      done++;
+      if (done >= pending && callback) callback();
+    });
+  });
+}
+
+// I-sync ang lahat ng local users papuntang Firebase (para makapag-login sa ibang device)
+function syncAllLocalUsersToCloud() {
+  var statusEl = document.getElementById('syncStatus');
+  if (!statusEl) return;
+  statusEl.textContent = 'Syncing...';
+
+  var users = getUsers();
+  if (!users.length || typeof firebase === 'undefined') {
+    statusEl.textContent = 'No users or Firebase not connected.';
+    return;
+  }
+
+  var pending = users.length;
+  var done = 0;
+  var errors = 0;
+
+  var fbDb = firebase.firestore();
+
+  users.forEach(function(u) {
+    var email = u.email || (u.username + '@app.local');
+    var userData = { profile: { username: u.username, name: u.name || u.username, email: email, isAdmin: u.isAdmin || false, role: u.role || 'executive_task' } };
+    ['tasks','plans','milestones','dailylog','trips','shared_tasks'].forEach(function(k) {
+      try { var v = JSON.parse(localStorage.getItem(k + '_' + u.username)); if (Array.isArray(v)) userData[k] = v; } catch(e) {}
+    });
+    ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
+      try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + u.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {}
+    });
+
+    // Find user by username in Firestore
+    fbDb.collection('users').get().then(function(snapshot) {
+      var found = false;
+      snapshot.forEach(function(doc) {
+        var data = doc.data().data || {};
+        var profile = data.profile || {};
+        if (profile.username === u.username) {
+          found = true;
+          fbDb.collection('users').doc(doc.id).set({
+            data: userData,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true }).then(function() {
+            done++;
+            if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users processed.' + (errors ? ' (' + errors + ' errors)' : '');
+          }, function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
+        }
+      });
+      if (!found) {
+        done++; errors++;
+        if (done >= pending) statusEl.textContent = 'Sync done. ' + errors + ' users need Firebase Auth account first.';
+      }
+    }, function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
+  });
 }
 
 function collectUserData(username) {
@@ -705,6 +878,29 @@ function loadDashboard() {
   }).join('') || '<p class="font-label-md text-on-surface-variant text-center py-8">No activity</p>';
 }
 
+function updateFirestoreProfile(email, profile) {
+  var fbDb = firebase.firestore();
+  fbDb.collection('users').get().then(function(snapshot) {
+    snapshot.forEach(function(doc) {
+      var data = doc.data().data || {};
+      var p = data.profile || {};
+      if (p.email === email) {
+        data.profile = {
+          username: profile.username,
+          name: profile.name || profile.username,
+          email: email,
+          role: profile.role || 'executive_task',
+          isAdmin: profile.isAdmin || false
+        };
+        fbDb.collection('users').doc(doc.id).set({
+          data: data,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).catch(function(e) { console.error('Firestore profile update error:', e); });
+      }
+    });
+  }).catch(function(e) { console.error('Firestore query error:', e); });
+}
+
 async function hashPass(pass) {
   var enc = new TextEncoder().encode(pass);
   var buf = await crypto.subtle.digest('SHA-256', enc);
@@ -760,7 +956,6 @@ function openUserModal(data) {
   document.getElementById('userPassword').value = '';
   document.getElementById('userRole').value = data ? (data.role || 'executive_task') : 'executive_task';
   document.getElementById('userIsAdmin').checked = data ? !!data.isAdmin : false;
-  document.getElementById('userExecutiveAdmin').checked = data ? !!data.executiveAdmin : false;
   document.getElementById('userModal').classList.remove('hidden');
 }
 
@@ -773,7 +968,6 @@ async function saveUser() {
   var password = document.getElementById('userPassword').value;
   var role = document.getElementById('userRole').value;
   var isAdmin = document.getElementById('userIsAdmin').checked;
-  var executiveAdmin = document.getElementById('userExecutiveAdmin').checked;
   var editId = document.getElementById('editUserId').value;
   var errEl = document.getElementById('userModal').querySelector('.space-y-4');
   var oldErr = document.getElementById('userModalErr');
@@ -794,39 +988,13 @@ async function saveUser() {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
       err.textContent = 'Super Administrator role cannot be changed.'; errEl.prepend(err); return;
     }
-    users[idx].name = name; users[idx].username = username; users[idx].email = email; users[idx].role = role; users[idx].isAdmin = isAdmin; users[idx].executiveAdmin = executiveAdmin;
+    users[idx].name = name; users[idx].username = username; users[idx].email = email; users[idx].role = role; users[idx].isAdmin = isAdmin;
     if (password) users[idx].password = await hashPass(password);
     saveUsers(users);
-    // Sync role changes to Firestore for cross-device consistency
-    try {
-      var fbDb = window.__fbDb;
-      var fbAuth = window.__fbAuth;
-      if (fbDb && editId) {
-        var oldUsername = editId;
-        var newUsername = username;
-        fbDb.collection('profiles').doc(newUsername).update({
-          name: name, email: email, role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin, username: newUsername
-        }).catch(function(e) {
-          // Document may not exist yet — use set instead
-          fbDb.collection('profiles').doc(newUsername).set({
-            uid: users[idx].uid || '', name: name, email: email, username: newUsername, role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin
-          }).catch(function(e2) { console.warn('Firestore profile create:', e2.message); });
-        });
-        // If username changed, clean up old documents
-        if (oldUsername !== newUsername) {
-          fbDb.collection('profiles').doc(oldUsername).delete().catch(function(e) {});
-          fbDb.collection('usernames').doc(oldUsername).delete().catch(function(e) {});
-          fbDb.collection('usernames').doc(newUsername).set({ uid: users[idx].uid || '', email: email }).catch(function(e) {});
-          fbDb.collection('userdata').doc(oldUsername).get().then(function(doc) {
-            if (doc.exists) {
-              fbDb.collection('userdata').doc(newUsername).set(doc.data()).then(function() {
-                fbDb.collection('userdata').doc(oldUsername).delete().catch(function(e) {});
-              }).catch(function(e) {});
-            }
-          }).catch(function(e) {});
-        }
-      }
-    } catch(e) { console.warn('Firestore sync error:', e); }
+    // Sync changes to Supabase profile for cross-browser login
+    if (email && typeof firebase !== 'undefined' && firebase.apps.length) {
+      updateFirestoreProfile(email, { username: username, name: name, role: role, isAdmin: isAdmin });
+    }
   } else {
     if (users.some(function(u) { return u.username === username; })) {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
@@ -836,17 +1004,25 @@ async function saveUser() {
       var err = document.createElement('p'); err.id = 'userModalErr'; err.className = 'font-label-md text-red-600';
       err.textContent = 'Password is required for new users.'; errEl.prepend(err); return;
     }
-    users.push({ username: username, name: name, email: email, password: await hashPass(password), role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin });
+    users.push({ username: username, name: name, email: email, password: await hashPass(password), role: role, isAdmin: isAdmin });
     localStorage.setItem('welcome_' + username, 'true');
     saveUsers(users);
-    // Create Firebase Auth account for cross-device login
-    var fbAuth = window.__fbAuth;
-    var fbDb = window.__fbDb;
-    if (fbAuth && fbDb && email) {
-      var syncPass = password || 'changeme123';
-      fbRegister(email, syncPass, { username: username, name: name, role: role, isAdmin: isAdmin, executiveAdmin: executiveAdmin }, function(regErr) {
-        if (regErr) console.warn('Firebase account creation:', regErr.message);
+    // Also create Supabase Auth account + profile for cross-browser login
+    // Kung walang email, gamitin ang username@app.local para makapag-login sa ibang device
+    var syncEmail = email || (username + '@app.local');
+    if (typeof firebase !== 'undefined' && firebase.apps.length) {
+      fbRegister(syncEmail, password, { username: username, name: name, role: role, isAdmin: isAdmin }, function(err) {
+        if (err) {
+          console.error('Firebase account creation error:', err);
+          var statusEl = document.getElementById('syncStatus');
+          if (statusEl) statusEl.textContent = 'Note: ' + username + ' Firebase account: ' + (err.message || err).substring(0, 60);
+        }
       });
+      if (!email) {
+        var allUsers = getUsers();
+        var foundUser = allUsers.find(function(x) { return x.username === username; });
+        if (foundUser) { foundUser.email = syncEmail; saveUsers(allUsers); }
+      }
     }
   }
   closeUserModal();
@@ -869,6 +1045,22 @@ function deleteUser(username) {
   ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(k) { localStorage.removeItem('it_' + k + '_' + username); });
   localStorage.removeItem('welcome_' + username);
   localStorage.removeItem('tutorial_' + username);
+
+  // Delete from Firestore din
+  if (typeof firebase !== 'undefined' && firebase.apps.length) {
+    var fbDb = firebase.firestore();
+    try {
+      fbDb.collection('users').get().then(function(snapshot) {
+        snapshot.forEach(function(doc) {
+          var data = doc.data().data || {};
+          var profile = data.profile || {};
+          if (profile.username === username) {
+            fbDb.collection('users').doc(doc.id).delete().catch(function(e) { console.error('Firestore delete error:', e); });
+          }
+        });
+      });
+    } catch(e) {}
+  }
 
   renderUsers();
   loadDashboard();
@@ -1218,14 +1410,10 @@ function performGlobalSearch() {
 }
 
 initTheme();
-initFirebase(function() {
-  // Load all users from Firestore profiles first, then render admin
-  fbGetAllUsernames(function(err, firestoreUsers) {
-    if (!err && firestoreUsers && firestoreUsers.length > 0) {
-      localStorage.setItem('users', JSON.stringify(firestoreUsers));
-    }
-    initAuth(function() {
-      checkWelcome();
+initAuth(function() {
+  checkWelcome();
+  syncFirestoreUsers(function() {
+    syncAllUsersFromFirestore(function() {
       loadDashboard();
       populateUserFilters();
     });

@@ -1,3 +1,4 @@
+// Firebase Configuration
 var firebaseConfig = {
   apiKey: "AIzaSyB0GxnuZxF0o34z13toRIvBpvdnedZookM",
   authDomain: "kalyx-task.firebaseapp.com",
@@ -8,6 +9,5 @@ var firebaseConfig = {
   measurementId: "G-D1DLCT2QJR"
 };
 
-window.__fbApp = null;
-window.__fbAuth = null;
-window.__fbDb = null;
+firebase.initializeApp(firebaseConfig);
+var firebaseApp = firebase.app();
