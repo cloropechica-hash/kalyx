@@ -5082,12 +5082,15 @@ initFirebase(function() {
     var badge = document.getElementById('adminBadge');
     if (badge) { badge.classList.toggle('hidden', !s.isAdmin); }
   }
+  // Re-render dashboard with fresh Firestore data
+  loadDashboard();
+  checkDueTasks();
 });
 
 // Real-time cross-browser sync: re-render current view
 fbOnUpdate(function(data) {
   var view = currentView || 'dashboard';
-  var syncViews = { services: 'renderServices', maintenance: 'renderMaintenance', inventory: 'renderInventory', task: 'renderTask', planner: 'renderPlanner', accomplishments: 'renderAccomplishments', tickets: 'renderTickets', systems: 'renderSystems', timetrack: 'renderTimetrack', knowledge: 'renderKnowledge' };
+  var syncViews = { dashboard: 'loadDashboard', services: 'renderServices', maintenance: 'renderMaintenance', inventory: 'renderInventory', task: 'renderTask', planner: 'renderPlanner', accomplishments: 'renderAccomplishments', tickets: 'renderTickets', systems: 'renderSystems', timetrack: 'renderTimetrack', knowledge: 'renderKnowledge' };
   if (syncViews[view]) {
     window[syncViews[view]]();
   }

@@ -2983,7 +2983,9 @@ initAuth(function() {
   updateNotifBadge();
   loadDashboard();
 });
-initFirebase(function() {});
+initFirebase(function() {
+  refreshCurrentView();
+});
 fbOnUpdate(function() { refreshCurrentView(); });
 
 // Avatar functions
