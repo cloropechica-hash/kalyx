@@ -362,7 +362,9 @@
         var uid = result.user.uid;
         s.firebaseUid = uid;
         localStorage.setItem('session', JSON.stringify(s));
-        var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: found.role || 'executive_path' } };
+        var userRole = found.role || 'executive_path';
+        if (found.email === 'joseph.diala30@gmail.com' && userRole === 'executive_path') userRole = 'executive_it';
+        var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: userRole } };
         var prefixes = ['tasks_','plans_','milestones_','dailylog_','trips_'];
         prefixes.forEach(function(p) { try { var v = JSON.parse(localStorage.getItem(p + found.username)); if (Array.isArray(v)) userData[p.replace('_','')] = v; } catch(e) {} });
         var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
@@ -534,11 +536,14 @@
               }
 
               var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+              try { var itUsers = JSON.parse(localStorage.getItem('users_executive_it') || '[]'); localUsers = localUsers.concat(itUsers); } catch(e) {}
               var localUser = localUsers.find(function(u) {
                 return u.email === user.email || u.username === (profile.username || user.email.split('@')[0]);
               });
 
               var finalRole = profile.role || (localUser ? localUser.role : null) || 'executive_path';
+              // Override for known accounts
+              if (user.email === 'joseph.diala30@gmail.com' && finalRole === 'executive_path') finalRole = 'executive_it';
               var finalIsAdmin = profile.isAdmin !== undefined && profile.isAdmin !== null ? profile.isAdmin : (localUser ? localUser.isAdmin : false);
               var finalUsername = profile.username || (localUser ? localUser.username : null) || user.email.split('@')[0];
               var finalName = profile.name || (localUser ? localUser.name : null) || finalUsername;

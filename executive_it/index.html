@@ -5438,18 +5438,18 @@ function doChangePassword() {
   if (!cur || !np || !cp) { err.textContent = 'Please fill in all fields.'; err.classList.remove('hidden'); return; }
   if (np !== cp) { err.textContent = 'New passwords do not match.'; err.classList.remove('hidden'); return; }
   if (np.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.classList.remove('hidden'); return; }
-  var client = getClient();
-  if (!client) { err.textContent = 'Not connected.'; err.classList.remove('hidden'); return; }
-  var email = (fbGetSession() || {}).email;
+  var user = firebase.auth().currentUser;
+  if (!user) { err.textContent = 'Not logged in.'; err.classList.remove('hidden'); return; }
+  var email = user.email;
   if (!email) { err.textContent = 'Session error.'; err.classList.remove('hidden'); return; }
-  client.auth.signInWithPassword({ email: email, password: cur }).then(function(r) {
-    if (r.error) { err.textContent = 'Current password is incorrect.'; err.classList.remove('hidden'); return; }
-    client.auth.updateUser({ password: np }).then(function(u) {
-      if (u.error) { err.textContent = u.error.message; err.classList.remove('hidden'); return; }
+  var cred = firebase.auth.EmailAuthProvider.credential(email, cur);
+  user.reauthenticateWithCredential(cred).then(function() {
+    user.updatePassword(np).then(function() {
       closeChangePasswordModal();
-      alert('Password updated successfully.');
-    });
-  });
+      if (typeof showToast === 'function') showToast('Password updated successfully.', 'success');
+      else alert('Password updated successfully.');
+    }).catch(function(e) { err.textContent = e.message; err.classList.remove('hidden'); });
+  }).catch(function(e) { err.textContent = 'Current password is incorrect.'; err.classList.remove('hidden'); });
 }
 
 function showAvatarModal() {

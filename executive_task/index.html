@@ -1117,23 +1117,19 @@ function populateAssigneeDropdown() {
   html += '<option value="__reload__">⟳ Reload user list…</option>';
   sel.innerHTML = html;
 
-  // Also try to get more users from Supabase
-  var client = getClient();
-  if (client) {
-    client.rpc('get_all_usernames').then(function(r) {
-      if (!r.error && r.data && r.data.length > 0) {
-        var html2 = '<option value="">— Unassigned —</option>';
-        var seen2 = {};
-        if (cur) seen2[cur] = true;
-        r.data.forEach(function(u) {
-          if (u.username && !seen2[u.username]) {
-            seen2[u.username] = true;
-            html2 += '<option value="' + escapeHtml(u.username) + '">' + escapeHtml(u.name || u.username) + ' (@' + escapeHtml(u.username) + ')</option>';
-          }
-        });
-        sel.innerHTML = html2;
-      }
-    });
+  // Shared user list from localStorage
+  var allUsers = [];
+  for (var k in localStorage) {
+    if (k.indexOf('users_') === 0) {
+      try { allUsers = allUsers.concat(JSON.parse(localStorage.getItem(k) || '[]')); } catch(e) {}
+    }
+  }
+  var seen2 = {}; if (cur) seen2[cur] = true;
+  var extra = allUsers.filter(function(u) { return u.username && !seen2[u.username] && (seen2[u.username] = true); });
+  if (extra.length) {
+    var h2 = '<option value="">— Unassigned —</option>';
+    extra.forEach(function(u) { h2 += '<option value="' + escapeHtml(u.username) + '">' + escapeHtml(u.name || u.username) + ' (@' + escapeHtml(u.username) + ')</option>'; });
+    sel.innerHTML = h2;
   }
 }
 
@@ -1828,10 +1824,7 @@ function onDrop(event) {
       st.status = newStatus;
       st.updatedAt = new Date().toISOString();
       saveSharedTasks(shared);
-      if (st.assignedBy && st.assignedBy !== currentUsername()) {
-        var client = getClient();
-        if (client) Promise.resolve(client.rpc('update_assigned_task_status', { p_creator_username: st.assignedBy, p_task_id: draggedTaskId, p_status: newStatus })).then(null, function(e) {});
-      }
+      if (st.assignedBy && st.assignedBy !== currentUsername()) {}
     }
   }
   draggedTaskId = null;
@@ -1953,23 +1946,11 @@ function saveTask() {
 }
 
 function assignTaskRPC(assigneeUsername, taskObj) {
-  var client = getClient();
-  if (!client) return;
-  var taskCopy = {};
-  for (var k in taskObj) {
-    if (k !== '_shared') taskCopy[k] = taskObj[k];
-  }
-  Promise.resolve(client.rpc('assign_task', { p_assignee_username: assigneeUsername, p_task: taskCopy })).then(null, function(e) {
-    console.error('assign_task RPC error:', e);
-  });
+  // Shared via localStorage — no server RPC needed
 }
 
 function removeSharedTaskRPC(assigneeUsername, taskId) {
-  var client = getClient();
-  if (!client) return;
-  Promise.resolve(client.rpc('remove_shared_task', { p_assignee_username: assigneeUsername, p_task_id: taskId })).then(null, function(e) {
-    console.error('remove_shared_task RPC error:', e);
-  });
+  // Shared via localStorage — no server RPC needed
 }
 
 
@@ -1983,16 +1964,7 @@ function setTaskStatus(id, status) {
     st.updatedAt = new Date().toISOString();
     saveSharedTasks(shared);
     // Sync status back to creator
-    if (st.assignedBy && st.assignedBy !== curUser) {
-      var client = getClient();
-      if (client) {
-        Promise.resolve(client.rpc('update_assigned_task_status', {
-          p_creator_username: st.assignedBy,
-          p_task_id: id,
-          p_status: status
-        })).then(null, function(e) { console.error('update_assigned_task_status error:', e); });
-      }
-    }
+    if (st.assignedBy && st.assignedBy !== curUser) {}
     refreshCurrentView();
     return;
   }
@@ -3145,18 +3117,18 @@ function doChangePassword() {
   if (!cur || !np || !cp) { err.textContent = 'Please fill in all fields.'; err.classList.remove('hidden'); return; }
   if (np !== cp) { err.textContent = 'New passwords do not match.'; err.classList.remove('hidden'); return; }
   if (np.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.classList.remove('hidden'); return; }
-  var client = getClient();
-  if (!client) { err.textContent = 'Not connected.'; err.classList.remove('hidden'); return; }
-  var email = (fbGetSession() || {}).email;
+  var user = firebase.auth().currentUser;
+  if (!user) { err.textContent = 'Not logged in.'; err.classList.remove('hidden'); return; }
+  var email = user.email;
   if (!email) { err.textContent = 'Session error.'; err.classList.remove('hidden'); return; }
-  client.auth.signInWithPassword({ email: email, password: cur }).then(function(r) {
-    if (r.error) { err.textContent = 'Current password is incorrect.'; err.classList.remove('hidden'); return; }
-    client.auth.updateUser({ password: np }).then(function(u) {
-      if (u.error) { err.textContent = u.error.message; err.classList.remove('hidden'); return; }
+  var cred = firebase.auth.EmailAuthProvider.credential(email, cur);
+  user.reauthenticateWithCredential(cred).then(function() {
+    user.updatePassword(np).then(function() {
       closeChangePasswordModal();
-      alert('Password updated successfully.');
-    });
-  });
+      if (typeof showToast === 'function') showToast('Password updated successfully.', 'success');
+      else alert('Password updated successfully.');
+    }).catch(function(e) { err.textContent = e.message; err.classList.remove('hidden'); });
+  }).catch(function(e) { err.textContent = 'Current password is incorrect.'; err.classList.remove('hidden'); });
 }
 
 function showAvatarModal() {
