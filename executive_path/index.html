@@ -208,10 +208,6 @@ button, input, select, textarea { min-width: 0; }
       <span class="material-symbols-outlined">flight_takeoff</span>
       <span class="font-label-md">Trips</span>
     </a>
-    <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200" href="#" onclick="goTo('executive_task/')">
-      <span class="material-symbols-outlined">assignment</span>
-      <span class="font-label-md">Tasks</span>
-    </a>
     <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200" href="#" onclick="goTo('settings/')">
       <span class="material-symbols-outlined">settings</span>
       <span class="font-label-md">Settings</span>
@@ -362,6 +358,25 @@ button, input, select, textarea { min-width: 0; }
   </div>
 </div>
 
+<div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm card-enter card-lift flex flex-col">
+  <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+    <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="w-1.5 h-5 rounded-full bg-emerald-500 inline-block"></span> Tasks</h3>
+    <span class="font-label-md text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-lg font-semibold"><span id="taskCount">0</span> tasks</span>
+  </div>
+  <div class="p-6">
+    <div class="flex gap-2 mb-6">
+      <input id="taskInput" class="flex-1 px-4 py-2.5 rounded-xl border border-outline-variant bg-surface-container focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary font-body-md transition-all" placeholder="Add a new task..." onkeydown="if(event.key==='Enter')addTask()">
+      <button class="flex items-center gap-1.5 bg-primary text-on-primary px-4 py-2.5 rounded-xl font-label-md hover:opacity-90 transition-all shadow-sm active:scale-95" onclick="addTask()"><span class="material-symbols-outlined text-sm">add</span> Add</button>
+    </div>
+    <div id="taskList" class="space-y-2">
+      <div class="flex flex-col items-center justify-center py-8 text-center">
+        <span class="material-symbols-outlined text-[36px] text-surface-container-highest">checklist</span>
+        <p class="font-body-md text-on-surface-variant mt-3">No tasks yet</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div>
 </section>
 </main>
@@ -374,10 +389,6 @@ button, input, select, textarea { min-width: 0; }
   <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="#" onclick="goTo('plan_new_trip/')">
     <span class="material-symbols-outlined text-xl">flight_takeoff</span>
     <span class="font-label-md text-[10px]">Trips</span>
-  </a>
-  <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="#" onclick="goTo('executive_task/')">
-    <span class="material-symbols-outlined text-xl">assignment</span>
-    <span class="font-label-md text-[10px]">Tasks</span>
   </a>
   <a class="flex flex-col items-center gap-0.5 text-on-surface-variant hover:text-primary active:scale-90 transition-all" href="#" onclick="goTo('settings/')">
     <span class="material-symbols-outlined text-xl">settings</span>
@@ -397,7 +408,6 @@ button, input, select, textarea { min-width: 0; }
     <nav class="flex-1 space-y-1.5">
       <a class="flex items-center gap-3 bg-white/20 text-white font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm" href="#" onclick="goTo('executive_path/')"><span class="material-symbols-outlined">dashboard</span> <span class="font-label-md">Dashboard</span></a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200" href="#" onclick="goTo('plan_new_trip/')"><span class="material-symbols-outlined">flight_takeoff</span> <span class="font-label-md">Trips</span></a>
-      <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200" href="#" onclick="goTo('executive_task/')"><span class="material-symbols-outlined">assignment</span> <span class="font-label-md">Tasks</span></a>
       <a class="flex items-center gap-3 text-indigo-200 hover:bg-white/10 hover:text-white px-4 py-3.5 rounded-xl transition-all duration-200" href="#" onclick="goTo('settings/')"><span class="material-symbols-outlined">settings</span> <span class="font-label-md">Settings</span></a>
     </nav>
     <button class="mt-auto w-full bg-white text-indigo-700 py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 hover:bg-indigo-50 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="goTo('plan_new_trip/')">
@@ -758,6 +768,61 @@ function initTripNotifications() {
   }
 }
 
+function getTasks() {
+  var s = JSON.parse(localStorage.getItem('session') || '{}');
+  if (!s.username) return [];
+  return JSON.parse(localStorage.getItem('tasks_' + s.username) || '[]');
+}
+
+function saveTasks(tasks) {
+  var s = JSON.parse(localStorage.getItem('session') || '{}');
+  if (!s.username) return;
+  localStorage.setItem('tasks_' + s.username, JSON.stringify(tasks));
+}
+
+function addTask() {
+  var input = document.getElementById('taskInput');
+  var text = input.value.trim();
+  if (!text) return;
+  var tasks = getTasks();
+  tasks.push({ id: Date.now(), text: text, done: false, createdAt: new Date().toISOString() });
+  saveTasks(tasks);
+  input.value = '';
+  loadTasks();
+}
+
+function toggleTask(id) {
+  var tasks = getTasks();
+  var t = tasks.find(function(x) { return x.id === id; });
+  if (t) t.done = !t.done;
+  saveTasks(tasks);
+  loadTasks();
+}
+
+function deleteTask(id) {
+  var tasks = getTasks().filter(function(x) { return x.id !== id; });
+  saveTasks(tasks);
+  loadTasks();
+}
+
+function loadTasks() {
+  var tasks = getTasks();
+  var list = document.getElementById('taskList');
+  var count = document.getElementById('taskCount');
+  count.textContent = tasks.length;
+  if (tasks.length === 0) {
+    list.innerHTML = '<div class="flex flex-col items-center justify-center py-8 text-center"><span class="material-symbols-outlined text-[36px] text-surface-container-highest">checklist</span><p class="font-body-md text-on-surface-variant mt-3">No tasks yet</p></div>';
+    return;
+  }
+  list.innerHTML = tasks.map(function(t) {
+    return '<div class="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-container-low transition-all group border border-outline-variant">' +
+      '<button class="w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ' + (t.done ? 'bg-primary border-primary' : 'border-outline hover:border-primary') + '" onclick="toggleTask(' + t.id + ')">' +
+      (t.done ? '<span class="material-symbols-outlined text-xs text-on-primary">check</span>' : '') + '</button>' +
+      '<span class="flex-1 font-body-md ' + (t.done ? 'line-through text-on-surface-variant' : '') + '">' + escapeHtml(t.text) + '</span>' +
+      '<button class="opacity-0 group-hover:opacity-100 material-symbols-outlined text-sm text-red-400 hover:text-red-600 transition-all" onclick="deleteTask(' + t.id + ')">close</button></div>';
+  }).join('');
+}
+
 var tutorialSteps = [
   { selector: null, title: 'Welcome to Executive Path!', desc: 'Let\'s take a quick tour of your travel management dashboard.', pos: 'center' },
   { selector: 'aside.sidebar-glass nav', title: 'Navigation', desc: 'Use the sidebar to switch between Dashboard, Trips, Reports, and Settings.', pos: 'right' },
@@ -842,12 +907,14 @@ initTheme();
 initAuth(function() {
   checkWelcome();
   loadDashboard();
+  loadTasks();
 });
 initTripNotifications();
 
 // Real-time cross-browser sync
 fbOnUpdate(function(data) {
   loadDashboard();
+  loadTasks();
 });
 
 // Avatar functions
