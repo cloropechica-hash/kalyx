@@ -262,6 +262,7 @@ function loadFBData(uid, user, callback) {
             window.__fbCache = data;
             window.__fbLoaded = true;
             syncCacheToLocalStorage(autoUsername);
+            fbSyncLocalToFirestore();
             if (callback) callback();
           }).catch(function() {
             window.__fbCache = { profile: profileData };
@@ -315,6 +316,8 @@ function loadFBData(uid, user, callback) {
       window.__fbCache = data;
       window.__fbLoaded = true;
       syncCacheToLocalStorage(username);
+      // Sync any unsynced localStorage data to Firestore
+      fbSyncLocalToFirestore();
       if (callback) callback();
     }).catch(function() {
       // Fallback: load from localStorage
@@ -690,6 +693,35 @@ function fbChangePassword(currentPassword, newPassword, callback) {
     if (callback) callback(null);
   }).catch(function(err) {
     if (callback) callback(err);
+  });
+}
+
+// Upload all localStorage data to Firestore (one-time sync)
+function fbSyncLocalToFirestore() {
+  var db = window.__fbDb;
+  if (!db) return;
+  var username = window.__fbCache && window.__fbCache.profile ? window.__fbCache.profile.username : null;
+  if (!username) return;
+
+  var data = {};
+  var typeKeys = ['tasks', 'shared_tasks', 'plans', 'milestones', 'dailylog', 'trips'];
+  typeKeys.forEach(function(k) {
+    try {
+      var v = JSON.parse(localStorage.getItem(k + '_' + username));
+      if (v !== null && v !== undefined) data[k] = v;
+    } catch(e) {}
+  });
+  var itTypes = ['assets', 'services', 'maintenance', 'inventory', 'task', 'planner', 'accomplishments', 'tickets', 'systems', 'knowledge', 'timetrack', 'auditlog'];
+  itTypes.forEach(function(t) {
+    try {
+      var v = JSON.parse(localStorage.getItem('it_' + t + '_' + username));
+      if (v !== null && v !== undefined) data['it_' + t] = v;
+    } catch(e) {}
+  });
+
+  if (Object.keys(data).length === 0) return;
+  db.collection('userdata').doc(username).set(data, { merge: true }).catch(function(err) {
+    console.warn('Firestore sync all error:', err.message);
   });
 }
 
