@@ -1156,9 +1156,12 @@ function getInitialServiceReports() {
   ];
 }
 
+var __initialKnowledgeCache = null;
+
 function getInitialKnowledge() {
+  if (__initialKnowledgeCache) return __initialKnowledgeCache;
   var baseId = Date.now();
-  return [
+  __initialKnowledgeCache = [
     {
       id: baseId + 301,
       createdAt: baseId - 86400000 * 1,
@@ -1536,6 +1539,7 @@ function getInitialKnowledge() {
       content: 'Training module for CCTV and biometric access control systems.\n\nModules Covered:\n1. CCTV System Overview\n   - NVR (Network Video Recorder) basics\n   - IP camera types and specifications\n   - Camera placement best practices\n\n2. NVR Configuration\n   - Adding cameras to NVR\n   - Recording schedules and motion detection\n   - Storage management and retention\n   - Remote viewing setup (mobile app)\n\n3. Biometric Access Control\n   - User enrollment (fingerprint, PIN, RFID)\n   - Access levels and schedules\n   - Door group management\n   - Anti-passback configuration\n\n4. System Maintenance\n   - Cleaning camera lenses\n   - Checking storage health\n   - Firmware updates\n   - Battery backup for door controllers\n\n5. Troubleshooting\n   - Camera offline / no video\n   - Biometric reader not responding\n   - Door not locking/unlocking\n   - Network connectivity issues\n\n6. Audit and Reporting\n   - Access logs review\n   - Door forced/open too long alerts\n   - Video playback and export\n   - Report generation for security\n\nClick "Launch Training" to start the interactive simulation.'
     }
   ];
+  return __initialKnowledgeCache;
 }
 
 function getData(type) {
