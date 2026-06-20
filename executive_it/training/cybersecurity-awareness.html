@@ -157,26 +157,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </head>
 <body>
 
-<div class="login-page" id="loginPage">
-  <div class="login-card">
-    <div class="login-logo">
-      <div class="login-logo-icon"><i class="ti ti-shield-check"></i></div>
-      <div class="login-logo-text">CyberSafe</div>
-    </div>
-    <div class="login-subtitle">Cybersecurity Awareness Training</div>
-    <div class="login-error" id="loginError"></div>
-    <div class="login-group">
-      <label class="login-label">Username / Email</label>
-      <input class="login-input" id="loginUser" placeholder="e.g., jdelacruz" autocomplete="username">
-    </div>
-    <div class="login-group">
-      <label class="login-label">Password</label>
-      <input class="login-input" type="password" id="loginPass" placeholder="Enter your password" autocomplete="current-password">
-    </div>
-    <button class="login-btn" onclick="doLogin()"><i class="ti ti-shield-check"></i> Sign In</button>
-    <div class="login-hint">Gamitin ang iyong executive portal account. Libre ang training na ito.</div>
-  </div>
-</div>
+
 
 <div class="app" id="appMain">
   <div class="topnav">
@@ -1081,72 +1062,9 @@ function closeModal(id) {
 }
 
 // ====== LOGIN ======
-function getSession() {
-  try { return JSON.parse(localStorage.getItem('session') || 'null'); } catch(e) { return null; }
-}
-
-function enterTraining(name) {
-  document.getElementById('loginError').style.display = 'none';
-  document.getElementById('loginPage').style.display = 'none';
-  document.getElementById('appMain').style.display = 'flex';
-  document.getElementById('welcomeMsg').textContent = 'Welcome, ' + name + '!';
-  document.getElementById('userName').textContent = name;
-  document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-  document.getElementById('userDisplay').style.display = 'flex';
-  updateAllDisplays();
-  addActivity('🔐 Started Cybersecurity Awareness Training');
-}
-
-async function hashPass(pass) {
-  try {
-    var enc = new TextEncoder().encode(pass);
-    var buf = await crypto.subtle.digest('SHA-256', enc);
-    return Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
-  } catch(e) { return null; }
-}
-
-function doLogin() {
-  var user = document.getElementById('loginUser').value.trim();
-  var pass = document.getElementById('loginPass').value;
-  if (!user) { document.getElementById('loginError').textContent = 'Please enter your Username / Email.'; document.getElementById('loginError').style.display = 'block'; return; }
-  if (!pass) { document.getElementById('loginError').textContent = 'Please enter your Password.'; document.getElementById('loginError').style.display = 'block'; return; }
-  var session = getSession();
-  if (session && session.loggedIn && (session.username === user || session.email === user)) {
-    enterTraining(session.name);
-    return;
-  }
-  var users = JSON.parse(localStorage.getItem('users') || '[]');
-  var found = null;
-  for (var i = 0; i < users.length; i++) {
-    if (users[i].username === user || users[i].email === user) {
-      if (users[i].password === pass) { found = users[i]; break; }
-    }
-  }
-  if (!found) {
-    hashPass(pass).then(function(hash) {
-      if (hash) {
-        for (var i = 0; i < users.length; i++) {
-          if ((users[i].username === user || users[i].email === user) && users[i].password === hash) {
-            enterTraining(users[i].name);
-            return;
-          }
-        }
-      }
-      document.getElementById('loginError').textContent = 'Invalid username or password. Use your executive portal account.';
-      document.getElementById('loginError').style.display = 'block';
-    });
-    return;
-  }
-  enterTraining(found.name);
-}
-
 // ====== INIT ======
 document.addEventListener('DOMContentLoaded', function() {
-  var session = getSession();
-  if (session && session.loggedIn && session.name) {
-    enterTraining(session.name);
-    return;
-  }
+  document.getElementById('appMain').style.display = 'flex';
   updateAllDisplays();
 });
 </script>
