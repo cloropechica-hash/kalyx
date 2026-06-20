@@ -219,7 +219,16 @@ button:active, .btn:active { opacity: 0.8; }
       <span class="material-symbols-outlined">map</span>
       <span class="font-label-md">Planner</span>
     </a>
-    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showDailyLog()">
+    
+    
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageTimeline'); loadTimeline();">
+      <span class="material-symbols-outlined">timeline</span>
+      <span class="font-label-md">Timeline</span>
+    </a>\n    
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageTimeline'); loadTimeline(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">timeline</span> <span class="font-label-md">Timeline</span></a>\n      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageAnalytics'); loadAnalytics();">
+      <span class="material-symbols-outlined">analytics</span>
+      <span class="font-label-md">Analytics</span>
+    </a>\n    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showDailyLog()">
       <span class="material-symbols-outlined">edit_note</span>
       <span class="font-label-md">Daily Log</span>
     </a>
@@ -559,7 +568,45 @@ button:active, .btn:active { opacity: 0.8; }
 <div id="logEntriesContainer" class="space-y-3"></div>
 
 </section>
-</main>
+
+<section id="pageAnalytics" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+    <div>
+      <h2 class="font-headline-lg text-headline-lg text-primary">Productivity Analytics</h2>
+      <p class="font-body-lg text-on-surface-variant">Track your time and evaluate your performance</p>
+    </div>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-lift">
+      <h3 class="font-title-lg text-primary mb-2">Total Focus Time</h3>
+      <div class="text-5xl font-bold text-[#6366F1] mb-2" id="analyticsTotalTime">0h 0m</div>
+      <p class="font-label-md text-on-surface-variant">Logged via Pomodoro and manual tracking</p>
+    </div>
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-lift">
+      <h3 class="font-title-lg text-primary mb-4">Time by Tags</h3>
+      <div id="analyticsTagBars" class="space-y-3">
+        <!-- Bars populated by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+\n
+<section id="pageTimeline" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+    <div>
+      <h2 class="font-headline-lg text-headline-lg text-primary">Project Timeline</h2>
+      <p class="font-body-lg text-on-surface-variant">Gantt-style view of your task durations</p>
+    </div>
+  </div>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+    <div class="overflow-x-auto custom-scrollbar p-6">
+      <div id="timelineContainer" class="min-w-[800px]">
+        <!-- Timeline populated by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+\n</main>
 
 <div id="mobile-menu" class="md:hidden hidden fixed inset-0 bg-black/60 z-50" onclick="this.classList.add('hidden')">
   <div class="absolute left-0 top-0 h-full w-72 bg-surface-container shadow-sm p-8" onclick="event.stopPropagation()">
@@ -575,7 +622,8 @@ button:active, .btn:active { opacity: 0.8; }
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showAllTasks()"><span class="material-symbols-outlined">checklist</span> <span class="font-label-md">All Tasks</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showBoard(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">view_column</span> <span class="font-label-md">Board</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showPlanner(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">map</span> <span class="font-label-md">Planner</span></a>
-      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showDailyLog(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">edit_note</span> <span class="font-label-md">Daily Log</span></a>
+      
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageAnalytics'); loadAnalytics(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">analytics</span> <span class="font-label-md">Analytics</span></a>\n      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showDailyLog(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">edit_note</span> <span class="font-label-md">Daily Log</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="toggleScratchpad(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">sticky_note_2</span> <span class="font-label-md">Notes</span></a>
     </nav>
     <button class="mt-auto w-full bg-primary text-on-primary py-3.5 px-6 rounded-xl font-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-200 shadow-sm active:scale-[0.97]" onclick="openCreateModal()">
@@ -589,7 +637,13 @@ button:active, .btn:active { opacity: 0.8; }
     <h3 class="font-title-lg text-title-lg text-primary flex items-center gap-2"><span class="material-symbols-outlined">timer</span> Pomodoro</h3>
     <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors" onclick="togglePomodoro()">close</button>
   </div>
-  <div class="text-center py-6">
+  
+  <div class="mb-4">
+    <label class="font-label-md text-on-surface-variant block mb-1">Active Task</label>
+    <select id="pomodoroActiveTask" class="w-full bg-surface-container border border-outline-variant rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+      <option value="">— General Focus (No Task) —</option>
+    </select>
+  </div>\n  <div class="text-center py-6">
     <div class="text-6xl font-bold tabular-nums text-primary mb-2" id="pomodoroDisplay">25:00</div>
     <p class="font-label-md text-on-surface-variant" id="pomodoroPhase">Focus Time</p>
   </div>
@@ -1829,7 +1883,13 @@ function openCreateModal() {
   document.getElementById('taskDesc').value = '';
   document.getElementById('taskStatus').value = 'todo';
   document.getElementById('taskPriority').value = 'medium';
-  document.getElementById('taskCategory').value = '';
+  currentTaskTags = [];
+  renderModalTags();
+  currentTaskResources = [];
+  renderModalResources();
+  currentTaskSubtasks = [];
+  renderModalSubtasks();
+  populateDependenciesDropdown();
   document.getElementById('taskDueDate').value = '';
   document.getElementById('taskRecurring').value = '';
   populateParentDropdown();
@@ -1849,7 +1909,21 @@ function openEditModal(id) {
   document.getElementById('taskDesc').value = t.description || '';
   document.getElementById('taskStatus').value = t.status || 'todo';
   document.getElementById('taskPriority').value = t.priority || 'medium';
-  document.getElementById('taskCategory').value = t.category || '';
+  currentTaskTags = t.tags ? t.tags.slice() : (t.category ? [t.category] : []);
+  renderModalTags();
+  currentTaskResources = t.resources ? JSON.parse(JSON.stringify(t.resources)) : [];
+  renderModalResources();
+  currentTaskSubtasks = t.subtasks ? JSON.parse(JSON.stringify(t.subtasks)) : [];
+  renderModalSubtasks();
+  populateDependenciesDropdown(t.id);
+  var depSel = document.getElementById('taskDependencies');
+  if (t.dependencies) {
+    for(var i=0; i<depSel.options.length; i++) {
+      if(t.dependencies.includes(parseInt(depSel.options[i].value))) {
+        depSel.options[i].selected = true;
+      }
+    }
+  }
   document.getElementById('taskDueDate').value = t.dueDate || '';
   document.getElementById('taskRecurring').value = t.recurring || '';
   populateParentDropdown();
@@ -1882,7 +1956,12 @@ function saveTask() {
       t.description = document.getElementById('taskDesc').value.trim();
       t.status = document.getElementById('taskStatus').value;
       t.priority = document.getElementById('taskPriority').value;
-      t.category = document.getElementById('taskCategory').value.trim();
+      t.tags = currentTaskTags.slice();
+      t.resources = currentTaskResources.filter(function(r) { return r.url.trim() !== ''; });
+      t.subtasks = currentTaskSubtasks.filter(function(st) { return st.title.trim() !== ''; });
+      var depSel = document.getElementById('taskDependencies');
+      t.dependencies = Array.from(depSel.selectedOptions).map(function(o) { return parseInt(o.value); });
+      delete t.category;
       t.dueDate = document.getElementById('taskDueDate').value;
       t.recurring = document.getElementById('taskRecurring').value || null;
       t.parentId = document.getElementById('taskParent').value || null;
@@ -1905,13 +1984,15 @@ function saveTask() {
       description: document.getElementById('taskDesc').value.trim(),
       status: document.getElementById('taskStatus').value,
       priority: document.getElementById('taskPriority').value,
-      category: document.getElementById('taskCategory').value.trim(),
+      tags: currentTaskTags.slice(),
+      resources: currentTaskResources.filter(function(r) { return r.url.trim() !== ''; }),
       dueDate: document.getElementById('taskDueDate').value,
       recurring: document.getElementById('taskRecurring').value || null,
       parentId: document.getElementById('taskParent').value || null,
       assignedTo: assignedTo || '',
       assignedBy: curUser || '',
-      subtasks: [],
+      subtasks: currentTaskSubtasks.filter(function(st) { return st.title.trim() !== ''; }),
+      dependencies: Array.from(document.getElementById('taskDependencies').selectedOptions).map(function(o) { return parseInt(o.value); }),
       timeSpent: 0,
       timerStart: null,
       createdAt: now,
