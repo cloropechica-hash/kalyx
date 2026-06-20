@@ -128,6 +128,7 @@ function mergeLocalToCache(username) {
   if (!username) return;
   var cache = window.__fbCache || {};
   var suffix = '_' + username;
+  var mergedAny = false;
   for (var i = 0; i < localStorage.length; i++) {
     var k = localStorage.key(i);
     if (!k) continue;
@@ -136,12 +137,18 @@ function mergeLocalToCache(username) {
         var val = JSON.parse(localStorage.getItem(k));
         var key = k.slice(0, -suffix.length);
         if (!cache[key] || (Array.isArray(cache[key]) && cache[key].length === 0)) {
-          cache[key] = val;
+          if (Array.isArray(val) && val.length > 0) {
+            cache[key] = val;
+            mergedAny = true;
+          }
         }
       } catch(e) {}
     }
   }
   window.__fbCache = cache;
+  if (mergedAny) {
+    saveFBFull();
+  }
 }
 
 function fbSubscribe(uid, onUpdate) {
@@ -172,6 +179,8 @@ function fbSubscribe(uid, onUpdate) {
         if (username) syncCacheToLocalStorage(username);
         if (onUpdate) onUpdate(merged);
         if (window.__fbOnUpdate) window.__fbOnUpdate(merged);
+      } else {
+        window.__fbLoaded = true;
       }
     }, function(err) {
       console.error('Firestore snapshot error:', err);
