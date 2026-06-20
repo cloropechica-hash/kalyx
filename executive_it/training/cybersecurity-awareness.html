@@ -1085,12 +1085,6 @@ function getSession() {
   try { return JSON.parse(localStorage.getItem('session') || 'null'); } catch(e) { return null; }
 }
 
-async function hashPass(pass) {
-  var enc = new TextEncoder().encode(pass);
-  var buf = await crypto.subtle.digest('SHA-256', enc);
-  return Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
-}
-
 function enterTraining(name) {
   document.getElementById('loginError').style.display = 'none';
   document.getElementById('loginPage').style.display = 'none';
@@ -1103,19 +1097,44 @@ function enterTraining(name) {
   addActivity('🔐 Started Cybersecurity Awareness Training');
 }
 
-async function doLogin() {
+async function hashPass(pass) {
+  try {
+    var enc = new TextEncoder().encode(pass);
+    var buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+  } catch(e) { return null; }
+}
+
+function doLogin() {
   var user = document.getElementById('loginUser').value.trim();
   var pass = document.getElementById('loginPass').value;
   if (!user) { document.getElementById('loginError').textContent = 'Please enter your Username / Email.'; document.getElementById('loginError').style.display = 'block'; return; }
   if (!pass) { document.getElementById('loginError').textContent = 'Please enter your Password.'; document.getElementById('loginError').style.display = 'block'; return; }
+  var session = getSession();
+  if (session && session.loggedIn && (session.username === user || session.email === user)) {
+    enterTraining(session.name);
+    return;
+  }
   var users = JSON.parse(localStorage.getItem('users') || '[]');
-  var hash = await hashPass(pass);
-  var found = users.find(function(u) {
-    return (u.username === user || u.email === user) && (u.password === hash || u.password === pass);
-  });
+  var found = null;
+  for (var i = 0; i < users.length; i++) {
+    if (users[i].username === user || users[i].email === user) {
+      if (users[i].password === pass) { found = users[i]; break; }
+    }
+  }
   if (!found) {
-    document.getElementById('loginError').textContent = 'Invalid username or password. Use your executive portal account.';
-    document.getElementById('loginError').style.display = 'block';
+    hashPass(pass).then(function(hash) {
+      if (hash) {
+        for (var i = 0; i < users.length; i++) {
+          if ((users[i].username === user || users[i].email === user) && users[i].password === hash) {
+            enterTraining(users[i].name);
+            return;
+          }
+        }
+      }
+      document.getElementById('loginError').textContent = 'Invalid username or password. Use your executive portal account.';
+      document.getElementById('loginError').style.display = 'block';
+    });
     return;
   }
   enterTraining(found.name);
