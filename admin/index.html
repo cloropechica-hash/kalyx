@@ -417,46 +417,15 @@ button, input, select, textarea { min-width: 0; }
 <section id="pageData" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
 <div class="mb-8">
   <h2 class="font-headline-lg text-headline-lg text-primary">Data Management</h2>
-  <p class="font-body-lg text-on-surface-variant">Export, import, and manage system data</p>
+  <p class="font-body-lg text-on-surface-variant">System data operations</p>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
   <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
-    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-indigo-500">download</span> Export Data</h3>
-    <p class="font-body-md text-on-surface-variant mb-4">Download all system data (users, tasks, plans, trips, logs) as a JSON file for backup.</p>
-    <button class="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-label-md hover:bg-indigo-700 transition-colors" onclick="exportAllData()">
-      <span class="material-symbols-outlined">file_download</span> Export All Data
-    </button>
-  </div>
-  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
-    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-amber-500">upload</span> Import Data</h3>
-    <p class="font-body-md text-on-surface-variant mb-4">Restore data from a previously exported JSON backup file. This will overwrite existing data.</p>
-    <input id="importFileInput" class="w-full mb-3 text-body-md file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-primary file:text-on-primary file:font-label-md hover:file:opacity-90" type="file" accept=".json"/>
-    <button class="flex items-center gap-2 bg-amber-600 text-white px-6 py-3 rounded-xl font-label-md hover:bg-amber-700 transition-colors" onclick="importData()">
-      <span class="material-symbols-outlined">file_upload</span> Import Data
-    </button>
-  </div>
-  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
-    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-red-500">delete_sweep</span> Clear Data</h3>
-    <p class="font-body-md text-on-surface-variant mb-4">Remove all system data. This action cannot be undone. Only user accounts will be preserved.</p>
-    <button class="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-xl font-label-md hover:bg-red-700 transition-colors" onclick="clearAllData()">
-      <span class="material-symbols-outlined">warning</span> Clear All Data
-    </button>
-  </div>
-  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
     <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-emerald-500">info</span> System Info</h3>
     <div class="space-y-3">
-      <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Total localStorage keys</span><span class="font-body-md font-semibold" id="sysInfoKeys">0</span></div>
-      <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Total data size</span><span class="font-body-md font-semibold" id="sysInfoSize">0 KB</span></div>
+      <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Data Source</span><span class="font-body-md font-semibold text-emerald-600">Firebase Firestore</span></div>
       <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Registered users</span><span class="font-body-md font-semibold" id="sysInfoUsers">0</span></div>
     </div>
-  </div>
-  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
-    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-emerald-500">cloud_upload</span> Sync Users to Cloud</h3>
-    <p class="font-body-md text-on-surface-variant mb-4">Create or update Supabase Auth accounts for all local users. Required para makapag-login sila sa ibang device.</p>
-    <button class="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-label-md hover:bg-emerald-700 transition-colors" onclick="syncAllLocalUsersToCloud()">
-      <span class="material-symbols-outlined">cloud_upload</span> Sync All Users to Cloud
-    </button>
-    <span id="syncStatus" class="font-label-md text-on-surface-variant ml-3"></span>
   </div>
 </div>
 </section>
@@ -672,157 +641,54 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function syncFirestoreUsers(callback) {
+window.adminDataCache = { users: [], data: {} };
+
+function fetchAllAdminData(callback) {
   var fbDb = firebase.firestore();
-  fbDb.collection('users').get().then(function(snapshot) {
-    var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
+  fbDb.collection('users').onSnapshot(function(snapshot) {
+    var users = [];
+    var data = {};
     snapshot.forEach(function(doc) {
-      var data = doc.data().data || {};
-      var profile = data.profile || {};
+      var docData = doc.data().data || {};
+      var profile = docData.profile || {};
       if (profile.username) {
-        var existing = localUsers.find(function(u) { return u.username === profile.username || u.email === profile.email; });
-        if (!existing) {
-          localUsers.push({
-            username: profile.username,
-            name: profile.name || profile.username,
-            email: profile.email || '',
-            role: profile.role || 'executive_task',
-            isAdmin: profile.isAdmin || false
-          });
-        }
+        users.push({
+          username: profile.username,
+          name: profile.name || profile.username,
+          email: profile.email || '',
+          role: profile.role || 'executive_task',
+          isAdmin: profile.isAdmin || false
+        });
+        data[profile.username] = docData;
       }
     });
-    localStorage.setItem('users', JSON.stringify(localUsers));
-    if (callback) callback();
-  }).catch(function() {
-    if (callback) callback();
+    window.adminDataCache.users = users;
+    window.adminDataCache.data = data;
+    if (callback) { callback(); callback = null; }
+    else { loadDashboard(); populateUserFilters(); } // update UI on changes
   });
 }
 
 function getUsers() {
-  var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
-  // Merge legacy users_executive_it into single source
-  var legacy = JSON.parse(localStorage.getItem('users_executive_it') || '[]');
-  if (legacy.length > 0) {
-    legacy.forEach(function(u) {
-      if (!localUsers.some(function(r) { return r.username === u.username; })) {
-        localUsers.push(u);
-      }
-    });
-    localStorage.setItem('users', JSON.stringify(localUsers));
-    localStorage.removeItem('users_executive_it');
-  }
-  return localUsers;
+  return window.adminDataCache.users || [];
 }
+
 function saveUsers(users) {
-  localStorage.setItem('users', JSON.stringify(users));
-}
-
-function fetchFirestoreUserData(username, callback) {
-  var fbDb = firebase.firestore();
-  // Look up user by querying Firestore users collection
-  fbDb.collection('users').get().then(function(snapshot) {
-    var found = false;
-    snapshot.forEach(function(doc) {
-      var data = doc.data().data || {};
-      var profile = data.profile || {};
-      if (profile.username === username) {
-        // Sync sa localStorage
-        if (data.tasks) localStorage.setItem('tasks_' + username, JSON.stringify(data.tasks));
-        if (data.shared_tasks) localStorage.setItem('shared_tasks_' + username, JSON.stringify(data.shared_tasks));
-        if (data.plans) localStorage.setItem('plans_' + username, JSON.stringify(data.plans));
-        if (data.dailylog) localStorage.setItem('dailylog_' + username, JSON.stringify(data.dailylog));
-        if (data.trips) localStorage.setItem('trips_' + username, JSON.stringify(data.trips));
-        if (data.milestones) localStorage.setItem('milestones_' + username, JSON.stringify(data.milestones));
-        Object.keys(data).forEach(function(k) {
-          if (k.indexOf('it_') === 0) localStorage.setItem(k + '_' + username, JSON.stringify(data[k]));
-        });
-        found = true;
-        if (callback) callback(data);
-      }
-    });
-    if (!found && callback) callback(null);
-  }).catch(function() { if (callback) callback(null); });
-}
-
-function syncAllUsersFromFirestore(callback) {
-  var users = getUsers();
-  if (!users.length) { if (callback) callback(); return; }
-
-  var pending = users.length;
-  var done = 0;
-
-  users.forEach(function(u) {
-    fetchFirestoreUserData(u.username, function() {
-      done++;
-      if (done >= pending && callback) callback();
-    });
-  });
-}
-
-// I-sync ang lahat ng local users papuntang Firebase (para makapag-login sa ibang device)
-function syncAllLocalUsersToCloud() {
-  var statusEl = document.getElementById('syncStatus');
-  if (!statusEl) return;
-  statusEl.textContent = 'Syncing...';
-
-  var users = getUsers();
-  if (!users.length || typeof firebase === 'undefined') {
-    statusEl.textContent = 'No users or Firebase not connected.';
-    return;
-  }
-
-  var pending = users.length;
-  var done = 0;
-  var errors = 0;
-
-  var fbDb = firebase.firestore();
-
-  users.forEach(function(u) {
-    var email = u.email || (u.username + '@app.local');
-    var userData = { profile: { username: u.username, name: u.name || u.username, email: email, isAdmin: u.isAdmin || false, role: u.role || 'executive_task' } };
-    ['tasks','plans','milestones','dailylog','trips','shared_tasks'].forEach(function(k) {
-      try { var v = JSON.parse(localStorage.getItem(k + '_' + u.username)); if (Array.isArray(v)) userData[k] = v; } catch(e) {}
-    });
-    ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
-      try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + u.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {}
-    });
-
-    // Find user by username in Firestore
-    fbDb.collection('users').get().then(function(snapshot) {
-      var found = false;
-      snapshot.forEach(function(doc) {
-        var data = doc.data().data || {};
-        var profile = data.profile || {};
-        if (profile.username === u.username) {
-          found = true;
-          fbDb.collection('users').doc(doc.id).set({
-            data: userData,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true }).then(function() {
-            done++;
-            if (done >= pending) statusEl.textContent = 'Sync complete! ' + pending + ' users processed.' + (errors ? ' (' + errors + ' errors)' : '');
-          }, function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
-        }
-      });
-      if (!found) {
-        done++; errors++;
-        if (done >= pending) statusEl.textContent = 'Sync done. ' + errors + ' users need Firebase Auth account first.';
-      }
-    }, function() { done++; errors++; if (done >= pending) statusEl.textContent = 'Sync done with ' + errors + ' errors.'; });
-  });
+  // Disabling local saveUsers. Accounts are managed directly in Firebase via userModal functions.
+  console.log('saveUsers is disabled. Update Firestore instead.');
 }
 
 function collectUserData(username) {
+  var docData = window.adminDataCache.data[username] || {};
   var data = {
-    tasks: JSON.parse(localStorage.getItem('tasks_' + username) || '[]'),
-    plans: JSON.parse(localStorage.getItem('plans_' + username) || '[]'),
-    milestones: JSON.parse(localStorage.getItem('milestones_' + username) || '[]'),
-    dailylog: JSON.parse(localStorage.getItem('dailylog_' + username) || '[]'),
-    trips: JSON.parse(localStorage.getItem('trips_' + username) || '[]')
+    tasks: docData.tasks || [],
+    plans: docData.plans || [],
+    milestones: docData.milestones || [],
+    dailylog: docData.dailylog || [],
+    trips: docData.trips || []
   };
   ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
-    data['it_' + t] = JSON.parse(localStorage.getItem('it_' + t + '_' + username) || '[]');
+    data['it_' + t] = docData['it_' + t] || [];
   });
   return data;
 }
@@ -1039,12 +905,7 @@ function editUser(username) {
 function deleteUser(username) {
   if (username === 'superadmin') return;
   if (!confirm('Delete user "' + username + '"? This will remove all their data.')) return;
-  var users = getUsers().filter(function(u) { return u.username !== username; });
-  saveUsers(users);
-  ['tasks','plans','milestones','dailylog','trips'].forEach(function(k) { localStorage.removeItem(k + '_' + username); });
-  ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(k) { localStorage.removeItem('it_' + k + '_' + username); });
-  localStorage.removeItem('welcome_' + username);
-  localStorage.removeItem('tutorial_' + username);
+
 
   // Delete from Firestore din
   if (typeof firebase !== 'undefined' && firebase.apps.length) {
@@ -1081,7 +942,8 @@ function renderAdminTasks() {
   var pf = document.getElementById('taskPriorityFilter').value;
   var all = [];
   users.forEach(function(u) {
-    var tk = JSON.parse(localStorage.getItem('tasks_' + u.username) || '[]');
+    var d = collectUserData(u.username);
+    var tk = d.tasks;
     tk.forEach(function(t) { t._user = u.name || u.username; t._username = u.username; });
     all = all.concat(tk);
   });
@@ -1123,8 +985,9 @@ function renderAdminPlans() {
   var sf = document.getElementById('planStatusFilter').value;
   var all = [];
   users.forEach(function(u) {
-    var pl = JSON.parse(localStorage.getItem('plans_' + u.username) || '[]');
-    var ms = JSON.parse(localStorage.getItem('milestones_' + u.username) || '[]');
+    var d = collectUserData(u.username);
+    var pl = d.plans;
+    var ms = d.milestones;
     pl.forEach(function(p) { p._user = u.name || u.username; p._username = u.username; p._milestones = ms.filter(function(m) { return m.planId === p.id; }); });
     all = all.concat(pl);
   });
@@ -1169,7 +1032,8 @@ function renderAdminDailyLogs() {
   var all = [];
   var allCategories = {};
   users.forEach(function(u) {
-    var lg = JSON.parse(localStorage.getItem('dailylog_' + u.username) || '[]');
+    var d = collectUserData(u.username);
+    var lg = d.dailylog;
     lg.forEach(function(l) { l._user = u.name || u.username; l._username = u.username; if (l.category) allCategories[l.category] = true; });
     all = all.concat(lg);
   });
@@ -1218,7 +1082,8 @@ function renderAdminTrips() {
   var sq = document.getElementById('tripSearch').value.toLowerCase();
   var all = [];
   users.forEach(function(u) {
-    var tr = JSON.parse(localStorage.getItem('trips_' + u.username) || '[]');
+    var d = collectUserData(u.username);
+    var tr = d.trips;
     tr.forEach(function(t) { t._user = u.name || u.username; t._username = u.username; });
     all = all.concat(tr);
   });
@@ -1253,79 +1118,7 @@ function renderAdminTrips() {
 }
 
 function loadSystemInfo() {
-  var keys = Object.keys(localStorage);
-  document.getElementById('sysInfoKeys').textContent = keys.length;
-  var size = 0;
-  keys.forEach(function(k) { size += (localStorage.getItem(k) || '').length * 2; });
-  document.getElementById('sysInfoSize').textContent = (size / 1024).toFixed(1) + ' KB';
   document.getElementById('sysInfoUsers').textContent = getUsers().length;
-}
-
-function exportAllData() {
-  var users = getUsers();
-  var data = { exportedAt: new Date().toISOString(), users: users };
-  var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
-  users.forEach(function(u) {
-    data['tasks_' + u.username] = JSON.parse(localStorage.getItem('tasks_' + u.username) || '[]');
-    data['plans_' + u.username] = JSON.parse(localStorage.getItem('plans_' + u.username) || '[]');
-    data['milestones_' + u.username] = JSON.parse(localStorage.getItem('milestones_' + u.username) || '[]');
-    data['dailylog_' + u.username] = JSON.parse(localStorage.getItem('dailylog_' + u.username) || '[]');
-    data['trips_' + u.username] = JSON.parse(localStorage.getItem('trips_' + u.username) || '[]');
-    itTypes.forEach(function(t) {
-      data['it_' + t + '_' + u.username] = JSON.parse(localStorage.getItem('it_' + t + '_' + u.username) || '[]');
-    });
-  });
-  var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'scheduler-backup-' + new Date().toISOString().slice(0,10) + '.json';
-  a.click(); URL.revokeObjectURL(a.href);
-}
-
-function importData() {
-  var fileInput = document.getElementById('importFileInput');
-  if (!fileInput.files.length) { alert('Please select a JSON file to import.'); return; }
-  if (!confirm('Importing will overwrite ALL existing data. Continue?')) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      var data = JSON.parse(e.target.result);
-      if (!data.users || !data.exportedAt) { alert('Invalid backup file format.'); return; }
-      saveUsers(data.users);
-      var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
-      data.users.forEach(function(u) {
-        if (data['tasks_' + u.username]) localStorage.setItem('tasks_' + u.username, JSON.stringify(data['tasks_' + u.username]));
-        if (data['plans_' + u.username]) localStorage.setItem('plans_' + u.username, JSON.stringify(data['plans_' + u.username]));
-        if (data['milestones_' + u.username]) localStorage.setItem('milestones_' + u.username, JSON.stringify(data['milestones_' + u.username]));
-        if (data['dailylog_' + u.username]) localStorage.setItem('dailylog_' + u.username, JSON.stringify(data['dailylog_' + u.username]));
-        if (data['trips_' + u.username]) localStorage.setItem('trips_' + u.username, JSON.stringify(data['trips_' + u.username]));
-        itTypes.forEach(function(t) {
-          var k = 'it_' + t + '_' + u.username;
-          if (data[k]) localStorage.setItem(k, JSON.stringify(data[k]));
-        });
-      });
-      fileInput.value = '';
-      alert('Data imported successfully!');
-      loadDashboard();
-    } catch(err) { alert('Error importing data: ' + err.message); }
-  };
-  reader.readAsText(fileInput.files[0]);
-}
-
-function clearAllData() {
-  if (!confirm('Are you sure you want to clear ALL data? This cannot be undone. User accounts will be preserved.')) return;
-  if (!confirm('FINAL WARNING: This will delete all tasks, plans, milestones, daily logs, trips, and IT data. Proceed?')) return;
-  localStorage.removeItem('session');
-  var users = getUsers();
-  users.forEach(function(u) {
-    ['tasks_','plans_','milestones_','dailylog_','trips_'].forEach(function(p) { localStorage.removeItem(p + u.username); });
-  });
-  ['it_assets_','it_services_','it_maintenance_','it_inventory_','it_task_','it_planner_','it_accomplishments_','it_tickets_','it_systems_'].forEach(function(p) {
-    for (var i = 0; i < localStorage.length; i++) {
-      var key = localStorage.key(i);
-      if (key.startsWith(p)) { localStorage.removeItem(key); i--; }
-    }
-  });
-  alert('All data cleared. User accounts preserved. Redirecting to login...');
-  doLogout();
 }
 
 function performGlobalSearch() {
@@ -1353,29 +1146,30 @@ function performGlobalSearch() {
 
   users.forEach(function(u) {
     var uname = u.name || u.username;
+    var d = collectUserData(u.username);
     if (searchTasks) {
-      JSON.parse(localStorage.getItem('tasks_' + u.username) || '[]').forEach(function(t) {
+      d.tasks.forEach(function(t) {
         if ((t.title || '').toLowerCase().indexOf(q) !== -1 || (t.description || '').toLowerCase().indexOf(q) !== -1 || (t.category || '').toLowerCase().indexOf(q) !== -1) {
           allResults.push({ type: 'task', title: t.title, subtitle: uname, user: uname, date: t.dueDate });
         }
       });
     }
     if (searchPlans) {
-      JSON.parse(localStorage.getItem('plans_' + u.username) || '[]').forEach(function(p) {
+      d.plans.forEach(function(p) {
         if ((p.title || '').toLowerCase().indexOf(q) !== -1 || (p.description || '').toLowerCase().indexOf(q) !== -1) {
           allResults.push({ type: 'plan', title: p.title, subtitle: uname, user: uname, date: p.startDate });
         }
       });
     }
     if (searchTrips) {
-      JSON.parse(localStorage.getItem('trips_' + u.username) || '[]').forEach(function(t) {
+      d.trips.forEach(function(t) {
         if ((t.tripName || t.title || '').toLowerCase().indexOf(q) !== -1 || (t.destination || '').toLowerCase().indexOf(q) !== -1) {
           allResults.push({ type: 'trip', title: t.tripName || t.title || 'Trip', subtitle: t.destination || uname, user: uname, date: t.startDate });
         }
       });
     }
     if (searchLogs) {
-      JSON.parse(localStorage.getItem('dailylog_' + u.username) || '[]').forEach(function(l) {
+      d.dailylog.forEach(function(l) {
         if ((l.title || '').toLowerCase().indexOf(q) !== -1 || (l.description || '').toLowerCase().indexOf(q) !== -1 || (l.category || '').toLowerCase().indexOf(q) !== -1) {
           allResults.push({ type: 'log', title: l.title, subtitle: uname, user: uname, date: l.date });
         }
@@ -1383,7 +1177,7 @@ function performGlobalSearch() {
     }
     if (searchIT) {
       ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(itType) {
-        JSON.parse(localStorage.getItem('it_' + itType + '_' + u.username) || '[]').forEach(function(item) {
+        d['it_' + itType].forEach(function(item) {
           if ((item.name || item.title || item.description || '').toLowerCase().indexOf(q) !== -1) {
             allResults.push({ type: 'it_' + itType, title: item.name || item.title || '(unnamed)', subtitle: uname, user: uname, date: item.date || item.createdAt });
           }
@@ -1412,11 +1206,9 @@ function performGlobalSearch() {
 initTheme();
 initAuth(function() {
   checkWelcome();
-  syncFirestoreUsers(function() {
-    syncAllUsersFromFirestore(function() {
-      loadDashboard();
-      populateUserFilters();
-    });
+  fetchAllAdminData(function() {
+    loadDashboard();
+    populateUserFilters();
   });
 });
 </script>

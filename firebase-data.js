@@ -64,41 +64,23 @@ function initFirebase(callback) {
 }
 
 function loadFBData(uid, callback) {
-  function getUsernameFromSession() {
-    var session = JSON.parse(localStorage.getItem('session') || 'null');
-    return session ? session.username : null;
-  }
-
-  function fallbackToLocalStorage() {
+  function fallback() {
     window.__fbCache = {};
     window.__fbLoaded = true;
     if (callback) callback();
   }
 
-  if (!uid || !fbDb) {
-    fallbackToLocalStorage();
-    return;
-  }
+  if (!uid || !fbDb) { fallback(); return; }
 
   fbDb.collection('users').doc(uid).get().then(function(doc) {
-    if (doc.exists) {
-      var data = doc.data().data || {};
-      window.__fbCache = data;
-      window.__fbLoaded = true;
-      if (callback) callback();
-    } else {
-      window.__fbCache = {};
-      window.__fbLoaded = true;
-      if (callback) callback();
-    }
+    var data = doc.exists ? (doc.data().data || {}) : {};
+    window.__fbCache = data;
+    window.__fbLoaded = true;
+    if (callback) callback();
   }).catch(function(err) {
     console.error('Firestore load error:', err);
-    fallbackToLocalStorage();
+    fallback();
   });
-}
-
-function mergeLocalToCache(username) {
-  // LocalStorage logic removed.
 }
 
 function fbSubscribe(uid, onUpdate) {
@@ -134,9 +116,7 @@ function fbSubscribe(uid, onUpdate) {
     });
 }
 
-function syncCacheToLocalStorage(username) {
-  // LocalStorage logic removed.
-}
+
 
 function saveFB(key, data, callback) {
   window.__fbCache[key] = data;
@@ -184,15 +164,6 @@ function fbClearSession() {
   localStorage.removeItem('session');
 }
 
-// ==================== MIGRATION ====================
-
-function migrateLocalStorageNoReload(uid, username) {
-  // LocalStorage logic removed.
-}
-
-function migrateLocalStorage(uid, callback) {
-  if (callback) callback();
-}
 
 // ==================== FIREBASE AUTH WRAPPERS ====================
 
@@ -210,13 +181,10 @@ function fbLogin(email, password, callback) {
           profile = data.profile || {};
         }
 
-        var localUsers = JSON.parse(localStorage.getItem('users') || '[]');
-        var localUser = localUsers.find(function(u) { return u.email === user.email; });
-
-        var username = profile.username || (localUser ? localUser.username : null) || user.email.split('@')[0];
-        var name = profile.name || (localUser ? localUser.name : null) || username;
-        var role = profile.role || (localUser ? localUser.role : null) || 'executive_path';
-        var isAdmin = profile.isAdmin || (localUser ? localUser.isAdmin : false) || false;
+        var username = profile.username || user.email.split('@')[0];
+        var name = profile.name || username;
+        var role = profile.role || 'executive_path';
+        var isAdmin = profile.isAdmin || false;
 
         var session = {
           username: username,
@@ -281,7 +249,6 @@ function fbRegister(email, password, profile, callback) {
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(function() {
-        localStorage.setItem('welcome_' + profile.username, 'true');
         window.__fbRegistering = false;
         if (callback) callback(null, { username: profile.username, name: profile.name, role: profile.role });
       }).catch(function(err) {
