@@ -93,27 +93,23 @@ function fbSubscribe(uid, onUpdate) {
 
   window.__fbUnsubscribe = fbDb.collection('users').doc(uid)
     .onSnapshot(function(doc) {
-      if (doc.exists) {
-        var incoming = doc.data().data || {};
-        var merged = {};
-        if (window.__fbCache && Object.keys(window.__fbCache).length > 0) {
-          for (var k in window.__fbCache) {
-            if (window.__fbCache.hasOwnProperty(k)) merged[k] = window.__fbCache[k];
-          }
-        }
-        for (var k in incoming) {
-          if (incoming.hasOwnProperty(k)) merged[k] = incoming[k];
-        }
-        window.__fbCache = merged;
-        window.__fbLoaded = true;
-        if (onUpdate) onUpdate(merged);
-        if (window.__fbOnUpdate) window.__fbOnUpdate(merged);
-      } else {
-        window.__fbLoaded = true;
-      }
+      window.__fbCache = doc.exists ? (doc.data().data || {}) : {};
+      window.__fbLoaded = true;
+      if (onUpdate) onUpdate(window.__fbCache);
+      if (window.__fbOnUpdate) window.__fbOnUpdate(window.__fbCache);
     }, function(err) {
       console.error('Firestore snapshot error:', err);
     });
+}
+
+function waitForFB() {
+  return new Promise(function(resolve) {
+    if (window.__fbLoaded) { resolve(window.__fbCache); return; }
+    var check = setInterval(function() {
+      if (window.__fbLoaded) { clearInterval(check); resolve(window.__fbCache); }
+    }, 50);
+    setTimeout(function() { clearInterval(check); resolve(window.__fbCache || {}); }, 10000);
+  });
 }
 
 
