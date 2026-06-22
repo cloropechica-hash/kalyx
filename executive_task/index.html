@@ -3260,55 +3260,151 @@ function renderPurchaseReport() {
 
 function exportPurchaseReport() {
   var year = parseInt(document.getElementById('reportYear').value) || new Date().getFullYear();
-  var reqs = getPurchasing().filter(function(r) {
+  var allReqs = getPurchasing();
+  var reqs = allReqs.filter(function(r) {
     if (!r.createdAt) return false;
     var d = new Date(r.createdAt);
     return !isNaN(d) && d.getFullYear() === year;
   });
 
-  var rows = [['PR#','Item','Quantity','Unit Cost','Total','Vendor','Status','Date']];
-  var grandTotal = 0;
+  var overall = calcPurchaseTotals(allReqs);
+  var yearTotal = 0, yearItems = 0, yearVendors = {};
+  var detailRows = [];
+
   reqs.forEach(function(r) {
     if (r.items && r.items.length > 0) {
       r.items.forEach(function(item) {
         var itemTotal = (item.qty || 0) * (item.cost || 0);
-        rows.push([
-          r.prNumber || '', item.name || '', item.qty || 0,
-          (item.cost || 0).toFixed(2), itemTotal.toFixed(2),
-          r.vendor || '-', r.status || '',
-          r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
-        ]);
-        grandTotal += itemTotal;
+        detailRows.push({
+          pr: r.prNumber || '', item: item.name || '', qty: item.qty || 0,
+          cost: (item.cost || 0).toFixed(2), total: itemTotal.toFixed(2),
+          vendor: r.vendor || '-', status: r.status || '',
+          date: r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
+        });
+        yearTotal += itemTotal; yearItems++;
+        if (r.vendor) yearVendors[r.vendor] = true;
       });
     } else {
-      rows.push([
-        r.prNumber || '', '-', 0, '0.00', (r.totalEst || 0).toFixed(2),
-        r.vendor || '-', r.status || '',
-        r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
-      ]);
-      grandTotal += (r.totalEst || 0);
+      detailRows.push({
+        pr: r.prNumber || '', item: '-', qty: 0, cost: '0.00',
+        total: (r.totalEst || 0).toFixed(2), vendor: r.vendor || '-',
+        status: r.status || '',
+        date: r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
+      });
+      yearTotal += (r.totalEst || 0); yearItems++;
+      if (r.vendor) yearVendors[r.vendor] = true;
     }
   });
 
-  rows.push([]);
-  rows.push(['GRAND TOTAL','','','', grandTotal.toFixed(2),'','','']);
+  if (detailRows.length === 0) { alert('No data to export for this year.'); return; }
 
-  if (rows.length <= 2) { alert('No data to export for this year.'); return; }
+  var now = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  var css = 'body{font-family:Arial,sans-serif;font-size:11px;color:#333;padding:20px}' +
+    '.title{font-size:22px;font-weight:bold;color:#1e293b;margin-bottom:2px}' +
+    '.subtitle{font-size:13px;color:#64748b;margin-bottom:20px}' +
+    '.section{font-size:14px;font-weight:bold;color:#1e293b;margin-top:20px;margin-bottom:8px;border-bottom:2px solid #1e293b;padding-bottom:4px}' +
+    'table{border-collapse:collapse;width:100%;margin-top:8px}' +
+    'th{background-color:#4f46e5;color:white;padding:8px 10px;font-size:11px;font-weight:bold;text-align:left;border:1px solid #3730a3}' +
+    'td{padding:6px 10px;border:1px solid #e2e8f0;font-size:11px}' +
+    'tr:nth-child(even){background-color:#f8fafc}' +
+    'tr:hover{background-color:#eef2ff}' +
+    '.total-row{background-color:#eef2ff !important;font-weight:bold}' +
+    '.grand-row{background-color:#1e293b !important;color:white !important;font-weight:bold}' +
+    '.overall-box{border:2px solid #4f46e5;border-radius:6px;padding:12px 16px;margin-bottom:16px;display:inline-block}' +
+    '.overall-label{font-size:11px;color:#64748b}' +
+    '.overall-value{font-size:16px;font-weight:bold;color:#1e293b}' +
+    '.right{text-align:right}' +
+    '.footer{font-size:10px;color:#94a3b8;margin-top:16px;text-align:center;border-top:1px solid #e2e8f0;padding-top:10px}';
 
-  var csv = rows.map(function(r) {
-    return r.map(function(cell) {
-      var s = String(cell);
-      if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1) {
-        return '"' + s.replace(/"/g, '""') + '"';
-      }
-      return s;
-    }).join(',');
-  }).join('\n');
+  var html = '<html><head><meta charset="utf-8"><style>' + css + '</style></head><body>';
+  html += '<div class="title">KALYX — Purchase Report</div>';
+  html += '<div class="subtitle">Year ' + year + ' &nbsp;|&nbsp; Generated ' + now + '</div>';
 
-  var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  // Overall Summary
+  html += '<div class="section">Overall Summary (All Years)</div>';
+  html += '<div class="overall-box">';
+  html += '<span style="margin-right:32px"><span class="overall-label">Total Spent: </span><span class="overall-value">₱' + overall.totalSpent.toLocaleString('en-US', { minimumFractionDigits: 2 }) + '</span></span>';
+  html += '<span style="margin-right:32px"><span class="overall-label">Requests: </span><span class="overall-value">' + allReqs.length + '</span></span>';
+  html += '<span style="margin-right:32px"><span class="overall-label">Items: </span><span class="overall-value">' + overall.itemCount + '</span></span>';
+  html += '<span><span class="overall-label">Vendors: </span><span class="overall-value">' + overall.vendorCount + '</span></span>';
+  html += '</div>';
+
+  // Year Summary
+  html += '<div class="section">Year Summary — ' + year + '</div>';
+  html += '<table><tr>' +
+    '<th style="width:25%">Total Requests</th><th style="width:25%">Items Purchased</th><th style="width:25%">Total Spent</th><th style="width:25%">Vendors</th>' +
+    '</tr><tr>' +
+    '<td style="text-align:center;font-size:14px;font-weight:bold">' + reqs.length + '</td>' +
+    '<td style="text-align:center;font-size:14px;font-weight:bold">' + yearItems + '</td>' +
+    '<td style="text-align:center;font-size:14px;font-weight:bold;color:#059669">₱' + yearTotal.toLocaleString('en-US', { minimumFractionDigits: 2 }) + '</td>' +
+    '<td style="text-align:center;font-size:14px;font-weight:bold">' + Object.keys(yearVendors).length + '</td>' +
+    '</tr></table>';
+
+  // Monthly Summary
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var monthData = {};
+  for (var mi = 0; mi < 12; mi++) monthData[mi] = { count: 0, amount: 0 };
+  reqs.forEach(function(r) {
+    var d = new Date(r.createdAt);
+    var m = d.getMonth();
+    if (r.items && r.items.length > 0) {
+      r.items.forEach(function(item) {
+        monthData[m].count++;
+        monthData[m].amount += (item.qty || 0) * (item.cost || 0);
+      });
+    } else {
+      monthData[m].count++;
+      monthData[m].amount += (r.totalEst || 0);
+    }
+  });
+
+  html += '<div class="section">Monthly Breakdown</div>';
+  html += '<table><tr>';
+  for (var mi = 0; mi < 12; mi++) html += '<th>' + months[mi].slice(0,3) + '</th>';
+  html += '</tr><tr>';
+  for (var mi = 0; mi < 12; mi++) {
+    html += '<td style="text-align:center;font-size:12px;font-weight:' + (monthData[mi].count > 0 ? 'bold' : 'normal') + '">₱' + (monthData[mi].amount).toLocaleString('en-US', { minimumFractionDigits: 0 }) + '</td>';
+  }
+  html += '</tr></table>';
+
+  // Detailed Items
+  html += '<div class="section">Purchased Items</div>';
+  html += '<table><thead><tr>' +
+    '<th>PR#</th><th>Item</th><th class="right">Qty</th><th class="right">Unit Cost</th><th class="right">Total</th><th>Vendor</th><th>Status</th><th>Date</th>' +
+    '</tr></thead><tbody>';
+
+  var rowNum = 0;
+  detailRows.forEach(function(r) {
+    rowNum++;
+    html += '<tr>' +
+      '<td>' + r.pr + '</td>' +
+      '<td>' + r.item + '</td>' +
+      '<td class="right">' + r.qty + '</td>' +
+      '<td class="right">₱' + r.cost + '</td>' +
+      '<td class="right">₱' + r.total + '</td>' +
+      '<td>' + r.vendor + '</td>' +
+      '<td>' + r.status.charAt(0).toUpperCase() + r.status.slice(1) + '</td>' +
+      '<td>' + r.date + '</td></tr>';
+  });
+
+  // Total row
+  html += '<tr class="total-row"><td colspan="4" style="text-align:right">Year Total:</td>' +
+    '<td class="right">₱' + yearTotal.toLocaleString('en-US', { minimumFractionDigits: 2 }) + '</td>' +
+    '<td colspan="3"></td></tr>';
+
+  // Grand total row
+  html += '<tr class="grand-row"><td colspan="4" style="text-align:right">OVERALL TOTAL (All Years):</td>' +
+    '<td class="right">₱' + overall.totalSpent.toLocaleString('en-US', { minimumFractionDigits: 2 }) + '</td>' +
+    '<td colspan="3"></td></tr>';
+
+  html += '</tbody></table>';
+  html += '<div class="footer">KALYX Task Management — Purchase Report ' + year + ' — Generated ' + now + '</div>';
+  html += '</body></html>';
+
+  var blob = new Blob(['\uFEFF' + html], { type: 'application/vnd.ms-excel;charset=utf-8' });
   var link = document.createElement('a');
   link.href = URL.createObjectURL(blob);
-  link.download = 'Purchase_Report_' + year + '.csv';
+  link.download = 'KALYX_Purchase_Report_' + year + '.xls';
   link.click();
   URL.revokeObjectURL(link.href);
 }
