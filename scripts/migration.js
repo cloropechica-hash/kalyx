@@ -75,8 +75,22 @@ async function processUser(user, fullBackup, index, total) {
         uid = cred.user.uid;
         addLog(`  Successfully logged in to existing account.`, 'success');
       } catch (loginErr) {
-        addLog(`  Failed to login for ${user.email}: ${loginErr.message}. Skipping data upload for this user.`, 'error');
-        return;
+        addLog(`  Failed to login with backup password. Prompting for manual password...`, 'warning');
+        const manualPass = prompt(`Ang account na ${user.email} ay nasa Firebase na pero iba ang password nito.\n\nPara mailipat ang data, pakilagay ang kasalukuyang password nito sa Firebase:`);
+        
+        if (manualPass) {
+          try {
+            const cred2 = await auth.signInWithEmailAndPassword(user.email, manualPass);
+            uid = cred2.user.uid;
+            addLog(`  Successfully logged in with manual password.`, 'success');
+          } catch (manualErr) {
+            addLog(`  Manual password failed: ${manualErr.message}. Skipping user.`, 'error');
+            return;
+          }
+        } else {
+          addLog(`  No password provided. Skipping data upload for this user.`, 'error');
+          return;
+        }
       }
     } else {
       addLog(`  Failed to create user ${user.email}: ${err.message}`, 'error');
