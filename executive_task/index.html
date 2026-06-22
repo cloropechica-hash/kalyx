@@ -221,10 +221,7 @@ button:active, .btn:active { opacity: 0.8; }
     </a>
     
     
-    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageTimeline'); loadTimeline();">
-      <span class="material-symbols-outlined">timeline</span>
-      <span class="font-label-md">Timeline</span>
-    </a>
+    
     <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageAnalytics'); loadAnalytics();">
       <span class="material-symbols-outlined">analytics</span>
       <span class="font-label-md">Analytics</span>
@@ -596,22 +593,6 @@ button:active, .btn:active { opacity: 0.8; }
   </div>
 </section>
 \n
-<section id="pageTimeline" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
-  <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-    <div>
-      <h2 class="font-headline-lg text-headline-lg text-primary">Project Timeline</h2>
-      <p class="font-body-lg text-on-surface-variant">Gantt-style view of your task durations</p>
-    </div>
-  </div>
-  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-    <div class="overflow-x-auto custom-scrollbar p-6">
-      <div id="timelineContainer" class="min-w-[800px]">
-        <!-- Timeline populated by JS -->
-      </div>
-    </div>
-  </div>
-</section>
-
 <section id="pagePurchasing" class="p-4 md:p-8 max-w-screen-2xl mx-auto hidden">
   <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
     <div>
@@ -775,7 +756,6 @@ button:active, .btn:active { opacity: 0.8; }
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showPlanner(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">map</span> <span class="font-label-md">Planner</span></a>
       
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageAnalytics'); loadAnalytics(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">analytics</span> <span class="font-label-md">Analytics</span></a>
-      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageTimeline'); loadTimeline(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">timeline</span> <span class="font-label-md">Timeline</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showPurchasing(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">shopping_cart</span> <span class="font-label-md">Purchasing</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showDailyLog(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">edit_note</span> <span class="font-label-md">Daily Log</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="toggleScratchpad(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">sticky_note_2</span> <span class="font-label-md">Notes</span></a>
@@ -1891,7 +1871,6 @@ function setActiveNav(id) {
     pageAllTasks: ['showAllTasks', 'pageAllTasks'],
     pageBoard: ['showBoard', 'pageBoard'],
     pagePlanner: ['showPlanner', 'pagePlanner'],
-    pageTimeline: ['pageTimeline'],
     pageAnalytics: ['pageAnalytics'],
     pagePurchasing: ['showPurchasing', 'pagePurchasing'],
     pageDailyLog: ['showDailyLog', 'pageDailyLog']
