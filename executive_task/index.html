@@ -224,11 +224,12 @@ button:active, .btn:active { opacity: 0.8; }
     <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageTimeline'); loadTimeline();">
       <span class="material-symbols-outlined">timeline</span>
       <span class="font-label-md">Timeline</span>
-    </a>\n    
-      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageTimeline'); loadTimeline(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">timeline</span> <span class="font-label-md">Timeline</span></a>\n      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageAnalytics'); loadAnalytics();">
+    </a>
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageAnalytics'); loadAnalytics();">
       <span class="material-symbols-outlined">analytics</span>
       <span class="font-label-md">Analytics</span>
-    </a>\n    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showPurchasing()">
+    </a>
+    <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showPurchasing()">
       <span class="material-symbols-outlined">shopping_cart</span>
       <span class="font-label-md">Purchasing</span>
     </a>
@@ -774,6 +775,7 @@ button:active, .btn:active { opacity: 0.8; }
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showPlanner(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">map</span> <span class="font-label-md">Planner</span></a>
       
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageAnalytics'); loadAnalytics(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">analytics</span> <span class="font-label-md">Analytics</span></a>
+      <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showSection('pageTimeline'); loadTimeline(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">timeline</span> <span class="font-label-md">Timeline</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showPurchasing(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">shopping_cart</span> <span class="font-label-md">Purchasing</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="showDailyLog(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">edit_note</span> <span class="font-label-md">Daily Log</span></a>
       <a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200" href="#" onclick="toggleScratchpad(); document.getElementById('mobile-menu').classList.add('hidden')"><span class="material-symbols-outlined">sticky_note_2</span> <span class="font-label-md">Notes</span></a>
@@ -1884,12 +1886,23 @@ function showDayTasks(dateStr) {
 }
 
 function setActiveNav(id) {
-  var sections = ['pageDashboard','pageAllTasks','pageBoard','pagePlanner','pageDailyLog','pagePurchasing'];
+  var funcMap = {
+    pageDashboard: ['pageDashboard'],
+    pageAllTasks: ['showAllTasks', 'pageAllTasks'],
+    pageBoard: ['showBoard', 'pageBoard'],
+    pagePlanner: ['showPlanner', 'pagePlanner'],
+    pageTimeline: ['pageTimeline'],
+    pageAnalytics: ['pageAnalytics'],
+    pagePurchasing: ['showPurchasing', 'pagePurchasing'],
+    pageDailyLog: ['showDailyLog', 'pageDailyLog']
+  };
+  var matches = funcMap[id] || [id];
   var sidebars = [document.querySelectorAll('.sidebar-desktop a'), document.querySelectorAll('.sidebar-mobile a')];
   sidebars.forEach(function(links) {
-    links.forEach(function(link, i) {
-      var section = sections[i];
-      if (section === id) {
+    links.forEach(function(link) {
+      var onclick = link.getAttribute('onclick') || '';
+      var isActive = matches.some(function(m) { return onclick.indexOf(m) !== -1; });
+      if (isActive) {
         link.className = 'flex items-center gap-3 bg-primary text-on-primary font-semibold rounded-xl px-4 py-3.5 transition-all duration-200 shadow-sm';
       } else {
         link.className = 'flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-3.5 rounded-xl hover:bg-surface-container-high transition-all duration-200';
