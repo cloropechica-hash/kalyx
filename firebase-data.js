@@ -70,27 +70,7 @@ function loadFBData(uid, callback) {
   }
 
   function fallbackToLocalStorage() {
-    var username = getUsernameFromSession();
-    if (!username) {
-      window.__fbCache = {};
-      window.__fbLoaded = true;
-      if (callback) callback();
-      return;
-    }
-    var cache = {};
-    for (var i = 0; i < localStorage.length; i++) {
-      var k = localStorage.key(i);
-      if (!k) continue;
-      var suffix = '_' + username;
-      if (k.endsWith(suffix)) {
-        try {
-          var val = JSON.parse(localStorage.getItem(k));
-          var key = k.slice(0, -suffix.length);
-          cache[key] = val;
-        } catch(e) {}
-      }
-    }
-    window.__fbCache = cache;
+    window.__fbCache = {};
     window.__fbLoaded = true;
     if (callback) callback();
   }
@@ -105,17 +85,10 @@ function loadFBData(uid, callback) {
       var data = doc.data().data || {};
       window.__fbCache = data;
       window.__fbLoaded = true;
-      var username = data.profile ? data.profile.username : null;
-      if (username) {
-        mergeLocalToCache(username);
-        syncCacheToLocalStorage(username);
-      }
       if (callback) callback();
     } else {
       window.__fbCache = {};
       window.__fbLoaded = true;
-      var username = getUsernameFromSession();
-      if (username) migrateLocalStorageNoReload(uid, username);
       if (callback) callback();
     }
   }).catch(function(err) {
@@ -125,30 +98,7 @@ function loadFBData(uid, callback) {
 }
 
 function mergeLocalToCache(username) {
-  if (!username) return;
-  var cache = window.__fbCache || {};
-  var suffix = '_' + username;
-  var mergedAny = false;
-  for (var i = 0; i < localStorage.length; i++) {
-    var k = localStorage.key(i);
-    if (!k) continue;
-    if (k.endsWith(suffix)) {
-      try {
-        var val = JSON.parse(localStorage.getItem(k));
-        var key = k.slice(0, -suffix.length);
-        if (!cache[key] || (Array.isArray(cache[key]) && cache[key].length === 0)) {
-          if (Array.isArray(val) && val.length > 0) {
-            cache[key] = val;
-            mergedAny = true;
-          }
-        }
-      } catch(e) {}
-    }
-  }
-  window.__fbCache = cache;
-  if (mergedAny) {
-    saveFBFull();
-  }
+  // LocalStorage logic removed.
 }
 
 function fbSubscribe(uid, onUpdate) {
@@ -174,9 +124,6 @@ function fbSubscribe(uid, onUpdate) {
         }
         window.__fbCache = merged;
         window.__fbLoaded = true;
-        var username = incoming.profile ? incoming.profile.username : null;
-        if (!username && merged.profile) username = merged.profile.username;
-        if (username) syncCacheToLocalStorage(username);
         if (onUpdate) onUpdate(merged);
         if (window.__fbOnUpdate) window.__fbOnUpdate(merged);
       } else {
@@ -188,19 +135,7 @@ function fbSubscribe(uid, onUpdate) {
 }
 
 function syncCacheToLocalStorage(username) {
-  if (!username) return;
-  var cache = window.__fbCache || {};
-  if (cache.tasks) localStorage.setItem('tasks_' + username, JSON.stringify(cache.tasks));
-  if (cache.shared_tasks) localStorage.setItem('shared_tasks_' + username, JSON.stringify(cache.shared_tasks));
-  if (cache.plans) localStorage.setItem('plans_' + username, JSON.stringify(cache.plans));
-  if (cache.dailylog) localStorage.setItem('dailylog_' + username, JSON.stringify(cache.dailylog));
-  if (cache.trips) localStorage.setItem('trips_' + username, JSON.stringify(cache.trips));
-  if (cache.milestones) localStorage.setItem('milestones_' + username, JSON.stringify(cache.milestones));
-  Object.keys(cache).forEach(function(k) {
-    if (k.indexOf('it_') === 0) {
-      localStorage.setItem(k + '_' + username, JSON.stringify(cache[k]));
-    }
-  });
+  // LocalStorage logic removed.
 }
 
 function saveFB(key, data, callback) {
@@ -209,9 +144,6 @@ function saveFB(key, data, callback) {
 }
 
 function saveFBFull(callback) {
-  var username = window.__fbCache && window.__fbCache.profile ? window.__fbCache.profile.username : null;
-  if (username) syncCacheToLocalStorage(username);
-
   var user = fbAuth.currentUser;
   if (!user) {
     if (callback) callback('Not authenticated');
@@ -255,110 +187,11 @@ function fbClearSession() {
 // ==================== MIGRATION ====================
 
 function migrateLocalStorageNoReload(uid, username) {
-  if (!username) return;
-  var migrated = {};
-  var count = 0;
-  var keys = [];
-  for (var i = 0; i < localStorage.length; i++) {
-    keys.push(localStorage.key(i));
-  }
-  var userKeys = keys.filter(function(k) {
-    return k.indexOf('tasks_' + username) === 0 ||
-           k.indexOf('plans_' + username) === 0 ||
-           k.indexOf('shared_tasks_' + username) === 0 ||
-           k.indexOf('milestones_' + username) === 0 ||
-           k.indexOf('dailylog_' + username) === 0 ||
-           k.indexOf('trips_' + username) === 0 ||
-           (k.indexOf('it_') === 0 && k.indexOf('_' + username) > 0);
-  });
-  var flags = keys.filter(function(k) {
-    return k === 'welcome_' + username || k === 'tutorial_' + username;
-  });
-  userKeys.forEach(function(k) {
-    try {
-      var val = JSON.parse(localStorage.getItem(k));
-      if (Array.isArray(val) && val.length > 0) {
-        var suffix = '_' + username;
-        var fbKey = k.endsWith(suffix) ? k.slice(0, -suffix.length) : k;
-        migrated[fbKey] = val;
-        count++;
-      }
-    } catch(e) {}
-  });
-  flags.forEach(function(k) {
-    migrated[k] = localStorage.getItem(k);
-    count++;
-  });
-  if (count > 0) {
-    if (!uid) return;
-    fbDb.collection('users').doc(uid).set({
-      data: migrated,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true }).then(function() {
-      console.log('Migrated ' + count + ' localStorage keys to Firestore.');
-    }).catch(function(err) {
-      console.error('Background migration error:', err);
-    });
-  }
+  // LocalStorage logic removed.
 }
 
 function migrateLocalStorage(uid, callback) {
-  var migrated = {};
-  var count = 0;
-  var keys = [];
-  for (var i = 0; i < localStorage.length; i++) {
-    keys.push(localStorage.key(i));
-  }
-  var session = JSON.parse(localStorage.getItem('session') || 'null');
-  var username = session ? session.username : null;
-  if (!username) {
-    if (callback) callback();
-    return;
-  }
-  var userKeys = keys.filter(function(k) {
-    return k.indexOf('tasks_' + username) === 0 ||
-           k.indexOf('plans_' + username) === 0 ||
-           k.indexOf('milestones_' + username) === 0 ||
-           k.indexOf('dailylog_' + username) === 0 ||
-           k.indexOf('trips_' + username) === 0 ||
-           k.indexOf('it_') === 0 && k.indexOf('_' + username) > 0;
-  });
-  var flags = keys.filter(function(k) {
-    return k === 'welcome_' + username || k === 'tutorial_' + username;
-  });
-  userKeys.forEach(function(k) {
-    try {
-      var val = JSON.parse(localStorage.getItem(k));
-      if (Array.isArray(val) && val.length > 0) {
-        var suffix = '_' + username;
-        var fbKey = k.endsWith(suffix) ? k.slice(0, -suffix.length) : k;
-        migrated[fbKey] = val;
-        count++;
-      }
-    } catch(e) {}
-  });
-  flags.forEach(function(k) {
-    migrated[k] = localStorage.getItem(k);
-    count++;
-  });
-  if (count > 0) {
-    if (!uid) {
-      if (callback) callback('No UID');
-      return;
-    }
-    fbDb.collection('users').doc(uid).set({
-      data: migrated,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true }).then(function() {
-      console.log('Migrated ' + count + ' localStorage keys to Firestore.');
-      loadFBData(uid, callback);
-    }).catch(function(err) {
-      console.error('Migration error:', err);
-      if (callback) callback(err);
-    });
-  } else {
-    if (callback) callback();
-  }
+  if (callback) callback();
 }
 
 // ==================== FIREBASE AUTH WRAPPERS ====================
