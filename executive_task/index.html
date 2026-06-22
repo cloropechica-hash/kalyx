@@ -600,6 +600,9 @@ button:active, .btn:active { opacity: 0.8; }
       <p class="font-body-lg text-on-surface-variant">Manage purchase requests, orders, and vendors</p>
     </div>
     <div class="flex gap-3">
+      <button class="flex items-center gap-2 border border-outline-variant text-on-surface-variant px-4 py-2 rounded-lg font-label-md hover:bg-surface-container transition-colors" onclick="showPurchaseReport()">
+        <span class="material-symbols-outlined">bar_chart</span> Reports
+      </button>
       <button class="flex items-center gap-2 bg-[#6366F1] text-white px-6 py-2 rounded-lg font-label-md hover:opacity-90 transition-opacity" onclick="openPurchaseModal()">
         <span class="material-symbols-outlined">add</span> New Request
       </button>
@@ -733,6 +736,70 @@ button:active, .btn:active { opacity: 0.8; }
       <div class="flex gap-3 pt-2">
         <button class="flex-1 bg-[#6366F1] text-white py-3 rounded-xl font-label-md font-semibold hover:opacity-90 transition-all active:scale-[0.98]" onclick="savePurchaseRequest()">Save Request</button>
         <button class="flex-1 border border-outline-variant text-on-surface-variant py-3 rounded-xl font-label-md hover:bg-surface-container transition-all" onclick="closePurchaseModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Purchase Report Modal -->
+<div id="purchaseReportModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-4">
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6">
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="font-title-lg text-title-lg text-primary">Annual Purchase Report</h3>
+      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-1.5 rounded-xl transition-colors" onclick="closePurchaseReport()">close</button>
+    </div>
+
+    <div class="flex items-center gap-4 mb-6">
+      <div>
+        <label class="font-label-md text-on-surface-variant block mb-1">Year</label>
+        <select id="reportYear" class="bg-surface-container border border-outline-variant rounded-lg py-2 px-4 text-sm focus:outline-none" onchange="renderPurchaseReport()"></select>
+      </div>
+      <div class="pt-5">
+        <button class="flex items-center gap-2 bg-emerald-600 text-white px-5 py-2 rounded-lg font-label-md hover:opacity-90 transition-opacity" onclick="exportPurchaseReport()">
+          <span class="material-symbols-outlined text-sm">download</span> Export to Excel
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-indigo-100 rounded-xl p-4">
+        <p class="font-label-md text-indigo-700">Total Requests</p>
+        <p class="font-headline-md font-bold text-indigo-900" id="repTotalReqs">0</p>
+      </div>
+      <div class="bg-emerald-100 rounded-xl p-4">
+        <p class="font-label-md text-emerald-700">Items Purchased</p>
+        <p class="font-headline-md font-bold text-emerald-900" id="repItemsPurchased">0</p>
+      </div>
+      <div class="bg-blue-100 rounded-xl p-4">
+        <p class="font-label-md text-blue-700">Total Spent</p>
+        <p class="font-headline-md font-bold text-blue-900" id="repTotalSpent">₱0.00</p>
+      </div>
+      <div class="bg-amber-100 rounded-xl p-4">
+        <p class="font-label-md text-amber-700">Vendors Used</p>
+        <p class="font-headline-md font-bold text-amber-900" id="repVendors">0</p>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-surface-container/50">
+            <th class="text-left px-4 py-3 font-label-md text-on-surface-variant">PR#</th>
+            <th class="text-left px-4 py-3 font-label-md text-on-surface-variant">Title</th>
+            <th class="text-left px-4 py-3 font-label-md text-on-surface-variant">Item</th>
+            <th class="text-right px-4 py-3 font-label-md text-on-surface-variant">Qty</th>
+            <th class="text-right px-4 py-3 font-label-md text-on-surface-variant">Unit Cost</th>
+            <th class="text-right px-4 py-3 font-label-md text-on-surface-variant">Total</th>
+            <th class="text-left px-4 py-3 font-label-md text-on-surface-variant">Vendor</th>
+            <th class="text-left px-4 py-3 font-label-md text-on-surface-variant">Status</th>
+            <th class="text-left px-4 py-3 font-label-md text-on-surface-variant">Date</th>
+          </tr>
+        </thead>
+        <tbody id="reportTableBody"></tbody>
+      </table>
+      <div id="reportEmpty" class="flex flex-col items-center justify-center py-16 text-center">
+        <span class="material-symbols-outlined text-[48px] text-surface-container-highest">bar_chart</span>
+        <p class="font-body-md text-on-surface-variant mt-4">No data for this year</p>
       </div>
     </div>
   </div>
@@ -2972,6 +3039,184 @@ function deletePurchaseRequest(id) {
   var reqs = getPurchasing().filter(function(r) { return r.id !== id; });
   savePurchasing(reqs);
   renderPurchasing();
+}
+
+// ==================== PURCHASING REPORTS ====================
+
+function showPurchaseReport() {
+  document.getElementById('purchaseReportModal').classList.remove('hidden');
+  populateReportYears();
+  renderPurchaseReport();
+}
+
+function closePurchaseReport() {
+  document.getElementById('purchaseReportModal').classList.add('hidden');
+}
+
+function populateReportYears() {
+  var reqs = getPurchasing();
+  var years = {};
+  reqs.forEach(function(r) {
+    if (r.createdAt) {
+      var y = new Date(r.createdAt).getFullYear();
+      if (!isNaN(y)) years[y] = true;
+    }
+  });
+  var yearList = Object.keys(years).map(Number).sort(function(a, b) { return b - a; });
+  var sel = document.getElementById('reportYear');
+  var cur = sel.value;
+  sel.innerHTML = '';
+  if (yearList.length === 0) yearList = [new Date().getFullYear()];
+  yearList.forEach(function(y) {
+    var opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    sel.appendChild(opt);
+  });
+  if (cur && yearList.indexOf(parseInt(cur)) !== -1) sel.value = cur;
+}
+
+function renderPurchaseReport() {
+  var year = parseInt(document.getElementById('reportYear').value) || new Date().getFullYear();
+  var reqs = getPurchasing();
+  var filtered = reqs.filter(function(r) {
+    if (!r.createdAt) return false;
+    var d = new Date(r.createdAt);
+    return !isNaN(d) && d.getFullYear() === year;
+  });
+
+  var itemRows = [];
+  var vendorSet = {};
+  var totalSpent = 0;
+  var itemCount = 0;
+
+  filtered.forEach(function(r) {
+    if (r.items && r.items.length > 0) {
+      r.items.forEach(function(item) {
+        var itemTotal = (item.qty || 0) * (item.cost || 0);
+        itemRows.push({
+          prNumber: r.prNumber || '',
+          title: r.title || '',
+          itemName: item.name || '',
+          qty: item.qty || 0,
+          cost: item.cost || 0,
+          total: itemTotal,
+          vendor: r.vendor || '-',
+          status: r.status || '',
+          date: r.createdAt || ''
+        });
+        totalSpent += itemTotal;
+        itemCount++;
+      });
+    } else {
+      itemRows.push({
+        prNumber: r.prNumber || '',
+        title: r.title || '',
+        itemName: '-',
+        qty: 0,
+        cost: 0,
+        total: r.totalEst || 0,
+        vendor: r.vendor || '-',
+        status: r.status || '',
+        date: r.createdAt || ''
+      });
+      totalSpent += (r.totalEst || 0);
+    }
+    if (r.vendor) vendorSet[r.vendor] = true;
+  });
+
+  document.getElementById('repTotalReqs').textContent = filtered.length;
+  document.getElementById('repItemsPurchased').textContent = itemCount;
+  document.getElementById('repTotalSpent').textContent = '₱' + totalSpent.toLocaleString('en-US', { minimumFractionDigits: 2 });
+  document.getElementById('repVendors').textContent = Object.keys(vendorSet).length;
+
+  var tbody = document.getElementById('reportTableBody');
+  var empty = document.getElementById('reportEmpty');
+
+  if (itemRows.length === 0) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  var statusColors = {
+    draft: 'bg-slate-100 text-slate-700', pending: 'bg-amber-100 text-amber-700',
+    approved: 'bg-emerald-100 text-emerald-700', rejected: 'bg-red-100 text-red-700',
+    ordered: 'bg-blue-100 text-blue-700', received: 'bg-green-100 text-green-700',
+    cancelled: 'bg-gray-100 text-gray-500'
+  };
+
+  tbody.innerHTML = itemRows.sort(function(a, b) { return (b.date || '') > (a.date || '') ? 1 : -1; }).map(function(r) {
+    return '<tr class="border-b border-outline-variant/50 hover:bg-surface-container/50 transition-colors">' +
+      '<td class="px-4 py-3 text-xs font-medium text-primary">' + escapeHtml(r.prNumber) + '</td>' +
+      '<td class="px-4 py-3 text-xs">' + escapeHtml(r.title) + '</td>' +
+      '<td class="px-4 py-3 text-xs">' + escapeHtml(r.itemName) + '</td>' +
+      '<td class="px-4 py-3 text-xs text-right">' + r.qty + '</td>' +
+      '<td class="px-4 py-3 text-xs text-right">₱' + (r.cost || 0).toLocaleString('en-US', { minimumFractionDigits: 2 }) + '</td>' +
+      '<td class="px-4 py-3 text-xs text-right font-medium">₱' + (r.total || 0).toLocaleString('en-US', { minimumFractionDigits: 2 }) + '</td>' +
+      '<td class="px-4 py-3 text-xs">' + escapeHtml(r.vendor) + '</td>' +
+      '<td class="px-4 py-3"><span class="' + (statusColors[r.status] || 'bg-slate-100 text-slate-700') + ' px-2 py-0.5 rounded-full text-xs font-semibold">' + r.status.charAt(0).toUpperCase() + r.status.slice(1) + '</span></td>' +
+      '<td class="px-4 py-3 text-xs text-on-surface-variant">' + (r.date ? new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '') + '</td></tr>';
+  }).join('');
+}
+
+function exportPurchaseReport() {
+  var year = parseInt(document.getElementById('reportYear').value) || new Date().getFullYear();
+  var reqs = getPurchasing().filter(function(r) {
+    if (!r.createdAt) return false;
+    var d = new Date(r.createdAt);
+    return !isNaN(d) && d.getFullYear() === year;
+  });
+
+  var rows = [['PR#','Title','Item','Quantity','Unit Cost','Total','Vendor','Status','Date']];
+  reqs.forEach(function(r) {
+    if (r.items && r.items.length > 0) {
+      r.items.forEach(function(item) {
+        var itemTotal = (item.qty || 0) * (item.cost || 0);
+        rows.push([
+          r.prNumber || '',
+          r.title || '',
+          item.name || '',
+          item.qty || 0,
+          (item.cost || 0).toFixed(2),
+          itemTotal.toFixed(2),
+          r.vendor || '-',
+          r.status || '',
+          r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
+        ]);
+      });
+    } else {
+      rows.push([
+        r.prNumber || '',
+        r.title || '',
+        '-',
+        0, '0.00', '0.00',
+        r.vendor || '-',
+        r.status || '',
+        r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
+      ]);
+    }
+  });
+
+  if (rows.length === 1) { alert('No data to export for this year.'); return; }
+
+  var csv = rows.map(function(r) {
+    return r.map(function(cell) {
+      var s = String(cell);
+      if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    }).join(',');
+  }).join('\n');
+
+  var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  var link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'Purchase_Report_' + year + '.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
 
 function renderPurchasing() {
