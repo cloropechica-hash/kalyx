@@ -2954,39 +2954,6 @@ function savePurchaseRequest() {
   renderPurchasing();
 }
 
-function approvePurchaseRequest(id) {
-  var reqs = getPurchasing();
-  var found = false;
-  reqs = reqs.map(function(r) {
-    if (r.id === id && r.status === 'pending') {
-      r.status = 'approved';
-      r.approvedBy = getSession() ? getSession().name || getSession().username : 'Unknown';
-      r.updatedAt = new Date().toISOString();
-      found = true;
-    }
-    return r;
-  });
-  if (!found) return;
-  savePurchasing(reqs);
-  renderPurchasing();
-}
-
-function rejectPurchaseRequest(id) {
-  var msg = prompt('Reason for rejection:');
-  if (msg === null) return;
-  var reqs = getPurchasing();
-  reqs = reqs.map(function(r) {
-    if (r.id === id && r.status === 'pending') {
-      r.status = 'rejected';
-      r.rejectReason = msg || 'No reason given';
-      r.updatedAt = new Date().toISOString();
-    }
-    return r;
-  });
-  savePurchasing(reqs);
-  renderPurchasing();
-}
-
 function updatePurStatus(id, newStatus) {
   var reqs = getPurchasing();
   reqs = reqs.map(function(r) {
@@ -3054,7 +3021,6 @@ function renderPurchasing() {
       '<td class="px-4 py-3"><span class="' + statusColor + ' px-2.5 py-0.5 rounded-full text-xs font-semibold">' + r.status.charAt(0).toUpperCase() + r.status.slice(1) + '</span></td>' +
       '<td class="px-4 py-3 text-xs text-on-surface-variant">' + dateStr + '</td>' +
       '<td class="px-4 py-3"><div class="flex gap-1">' +
-        (r.status === 'pending' ? '<button class="text-emerald-600 hover:bg-emerald-50 p-1 rounded-lg text-sm" title="Approve" onclick="approvePurchaseRequest(' + r.id + ')"><span class="material-symbols-outlined text-sm">check_circle</span></button><button class="text-red-600 hover:bg-red-50 p-1 rounded-lg text-sm" title="Reject" onclick="rejectPurchaseRequest(' + r.id + ')"><span class="material-symbols-outlined text-sm">cancel</span></button>' : '') +
         (r.status === 'approved' ? '<button class="text-blue-600 hover:bg-blue-50 p-1 rounded-lg text-sm" title="Mark Ordered" onclick="updatePurStatus(' + r.id + ', \'ordered\')"><span class="material-symbols-outlined text-sm">local_shipping</span></button>' : '') +
         (r.status === 'ordered' ? '<button class="text-green-600 hover:bg-green-50 p-1 rounded-lg text-sm" title="Mark Received" onclick="updatePurStatus(' + r.id + ', \'received\')"><span class="material-symbols-outlined text-sm">inventory</span></button>' : '') +
         '<button class="text-indigo-600 hover:bg-indigo-50 p-1 rounded-lg text-sm" title="Edit" onclick="openPurchaseModal(getPurchasing().find(function(x) { return x.id === ' + r.id + '; }))"><span class="material-symbols-outlined text-sm">edit</span></button>' +
