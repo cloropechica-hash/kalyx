@@ -1287,6 +1287,64 @@ function backupData() {
   document.getElementById('backupStatus').textContent = 'Backup downloaded: ' + Object.keys(backup.users).length + ' users';
 }
 
+function doRestoreWrites(backup, usernames, userMap, statusEl, input) {
+  var fbDb = firebase.firestore();
+  var existingMap = window.adminDataCache.docIds || {};
+  var promises = [];
+
+  usernames.forEach(function(username) {
+    var userEntry = userMap[username];
+    var profile = userEntry.profile;
+    var data = { profile: profile };
+
+    if (userEntry.tasks) data.tasks = userEntry.tasks;
+    if (userEntry.plans) data.plans = userEntry.plans;
+    if (userEntry.milestones) data.milestones = userEntry.milestones;
+    if (userEntry.dailylog) data.dailylog = userEntry.dailylog;
+    if (userEntry.trips) data.trips = userEntry.trips;
+    ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
+      if (userEntry['it_' + t]) data['it_' + t] = userEntry['it_' + t];
+    });
+
+    var docId = existingMap[username];
+    if (docId) {
+      promises.push(
+        fbDb.collection('users').doc(docId).set({
+          data: data,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true })
+      );
+    } else {
+      var newDocId = 'user_' + username.replace(/[^a-zA-Z0-9]/g, '_');
+      promises.push(
+        fbDb.collection('users').doc(newDocId).set({
+          data: data,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function() {
+          window.adminDataCache.users.push({
+            username: username,
+            name: profile.name || username,
+            email: profile.email || '',
+            role: profile.role || 'executive_task',
+            isAdmin: profile.isAdmin || false
+          });
+          window.adminDataCache.docIds[username] = newDocId;
+        })
+      );
+    }
+  });
+
+  statusEl.textContent = 'Writing ' + usernames.length + ' users to Firestore...';
+  Promise.all(promises).then(function() {
+    statusEl.textContent = 'Restore complete: ' + usernames.length + ' users restored to Firestore.';
+    loadDashboard();
+    populateUserFilters();
+  }).catch(function(err) {
+    statusEl.textContent = 'Restore error: ' + (err.message || err);
+  });
+}
+
 function restoreData(input) {
   var file = input.files[0];
   if (!file) return;
@@ -1299,11 +1357,9 @@ function restoreData(input) {
     try {
       var backup = JSON.parse(e.target.result);
       var usernames = [];
-      var userMap = {}; // { username: { profile, tasks, plans, ... } }
+      var userMap = {};
 
-      // Support both old format (users: array) and new format (users: object)
       if (backup.users && Array.isArray(backup.users)) {
-        // Old format: users is an array, data is in separate keys like tasks_superadmin
         backup.users.forEach(function(u) {
           if (!u.username) return;
           usernames.push(u.username);
@@ -1321,7 +1377,6 @@ function restoreData(input) {
           });
         });
       } else if (backup.users && typeof backup.users === 'object') {
-        // New format: users is an object { username: { profile, tasks, ... } }
         usernames = Object.keys(backup.users);
         usernames.forEach(function(uname) {
           var u = backup.users[uname];
@@ -1349,77 +1404,52 @@ function restoreData(input) {
         return;
       }
 
-      if (!confirm('Restore ' + usernames.length + ' users from backup? This will overwrite existing data.')) {
-        input.value = '';
-        return;
-      }
-
-      statusEl.textContent = 'Restoring ' + usernames.length + ' users...';
-
       if (typeof firebase === 'undefined' || !firebase.apps.length) {
-        statusEl.textContent = 'Error: Firebase is not available. Cannot restore data.';
+        statusEl.textContent = 'Error: Firebase is not available.';
         input.value = '';
         return;
       }
 
-      var fbDb = firebase.firestore();
-      var existingMap = window.adminDataCache.docIds || {};
-
-      var promises = [];
-
-      usernames.forEach(function(username) {
-        var userEntry = userMap[username];
-        var profile = userEntry.profile;
-        var data = { profile: profile };
-
-        if (userEntry.tasks) data.tasks = userEntry.tasks;
-        if (userEntry.plans) data.plans = userEntry.plans;
-        if (userEntry.milestones) data.milestones = userEntry.milestones;
-        if (userEntry.dailylog) data.dailylog = userEntry.dailylog;
-        if (userEntry.trips) data.trips = userEntry.trips;
-        ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
-          if (userEntry['it_' + t]) data['it_' + t] = userEntry['it_' + t];
-        });
-
-        var docId = existingMap[username];
-        if (docId) {
-          // Update existing doc
-          promises.push(
-            fbDb.collection('users').doc(docId).set({
-              data: data,
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true })
-          );
-        } else {
-          // Create new doc with username-based ID para madaling mahanap
-          var newDocId = 'user_' + username.replace(/[^a-zA-Z0-9]/g, '_');
-          promises.push(
-            fbDb.collection('users').doc(newDocId).set({
-              data: data,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(function() {
-              // Update cache agad para makita sa UI
-              window.adminDataCache.users.push({
-                username: username,
-                name: profile.name || username,
-                email: profile.email || '',
-                role: profile.role || 'executive_task',
-                isAdmin: profile.isAdmin || false
+      // Check kung naka-sign in sa Firebase Auth
+      var currentUser = firebase.auth().currentUser;
+      if (!currentUser) {
+        // Hindi naka-sign in — humingi ng password para mag-sign in
+        var adminPass = prompt('Enter your password for admin@kalyx.com to authenticate with Firebase:');
+        if (!adminPass) { input.value = ''; return; }
+        statusEl.textContent = 'Signing in to Firebase...';
+        firebase.auth().signInWithEmailAndPassword('admin@kalyx.com', adminPass).then(function() {
+          statusEl.textContent = 'Signed in. Restoring ' + usernames.length + ' users...';
+          doRestoreWrites(backup, usernames, userMap, statusEl, input);
+        }).catch(function(err) {
+          if (err.code === 'auth/user-not-found') {
+            // Wala pang Firebase Auth account — i-create muna
+            statusEl.textContent = 'Creating Firebase account for admin@kalyx.com...';
+            firebase.auth().createUserWithEmailAndPassword('admin@kalyx.com', adminPass).then(function() {
+              statusEl.textContent = 'Account created. Restoring...';
+              // Update Firestore profile ng admin
+              var fbDb = firebase.firestore();
+              var uid = firebase.auth().currentUser.uid;
+              fbDb.collection('users').doc(uid).set({
+                data: { profile: { username: 'admin', name: 'Administrator', email: 'admin@kalyx.com', role: 'admin', isAdmin: true } },
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+              }).then(function() {
+                doRestoreWrites(backup, usernames, userMap, statusEl, input);
               });
-              window.adminDataCache.docIds[username] = newDocId;
-            })
-          );
+            }).catch(function(err2) {
+              statusEl.textContent = 'Error creating account: ' + (err2.message || err2);
+            });
+          } else {
+            statusEl.textContent = 'Sign in error: ' + (err.message || err);
+          }
+        });
+      } else {
+        if (!confirm('Restore ' + usernames.length + ' users from backup? This will overwrite existing data.')) {
+          input.value = '';
+          return;
         }
-      });
-
-      Promise.all(promises).then(function() {
-        statusEl.textContent = 'Restore complete: ' + usernames.length + ' users restored to Firestore.';
-        loadDashboard();
-        populateUserFilters();
-      }).catch(function(err) {
-        statusEl.textContent = 'Restore error: ' + (err.message || err);
-      });
+        statusEl.textContent = 'Restoring ' + usernames.length + ' users...';
+        doRestoreWrites(backup, usernames, userMap, statusEl, input);
+      }
     } catch(err) {
       statusEl.textContent = 'Error: ' + (err.message || err);
     }
