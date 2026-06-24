@@ -661,20 +661,6 @@ window.adminDataCache = { users: [], data: {} };
 
 function fetchAllAdminData(callback) {
   var callbackFired = false;
-
-  // Load mula sa localStorage bilang fallback para hindi mawala ang users
-  try {
-    var stored = localStorage.getItem('admin_users');
-    if (stored) {
-      var localUsers = JSON.parse(stored);
-      if (localUsers.length) {
-        window.adminDataCache.users = localUsers;
-        loadDashboard();
-        populateUserFilters();
-      }
-    }
-  } catch(e) {}
-
   var fbDb = firebase.firestore();
   try {
     fbDb.collection('users').onSnapshot(function(snapshot) {
@@ -696,7 +682,6 @@ function fetchAllAdminData(callback) {
       });
       window.adminDataCache.users = users;
       window.adminDataCache.data = data;
-      saveUsers(users);
       if (!callbackFired) { callbackFired = true; if (callback) callback(); }
       else { loadDashboard(); populateUserFilters(); }
     });
@@ -712,7 +697,6 @@ function getUsers() {
 
 function saveUsers(users) {
   window.adminDataCache.users = users;
-  try { localStorage.setItem('admin_users', JSON.stringify(users)); } catch(e) {}
 }
 
 function collectUserData(username) {
@@ -943,11 +927,10 @@ function deleteUser(username) {
   if (username === 'superadmin') return;
   if (!confirm('Delete user "' + username + '"? This will remove all their data.')) return;
 
-  // Remove from local cache agad para hindi mawala sa UI
-  var users = getUsers().filter(function(u) { return u.username !== username; });
-  saveUsers(users);
+  // Update cache agad para responsive ang UI
+  window.adminDataCache.users = getUsers().filter(function(u) { return u.username !== username; });
 
-  // Delete from Firestore din
+  // Delete from Firestore
   if (typeof firebase !== 'undefined' && firebase.apps.length) {
     var fbDb = firebase.firestore();
     try {
@@ -1328,7 +1311,6 @@ function restoreData(input) {
         var profile = userData.profile || { username: username, name: username, role: 'executive_task' };
 
         if (typeof firebase !== 'undefined' && firebase.apps.length && window.__fbUser) {
-          // Save to Firestore
           var fbDb = firebase.firestore();
           var data = { profile: profile };
 
@@ -1341,7 +1323,6 @@ function restoreData(input) {
             if (userData['it_' + t]) data['it_' + t] = userData['it_' + t];
           });
 
-          // Find existing Firestore doc for this user
           fbDb.collection('users').get().then(function(snapshot) {
             var found = false;
             snapshot.forEach(function(doc) {
@@ -1356,7 +1337,6 @@ function restoreData(input) {
               }
             });
             if (!found) {
-              // Create new document
               fbDb.collection('users').add({
                 data: data,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1366,29 +1346,10 @@ function restoreData(input) {
             restored++;
             if (restored === usernames.length) {
               statusEl.textContent = 'Restore complete: ' + restored + ' users restored to Firestore.';
-              // Also update localStorage fallback
-              saveUsers(getUsers());
             }
           });
         } else {
-          // Fallback: save to localStorage na lang
-          var existing = getUsers();
-          var idx = existing.findIndex(function(u) { return u.username === username; });
-          var entry = { username: username, name: profile.name || username, email: profile.email || '', role: profile.role || 'executive_task', isAdmin: profile.isAdmin || false };
-          if (idx >= 0) existing[idx] = entry;
-          else existing.push(entry);
-          saveUsers(existing);
-
-          // Save IT data etc. to localStorage
-          var lsKey = 'fb_' + username + '_data';
-          try { localStorage.setItem(lsKey, JSON.stringify(userData)); } catch(e) {}
-
-          restored++;
-          if (restored === usernames.length) {
-            statusEl.textContent = 'Restore complete: ' + restored + ' users restored to localStorage.';
-            renderUsers();
-            loadDashboard();
-          }
+          statusEl.textContent = 'Error: Firebase is not available. Cannot restore data.';
         }
       });
     } catch(err) {
