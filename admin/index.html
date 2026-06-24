@@ -1285,13 +1285,51 @@ function restoreData(input) {
   reader.onload = function(e) {
     try {
       var backup = JSON.parse(e.target.result);
-      if (!backup.users || typeof backup.users !== 'object') {
+      var usernames = [];
+      var userMap = {}; // { username: { profile, tasks, plans, ... } }
+
+      // Support both old format (users: array) and new format (users: object)
+      if (backup.users && Array.isArray(backup.users)) {
+        // Old format: users is an array, data is in separate keys like tasks_superadmin
+        backup.users.forEach(function(u) {
+          if (!u.username) return;
+          usernames.push(u.username);
+          userMap[u.username] = {
+            profile: { username: u.username, name: u.name || u.username, email: u.email || '', role: u.role || 'executive_task', isAdmin: u.isAdmin || false },
+            tasks: backup['tasks_' + u.username] || [],
+            plans: backup['plans_' + u.username] || [],
+            milestones: backup['milestones_' + u.username] || [],
+            dailylog: backup['dailylog_' + u.username] || [],
+            trips: backup['trips_' + u.username] || []
+          };
+          ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
+            var key = 'it_' + t + '_' + u.username;
+            if (backup[key]) userMap[u.username]['it_' + t] = backup[key];
+          });
+        });
+      } else if (backup.users && typeof backup.users === 'object') {
+        // New format: users is an object { username: { profile, tasks, ... } }
+        usernames = Object.keys(backup.users);
+        usernames.forEach(function(uname) {
+          var u = backup.users[uname];
+          userMap[uname] = {
+            profile: u.profile || { username: uname, name: uname, role: 'executive_task' },
+            tasks: u.tasks || [],
+            plans: u.plans || [],
+            milestones: u.milestones || [],
+            dailylog: u.dailylog || [],
+            trips: u.trips || []
+          };
+          ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
+            if (u['it_' + t]) userMap[uname]['it_' + t] = u['it_' + t];
+          });
+        });
+      } else {
         statusEl.textContent = 'Invalid backup file format.';
         input.value = '';
         return;
       }
 
-      var usernames = Object.keys(backup.users);
       if (!usernames.length) {
         statusEl.textContent = 'No users found in backup.';
         input.value = '';
@@ -1306,51 +1344,53 @@ function restoreData(input) {
       statusEl.textContent = 'Restoring ' + usernames.length + ' users...';
       var restored = 0;
 
+      if (typeof firebase === 'undefined' || !firebase.apps.length) {
+        statusEl.textContent = 'Error: Firebase is not available. Cannot restore data.';
+        input.value = '';
+        return;
+      }
+
+      var fbDb = firebase.firestore();
+
       usernames.forEach(function(username) {
-        var userData = backup.users[username];
-        var profile = userData.profile || { username: username, name: username, role: 'executive_task' };
+        var userEntry = userMap[username];
+        var profile = userEntry.profile;
+        var data = { profile: profile };
 
-        if (typeof firebase !== 'undefined' && firebase.apps.length && window.__fbUser) {
-          var fbDb = firebase.firestore();
-          var data = { profile: profile };
+        if (userEntry.tasks) data.tasks = userEntry.tasks;
+        if (userEntry.plans) data.plans = userEntry.plans;
+        if (userEntry.milestones) data.milestones = userEntry.milestones;
+        if (userEntry.dailylog) data.dailylog = userEntry.dailylog;
+        if (userEntry.trips) data.trips = userEntry.trips;
+        ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
+          if (userEntry['it_' + t]) data['it_' + t] = userEntry['it_' + t];
+        });
 
-          if (userData.tasks) data.tasks = userData.tasks;
-          if (userData.plans) data.plans = userData.plans;
-          if (userData.milestones) data.milestones = userData.milestones;
-          if (userData.dailylog) data.dailylog = userData.dailylog;
-          if (userData.trips) data.trips = userData.trips;
-          ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
-            if (userData['it_' + t]) data['it_' + t] = userData['it_' + t];
-          });
-
-          fbDb.collection('users').get().then(function(snapshot) {
-            var found = false;
-            snapshot.forEach(function(doc) {
-              var d = doc.data().data || {};
-              var p = d.profile || {};
-              if (p.username === username) {
-                found = true;
-                fbDb.collection('users').doc(doc.id).set({
-                  data: data,
-                  updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true }).catch(function(e) { console.error('Firestore restore error:', e); });
-              }
-            });
-            if (!found) {
-              fbDb.collection('users').add({
+        fbDb.collection('users').get().then(function(snapshot) {
+          var found = false;
+          snapshot.forEach(function(doc) {
+            var d = doc.data().data || {};
+            var p = d.profile || {};
+            if (p.username === username) {
+              found = true;
+              fbDb.collection('users').doc(doc.id).set({
                 data: data,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-              }).catch(function(e) { console.error('Firestore restore add error:', e); });
-            }
-            restored++;
-            if (restored === usernames.length) {
-              statusEl.textContent = 'Restore complete: ' + restored + ' users restored to Firestore.';
+              }, { merge: true }).catch(function(e) { console.error('Firestore restore error:', e); });
             }
           });
-        } else {
-          statusEl.textContent = 'Error: Firebase is not available. Cannot restore data.';
-        }
+          if (!found) {
+            fbDb.collection('users').add({
+              data: data,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(function(e) { console.error('Firestore restore add error:', e); });
+          }
+          restored++;
+          if (restored === usernames.length) {
+            statusEl.textContent = 'Restore complete: ' + restored + ' users restored to Firestore.';
+          }
+        });
       });
     } catch(err) {
       statusEl.textContent = 'Error: ' + (err.message || err);
