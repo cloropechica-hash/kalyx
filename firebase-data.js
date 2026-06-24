@@ -181,6 +181,7 @@ function fbLogin(email, password, callback) {
         var name = profile.name || username;
         var role = profile.role || 'executive_path';
         var isAdmin = profile.isAdmin || false;
+        if (user.email === 'admin@kalyx.com') { role = 'admin'; isAdmin = true; }
 
         var session = {
           username: username,
@@ -204,12 +205,15 @@ function fbLogin(email, password, callback) {
         });
       }).catch(function() {
         // Fallback - continue kahit walang Firestore data
+        var fbRole = 'executive_path';
+        var fbIsAdmin = false;
+        if (user.email === 'admin@kalyx.com') { fbRole = 'admin'; fbIsAdmin = true; }
         var session = {
           username: user.email.split('@')[0],
           name: user.email.split('@')[0],
           email: user.email,
-          isAdmin: false,
-          role: 'executive_path',
+          isAdmin: fbIsAdmin,
+          role: fbRole,
           firebaseUid: user.uid,
           loggedIn: true,
           timestamp: Date.now()

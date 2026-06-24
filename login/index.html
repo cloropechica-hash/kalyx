@@ -262,6 +262,7 @@
 
         if (found) {
           var role = found.role || 'executive_path';
+          if (found.email === 'admin@kalyx.com') { role = 'admin'; found.isAdmin = true; }
           localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
           // Create Firebase account in background for future cross-browser login
           if (typeof firebase !== 'undefined' && firebase.apps.length) {
@@ -304,6 +305,7 @@
                       errEl.textContent = err2.message || err2.error_description || err2.toString();
                       errEl.classList.remove('hidden');
                     } else {
+                      if (session2.email === 'admin@kalyx.com') { session2.role = 'admin'; session2.isAdmin = true; }
                       var users = JSON.parse(localStorage.getItem('users') || '[]');
                       if (!users.some(function(u) { return u.email === session2.email || u.username === session2.username; })) {
                         users.push({
@@ -326,6 +328,7 @@
                   errEl.classList.remove('hidden');
                 }
               } else {
+                if (session.email === 'admin@kalyx.com') { session.role = 'admin'; session.isAdmin = true; }
                 // Save user to localStorage for instant login next time
                 var users = JSON.parse(localStorage.getItem('users') || '[]');
                 if (!users.some(function(u) { return u.email === session.email || u.username === session.username; })) {
@@ -386,7 +389,9 @@
             var uid = result.user.uid;
             s.firebaseUid = uid;
             localStorage.setItem('session', JSON.stringify(s));
-            var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: found.role || 'executive_path' } };
+            var migRole = found.role || 'executive_path';
+            if (found.email === 'admin@kalyx.com') { migRole = 'admin'; found.isAdmin = true; }
+            var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: migRole } };
             fbDb2.collection('users').doc(uid).set({
               data: userData,
               updatedAt: firebase.firestore.FieldValue.serverTimestamp()
