@@ -1352,7 +1352,6 @@ function restoreData(input) {
       }
 
       statusEl.textContent = 'Restoring ' + usernames.length + ' users...';
-      var restored = 0;
 
       if (typeof firebase === 'undefined' || !firebase.apps.length) {
         statusEl.textContent = 'Error: Firebase is not available. Cannot restore data.';
@@ -1362,45 +1361,60 @@ function restoreData(input) {
 
       var fbDb = firebase.firestore();
 
-      usernames.forEach(function(username) {
-        var userEntry = userMap[username];
-        var profile = userEntry.profile;
-        var data = { profile: profile };
-
-        if (userEntry.tasks) data.tasks = userEntry.tasks;
-        if (userEntry.plans) data.plans = userEntry.plans;
-        if (userEntry.milestones) data.milestones = userEntry.milestones;
-        if (userEntry.dailylog) data.dailylog = userEntry.dailylog;
-        if (userEntry.trips) data.trips = userEntry.trips;
-        ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
-          if (userEntry['it_' + t]) data['it_' + t] = userEntry['it_' + t];
+      // Basahin ang existing users collection isang beses lang
+      fbDb.collection('users').get().then(function(snapshot) {
+        var existingMap = {};
+        snapshot.forEach(function(doc) {
+          var d = doc.data().data || {};
+          var p = d.profile || {};
+          if (p.username) existingMap[p.username] = doc.id;
         });
 
-        fbDb.collection('users').get().then(function(snapshot) {
-          var found = false;
-          snapshot.forEach(function(doc) {
-            var d = doc.data().data || {};
-            var p = d.profile || {};
-            if (p.username === username) {
-              found = true;
-              fbDb.collection('users').doc(doc.id).set({
+        var promises = [];
+
+        usernames.forEach(function(username) {
+          var userEntry = userMap[username];
+          var profile = userEntry.profile;
+          var data = { profile: profile };
+
+          if (userEntry.tasks) data.tasks = userEntry.tasks;
+          if (userEntry.plans) data.plans = userEntry.plans;
+          if (userEntry.milestones) data.milestones = userEntry.milestones;
+          if (userEntry.dailylog) data.dailylog = userEntry.dailylog;
+          if (userEntry.trips) data.trips = userEntry.trips;
+          ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
+            if (userEntry['it_' + t]) data['it_' + t] = userEntry['it_' + t];
+          });
+
+          var docId = existingMap[username];
+          if (docId) {
+            // Update existing doc
+            promises.push(
+              fbDb.collection('users').doc(docId).set({
                 data: data,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-              }, { merge: true }).catch(function(e) { console.error('Firestore restore error:', e); });
-            }
-          });
-          if (!found) {
-            fbDb.collection('users').add({
-              data: data,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).catch(function(e) { console.error('Firestore restore add error:', e); });
-          }
-          restored++;
-          if (restored === usernames.length) {
-            statusEl.textContent = 'Restore complete: ' + restored + ' users restored to Firestore.';
+              }, { merge: true })
+            );
+          } else {
+            // Create new doc
+            promises.push(
+              fbDb.collection('users').add({
+                data: data,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+              })
+            );
           }
         });
+
+        // Execute all writes in parallel
+        Promise.all(promises).then(function() {
+          statusEl.textContent = 'Restore complete: ' + usernames.length + ' users restored to Firestore.';
+        }).catch(function(err) {
+          statusEl.textContent = 'Restore error: ' + (err.message || err);
+        });
+      }).catch(function(err) {
+        statusEl.textContent = 'Error reading Firestore: ' + (err.message || err);
       });
     } catch(err) {
       statusEl.textContent = 'Error: ' + (err.message || err);
