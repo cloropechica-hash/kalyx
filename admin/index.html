@@ -443,6 +443,16 @@ button, input, select, textarea { min-width: 0; }
       <div id="backupStatus" class="font-label-md text-on-surface-variant"></div>
     </div>
   </div>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-purple-500">sync</span> Firebase Sync</h3>
+    <div class="space-y-4">
+      <p class="font-label-md text-on-surface-variant">Gumawa ng Firebase Auth accounts para sa lahat ng users na nasa Firestore pero walang Firebase login.</p>
+      <button class="flex items-center gap-2 bg-purple-600 text-white px-5 py-2.5 rounded-lg font-label-md hover:opacity-90 transition-opacity" onclick="syncFirebaseAccounts()">
+        <span class="material-symbols-outlined text-sm">person_add</span> Create Missing Auth Accounts
+      </button>
+      <div id="syncStatus" class="font-label-md text-on-surface-variant"></div>
+    </div>
+  </div>
 </div>
 </section>
 
@@ -1398,6 +1408,14 @@ function restoreData(input) {
     input.value = '';
   };
   reader.readAsText(file);
+}
+
+function syncFirebaseAccounts() {
+  var statusEl = document.getElementById('syncStatus');
+  var users = getUsers();
+  if (!users.length) { statusEl.textContent = 'No users found.'; return; }
+
+  statusEl.textContent = 'Gamitin ang User Management > New User para i-create ang accounts na may password. O kaya mag-sign in ka gamit ang existing account mo, at gamitin ang Register sa login page para sa ibang users.';
 }
 
 initTheme();
