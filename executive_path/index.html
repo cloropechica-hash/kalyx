@@ -768,16 +768,25 @@ function initTripNotifications() {
   }
 }
 
+function tasksKey() {
+  var s = getSession();
+  return s ? 'tasks_' + s.username : 'tasks';
+}
+
 function getTasks() {
-  var s = JSON.parse(localStorage.getItem('session') || '{}');
-  if (!s.username) return [];
-  return JSON.parse(localStorage.getItem('tasks_' + s.username) || '[]');
+  if (window.__fbLoaded) {
+    var cached = getFB('tasks');
+    if (cached && Array.isArray(cached)) return cached;
+    return [];
+  }
+  var data = JSON.parse(localStorage.getItem(tasksKey()) || '[]');
+  if (data.length > 0) window.__fbCache['tasks'] = data;
+  return data;
 }
 
 function saveTasks(tasks) {
-  var s = JSON.parse(localStorage.getItem('session') || '{}');
-  if (!s.username) return;
-  localStorage.setItem('tasks_' + s.username, JSON.stringify(tasks));
+  saveFB('tasks', tasks);
+  localStorage.setItem(tasksKey(), JSON.stringify(tasks));
 }
 
 function addTask() {

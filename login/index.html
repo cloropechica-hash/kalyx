@@ -263,20 +263,30 @@
         if (found) {
           var role = found.role || 'executive_path';
           if (found.email === 'admin@kalyx.com') { role = 'admin'; found.isAdmin = true; }
-          localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
-          // Create Firebase account in background for future cross-browser login
-          if (typeof firebase !== 'undefined' && firebase.apps.length) {
-            var syncEmail = found.email;
-            if (!syncEmail || syncEmail.indexOf('@') === -1) {
-              syncEmail = found.username + '@app.local';
-              found.email = syncEmail;
-              var allUsers = JSON.parse(localStorage.getItem('users') || '[]');
-              var ux = allUsers.find(function(u) { return u.username === found.username; });
-              if (ux) { ux.email = syncEmail; localStorage.setItem('users', JSON.stringify(allUsers)); }
-            }
-            migrateLegacyUser(found, pass);
+
+          // Prepare email for Firebase Auth
+          var syncEmail = found.email;
+          if (!syncEmail || syncEmail.indexOf('@') === -1) {
+            syncEmail = found.username + '@app.local';
+            found.email = syncEmail;
+            var allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+            var ux = allUsers.find(function(u) { return u.username === found.username; });
+            if (ux) { ux.email = syncEmail; localStorage.setItem('users', JSON.stringify(allUsers)); }
           }
-          window.location.href = getBaseUrl() + role + '/';
+
+          // Establish Firebase Auth muna bago mag-redirect (para cross-browser realtime sync)
+          function doRedirect() {
+            localStorage.setItem('session', JSON.stringify({ username: found.username, name: found.name, isAdmin: found.isAdmin || false, role: role, loggedIn: true, timestamp: Date.now() }));
+            window.__fbLoggingIn = false;
+            setLoading(false);
+            window.location.href = getBaseUrl() + role + '/';
+          }
+
+          if (typeof firebase !== 'undefined' && firebase.apps.length) {
+            ensureFirebaseAuth(syncEmail, pass, found, doRedirect);
+          } else {
+            doRedirect();
+          }
         } else {
           // Fallback to Firebase if not found locally
           if (typeof firebase !== 'undefined' && firebase.apps.length) {
@@ -355,48 +365,41 @@
       });
     }
 
-    // Background migration of legacy user to Firebase Auth
-    function migrateLegacyUser(found, pass) {
-      var s = JSON.parse(localStorage.getItem('session') || '{}');
-      if (typeof firebase === 'undefined' || !firebase.apps.length) return;
+    // Establish Firebase Auth bago mag-redirect para cross-device realtime sync
+    function ensureFirebaseAuth(email, pass, found, callback) {
       var fbAuth2 = firebase.auth();
       var fbDb2 = firebase.firestore();
-      fbAuth2.createUserWithEmailAndPassword(found.email, pass).then(function(result) {
-        var uid = result.user.uid;
-        s.firebaseUid = uid;
-        localStorage.setItem('session', JSON.stringify(s));
-        var userRole = found.role || 'executive_path';
-        if (found.email === 'admin@kalyx.com') userRole = 'admin';
-        else if (found.email === 'joseph.diala30@gmail.com') userRole = 'executive_it';
-        var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: userRole } };
-        var prefixes = ['tasks_','plans_','milestones_','dailylog_','trips_'];
-        prefixes.forEach(function(p) { try { var v = JSON.parse(localStorage.getItem(p + found.username)); if (Array.isArray(v)) userData[p.replace('_','')] = v; } catch(e) {} });
-        var itTypes = ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'];
-        itTypes.forEach(function(t) { try { var v = JSON.parse(localStorage.getItem('it_' + t + '_' + found.username)); if (Array.isArray(v)) userData['it_' + t] = v; } catch(e) {} });
-        fbDb2.collection('users').doc(uid).set({
-          data: userData,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(function() {
-          console.log('Migration to Firebase complete');
-        }, function(e) { console.error('Migration userdata error:', e); });
+      // Already signed in
+      if (fbAuth2.currentUser) { callback(); return; }
+      var called = false;
+      var timeout = setTimeout(function() {
+        if (!called) { called = true; callback(); }
+      }, 10000);
+      // Try sign in muna — baka may existing account na
+      fbAuth2.signInWithEmailAndPassword(email, pass).then(function() {
+        if (!called) { called = true; clearTimeout(timeout); callback(); }
       }).catch(function(err) {
-        console.error('Migration signup error:', err);
-        // Account might already exist - try to update their data
-        if (err.code === 'auth/email-already-in-use') {
-          var fbAuth2 = firebase.auth();
-          fbAuth2.signInWithEmailAndPassword(found.email, pass).then(function(result) {
+        if (err.code === 'auth/user-not-found') {
+          // Wala pang account — gumawa ng bago
+          fbAuth2.createUserWithEmailAndPassword(email, pass).then(function(result) {
             var uid = result.user.uid;
-            s.firebaseUid = uid;
-            localStorage.setItem('session', JSON.stringify(s));
             var migRole = found.role || 'executive_path';
-            if (found.email === 'admin@kalyx.com') { migRole = 'admin'; found.isAdmin = true; }
-            var userData = { profile: { username: found.username, name: found.name, email: found.email, isAdmin: found.isAdmin || false, role: migRole } };
+            if (email === 'admin@kalyx.com') { migRole = 'admin'; found.isAdmin = true; }
+            var userData = { profile: { username: found.username, name: found.name || found.username, email: email, isAdmin: found.isAdmin || false, role: migRole } };
             fbDb2.collection('users').doc(uid).set({
               data: userData,
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true }).catch(function(e) { console.error('Migration userdata update error:', e); });
-          }).catch(function(e) { console.error('Migration signin error:', e); });
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(function(e) { console.error('Profile creation error:', e); })
+            .finally(function() {
+              if (!called) { called = true; clearTimeout(timeout); callback(); }
+            });
+          }).catch(function(createErr) {
+            console.error('Firebase account creation failed:', createErr);
+            if (!called) { called = true; clearTimeout(timeout); callback(); }
+          });
+        } else {
+          console.error('Firebase sign in failed:', err);
+          if (!called) { called = true; clearTimeout(timeout); callback(); }
         }
       });
     }
