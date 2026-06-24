@@ -427,6 +427,22 @@ button, input, select, textarea { min-width: 0; }
       <div class="flex justify-between p-3 rounded-xl bg-surface-container"><span class="font-label-md text-on-surface-variant">Registered users</span><span class="font-body-md font-semibold" id="sysInfoUsers">0</span></div>
     </div>
   </div>
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm card-enter card-lift">
+    <h3 class="font-title-lg text-title-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-amber-500">backup</span> Backup &amp; Restore</h3>
+    <div class="space-y-4">
+      <p class="font-label-md text-on-surface-variant">Export all user data as a JSON backup file or restore from a previous backup.</p>
+      <div class="flex gap-3 flex-wrap">
+        <button class="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-label-md hover:opacity-90 transition-opacity" onclick="backupData()">
+          <span class="material-symbols-outlined text-sm">download</span> Download Backup
+        </button>
+        <label class="flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-label-md hover:opacity-90 transition-opacity cursor-pointer">
+          <span class="material-symbols-outlined text-sm">upload</span> Restore Backup
+          <input type="file" accept=".json" class="hidden" onchange="restoreData(this)" />
+        </label>
+      </div>
+      <div id="backupStatus" class="font-label-md text-on-surface-variant"></div>
+    </div>
+  </div>
 </div>
 </section>
 
@@ -644,29 +660,50 @@ function escapeHtml(str) {
 window.adminDataCache = { users: [], data: {} };
 
 function fetchAllAdminData(callback) {
-  var fbDb = firebase.firestore();
-  fbDb.collection('users').onSnapshot(function(snapshot) {
-    var users = [];
-    var data = {};
-    snapshot.forEach(function(doc) {
-      var docData = doc.data().data || {};
-      var profile = docData.profile || {};
-      if (profile.username) {
-        users.push({
-          username: profile.username,
-          name: profile.name || profile.username,
-          email: profile.email || '',
-          role: profile.role || 'executive_task',
-          isAdmin: profile.isAdmin || false
-        });
-        data[profile.username] = docData;
+  var callbackFired = false;
+
+  // Load mula sa localStorage bilang fallback para hindi mawala ang users
+  try {
+    var stored = localStorage.getItem('admin_users');
+    if (stored) {
+      var localUsers = JSON.parse(stored);
+      if (localUsers.length) {
+        window.adminDataCache.users = localUsers;
+        loadDashboard();
+        populateUserFilters();
       }
+    }
+  } catch(e) {}
+
+  var fbDb = firebase.firestore();
+  try {
+    fbDb.collection('users').onSnapshot(function(snapshot) {
+      var users = [];
+      var data = {};
+      snapshot.forEach(function(doc) {
+        var docData = doc.data().data || {};
+        var profile = docData.profile || {};
+        if (profile.username) {
+          users.push({
+            username: profile.username,
+            name: profile.name || profile.username,
+            email: profile.email || '',
+            role: profile.role || 'executive_task',
+            isAdmin: profile.isAdmin || false
+          });
+          data[profile.username] = docData;
+        }
+      });
+      window.adminDataCache.users = users;
+      window.adminDataCache.data = data;
+      saveUsers(users);
+      if (!callbackFired) { callbackFired = true; if (callback) callback(); }
+      else { loadDashboard(); populateUserFilters(); }
     });
-    window.adminDataCache.users = users;
-    window.adminDataCache.data = data;
-    if (callback) { callback(); callback = null; }
-    else { loadDashboard(); populateUserFilters(); } // update UI on changes
-  });
+  } catch(e) {
+    console.error('Firestore listener error:', e);
+    if (!callbackFired) { callbackFired = true; if (callback) callback(); }
+  }
 }
 
 function getUsers() {
@@ -674,8 +711,8 @@ function getUsers() {
 }
 
 function saveUsers(users) {
-  // Disabling local saveUsers. Accounts are managed directly in Firebase via userModal functions.
-  console.log('saveUsers is disabled. Update Firestore instead.');
+  window.adminDataCache.users = users;
+  try { localStorage.setItem('admin_users', JSON.stringify(users)); } catch(e) {}
 }
 
 function collectUserData(username) {
@@ -906,6 +943,9 @@ function deleteUser(username) {
   if (username === 'superadmin') return;
   if (!confirm('Delete user "' + username + '"? This will remove all their data.')) return;
 
+  // Remove from local cache agad para hindi mawala sa UI
+  var users = getUsers().filter(function(u) { return u.username !== username; });
+  saveUsers(users);
 
   // Delete from Firestore din
   if (typeof firebase !== 'undefined' && firebase.apps.length) {
@@ -1201,6 +1241,162 @@ function performGlobalSearch() {
         '<div class="flex-1 min-w-0"><p class="font-body-md font-semibold text-primary">' + escapeHtml(r.title) + '</p><p class="font-label-md text-on-surface-variant">' + escapeHtml(r.subtitle) + (r.date ? ' &middot; ' + r.date : '') + '</p></div>' +
         '<span class="font-label-md px-2 py-1 rounded-full text-xs font-semibold capitalize bg-surface-container text-on-surface-variant">' + r.type + '</span></div>';
     }).join('') + (allResults.length > 50 ? '<p class="font-label-md text-on-surface-variant text-center mt-2">Showing 50 of ' + allResults.length + ' results. Refine your search.</p>' : '') + '</div>';
+}
+
+function backupData() {
+  var users = getUsers();
+  if (!users.length) {
+    document.getElementById('backupStatus').textContent = 'No users to backup.';
+    return;
+  }
+
+  var backup = {
+    exportedAt: new Date().toISOString(),
+    version: '1.0',
+    users: {}
+  };
+
+  users.forEach(function(u) {
+    var d = collectUserData(u.username);
+    backup.users[u.username] = {
+      profile: {
+        username: u.username,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        isAdmin: u.isAdmin
+      },
+      tasks: d.tasks,
+      plans: d.plans,
+      milestones: d.milestones,
+      dailylog: d.dailylog,
+      trips: d.trips
+    };
+    ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
+      if (d['it_' + t] && d['it_' + t].length) backup.users[u.username]['it_' + t] = d['it_' + t];
+    });
+  });
+
+  var json = JSON.stringify(backup, null, 2);
+  var blob = new Blob([json], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'scheduler-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  document.getElementById('backupStatus').textContent = 'Backup downloaded: ' + Object.keys(backup.users).length + ' users';
+}
+
+function restoreData(input) {
+  var file = input.files[0];
+  if (!file) return;
+
+  var statusEl = document.getElementById('backupStatus');
+  statusEl.textContent = 'Reading backup file...';
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var backup = JSON.parse(e.target.result);
+      if (!backup.users || typeof backup.users !== 'object') {
+        statusEl.textContent = 'Invalid backup file format.';
+        input.value = '';
+        return;
+      }
+
+      var usernames = Object.keys(backup.users);
+      if (!usernames.length) {
+        statusEl.textContent = 'No users found in backup.';
+        input.value = '';
+        return;
+      }
+
+      if (!confirm('Restore ' + usernames.length + ' users from backup? This will overwrite existing data.')) {
+        input.value = '';
+        return;
+      }
+
+      statusEl.textContent = 'Restoring ' + usernames.length + ' users...';
+      var restored = 0;
+
+      usernames.forEach(function(username) {
+        var userData = backup.users[username];
+        var profile = userData.profile || { username: username, name: username, role: 'executive_task' };
+
+        if (typeof firebase !== 'undefined' && firebase.apps.length && window.__fbUser) {
+          // Save to Firestore
+          var fbDb = firebase.firestore();
+          var data = { profile: profile };
+
+          if (userData.tasks) data.tasks = userData.tasks;
+          if (userData.plans) data.plans = userData.plans;
+          if (userData.milestones) data.milestones = userData.milestones;
+          if (userData.dailylog) data.dailylog = userData.dailylog;
+          if (userData.trips) data.trips = userData.trips;
+          ['assets','services','maintenance','inventory','task','planner','accomplishments','tickets','systems'].forEach(function(t) {
+            if (userData['it_' + t]) data['it_' + t] = userData['it_' + t];
+          });
+
+          // Find existing Firestore doc for this user
+          fbDb.collection('users').get().then(function(snapshot) {
+            var found = false;
+            snapshot.forEach(function(doc) {
+              var d = doc.data().data || {};
+              var p = d.profile || {};
+              if (p.username === username) {
+                found = true;
+                fbDb.collection('users').doc(doc.id).set({
+                  data: data,
+                  updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true }).catch(function(e) { console.error('Firestore restore error:', e); });
+              }
+            });
+            if (!found) {
+              // Create new document
+              fbDb.collection('users').add({
+                data: data,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+              }).catch(function(e) { console.error('Firestore restore add error:', e); });
+            }
+            restored++;
+            if (restored === usernames.length) {
+              statusEl.textContent = 'Restore complete: ' + restored + ' users restored to Firestore.';
+              // Also update localStorage fallback
+              saveUsers(getUsers());
+            }
+          });
+        } else {
+          // Fallback: save to localStorage na lang
+          var existing = getUsers();
+          var idx = existing.findIndex(function(u) { return u.username === username; });
+          var entry = { username: username, name: profile.name || username, email: profile.email || '', role: profile.role || 'executive_task', isAdmin: profile.isAdmin || false };
+          if (idx >= 0) existing[idx] = entry;
+          else existing.push(entry);
+          saveUsers(existing);
+
+          // Save IT data etc. to localStorage
+          var lsKey = 'fb_' + username + '_data';
+          try { localStorage.setItem(lsKey, JSON.stringify(userData)); } catch(e) {}
+
+          restored++;
+          if (restored === usernames.length) {
+            statusEl.textContent = 'Restore complete: ' + restored + ' users restored to localStorage.';
+            renderUsers();
+            loadDashboard();
+          }
+        }
+      });
+    } catch(err) {
+      statusEl.textContent = 'Error: ' + (err.message || err);
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
 }
 
 initTheme();
